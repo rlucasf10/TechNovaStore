@@ -1,0 +1,84 @@
+services:
+  vault:
+    image: vault:1.13.2
+    container_name: technova_vault
+    ports:
+      - "8200:8200"
+    volumes:
+      - ../vault:/vault/config
+    environment:
+      VAULT_LOCAL_CONFIG: |
+        {
+          "backend": { "file": { "path": "/vault/file" } },
+          "listener": [{ "tcp": { "address": "0.0.0.0:8200", "tls_disable": 1 }}],
+          "default_lease_ttl": "168h",
+          "max_lease_ttl": "720h"
+        }
+    command: "server"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: technova_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    depends_on:
+      - vault
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: technova_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  pgadmin:
+    build:
+      context: ./pgadmin
+      dockerfile: Dockerfile
+    container_name: technova_pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+      - vault
+    environment:
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+      VAULT_ADDR: http://vault:8200
+      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
+      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: technova_backend
+    ports:
+      - "8000:8000"
+    environment:
+      VAULT_ADDR: http://vault:8200
+      NODE_ENV: development # Change to 'production' in production environment
+    depends_on:
+      - vault
+      - postgres
+      - mongo
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongo_data:
+
+
