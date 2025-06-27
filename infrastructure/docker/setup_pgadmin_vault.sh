@@ -1,3 +1,16 @@
+## 0. Inicializar Vault si no está inicializado
+init_status=$(docker exec -i $VAULT_CONTAINER sh -c "export VAULT_ADDR='$VAULT_ADDR_DOCKER' && vault status -format=json" 2>/dev/null)
+if echo "$init_status" | grep -q '"initialized":false'; then
+  echo "[!] Vault NO está inicializado. Inicializando..."
+  docker exec -i $VAULT_CONTAINER sh -c "export VAULT_ADDR='$VAULT_ADDR_DOCKER' && vault operator init -key-shares=5 -key-threshold=3" > "$CLAVES_FILE"
+  echo "[+] Vault inicializado. Unseal Keys y Root Token guardados en $CLAVES_FILE"
+  echo "¡IMPORTANTE! Guarda este archivo en un lugar seguro."
+  echo "Debes desellar Vault antes de continuar:"
+  awk '/Unseal Key [0-9]+:/ {print $4}' "$CLAVES_FILE" | head -n 3 | while read key; do
+    echo "docker exec -it technova_vault sh -c \"export VAULT_ADDR='http://127.0.0.1:8200' && vault operator unseal $key\""
+  done
+  exit 0
+fi
 #!/bin/bash
 # Script maestro para inicializar Vault, crear policy/AppRole, actualizar .env y reiniciar pgAdmin
 # Uso: ./setup_pgadmin_vault.sh
