@@ -1,0 +1,70 @@
+TechNovaStore/
+├── backend/                      # Backend API FastAPI (Python)
+│   ├── app/
+│   │   ├── api/                  # Rutas REST (endpoints)
+│   │   │   ├── products.py
+│   │   │   ├── orders.py
+│   │   │   ├── users.py
+│   │   │   └── auth.py
+│   │   ├── core/                 # Config, seguridad, Vault, settings
+│   │   │   ├── config.py
+│   │   │   ├── security.py
+│   │   │   └── vault_client.py
+│   │   ├── crud/                 # Funciones para DB (CRUD)
+│   │   │   ├── products.py
+│   │   │   ├── orders.py
+│   │   │   └── users.py
+│   │   ├── db/                   # Modelos y conexión DB
+│   │   │   ├── models_postgres.py
+│   │   │   ├── models_mongo.py
+│   │   │   ├── postgres.py       # Conexión SQLAlchemy
+│   │   │   └── mongo.py          # Conexión pymongo
+│   │   ├── schemas/              # Pydantic models para validación
+│   │   │   ├── product.py
+│   │   │   ├── order.py
+│   │   │   └── user.py
+│   │   ├── services/             # Lógica de negocio compleja
+│   │   │   ├── payment.py
+│   │   │   ├── order_processing.py
+│   │   │   └── product_sync.py   # Scrapers y APIs para productos
+│   │   ├── main.py               # FastAPI app entrypoint
+│   │   └── utils/                # Funciones auxiliares, logs, errores
+│   │       ├── logger.py
+│   │       └── helpers.py
+│   ├── tests/                    # Tests unitarios e integración
+│   ├── requirements.txt         # Dependencias Python
+│   └── Dockerfile               # Imagen del backend
+│
+├── frontend/                     # Frontend Next.js (React)
+│   ├── components/              # Componentes reutilizables UI
+│   ├── pages/                   # Páginas (index.js, product.js, etc.)
+│   ├── public/                  # Imágenes, favicon, assets estáticos
+│   ├── styles/                  # CSS / Tailwind config
+│   ├── hooks/                   # React hooks personalizados
+│   ├── services/                # Comunicación con backend (API clients)
+│   ├── utils/                   # Helpers frontend
+│   ├── tests/                   # Tests frontend (Jest, RTL)
+│   ├── package.json             # Dependencias JS
+│   ├── next.config.js           # Configuración Next.js
+│   └── Dockerfile               # Imagen frontend
+│
+├── infrastructure/              # Infraestructura, scripts y configuración
+│   ├── vault/                   # Configuración y scripts Vault
+│   │   ├── policies.hcl         # Políticas de Vault
+│   │   ├── setup.sh             # Script inicialización Vault
+│   │   └── vault-config.hcl     # Config Vault server
+│   ├── docker/                  # Docker Compose y archivos Docker
+│   │   ├── docker-compose.yml
+│   │   ├── postgres/            # Dockerfile y scripts iniciales Postgres
+│   │   ├── mongo/               # Dockerfile para MongoDB si es necesario
+│   │   └── backend/             # Dockerfile backend (también aquí)
+│   ├── terraform/               # (Opcional) Infraestructura Cloud as Code
+│   └── scripts/                 # Scripts auxiliares para mantenimiento
+│
+├── invoices/                    # Facturas PDF generadas
+│
+├── docs/                        # Documentación del proyecto (Markdown)
+│
+├── .env.example                 # Ejemplo de archivo env (variables entorno)
+├── .gitignore
+└── README.md
