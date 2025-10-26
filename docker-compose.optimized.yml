@@ -1,0 +1,697 @@
+# ============================================================================
+# TechNovaStore - Docker Compose Optimized (Con Límites de Recursos)
+# ============================================================================
+# 
+# PROPÓSITO:
+#   Configuración para desarrollo local en máquinas con recursos limitados.
+#   Optimizado para sistemas con 8GB RAM. Incluye límites de memoria y CPU.
+#
+# USO:
+#   docker-compose -f docker-compose.optimized.yml up -d
+#   .\restart-services.ps1  (reinicio escalonado)
+#
+# CARACTERÍSTICAS:
+#   - Credenciales hardcodeadas (admin/password)
+#   - CON límites de recursos (RAM/CPU)
+#   - Límites por servicio para evitar OOM
+#   - Todos los puertos expuestos
+#   - NODE_ENV: development
+#
+# LÍMITES TOTALES APROXIMADOS:
+#   - MongoDB: 512M, PostgreSQL: 512M, Redis: 256M
+#   - Elasticsearch: 512M, Logstash: 256M, Kibana: 512M
+#   - Servicios: 512M cada uno
+#   - Frontend: 1G
+#   - Total: ~7-8GB RAM
+#
+# ENTORNO: Desarrollo Local (8GB RAM)
+# REQUISITOS: 8GB RAM mínimo
+# ============================================================================
+
+services:
+  # Databases
+  mongodb:
+    image: mongo:6.0
+    container_name: technovastore-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: technovastore
+    volumes:
+      - mongodb_data:/data/db
+      - ./infrastructure/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  postgresql:
+    image: postgres:15
+    container_name: technovastore-postgresql
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./infrastructure/postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  redis:
+    image: redis:7-alpine
+    container_name: technovastore-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass password
+    volumes:
+      - redis_data:/data
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # ELK Stack for Logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: technovastore-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - technovastore-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: technovastore-logstash
+    restart: unless-stopped
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx128m -Xms128m"
+    volumes:
+      - ./infrastructure/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./infrastructure/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    networks:
+      - technovastore-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: technovastore-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_SECURITY_ENABLED: false
+    volumes:
+      - ./infrastructure/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    networks:
+      - technovastore-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: technovastore-api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      POSTGRESQL_URI: postgresql://admin:password@postgresql:5432/technovastore
+      REDIS_URI: redis://:password@redis:6379
+      # Logging Configuration
+      LOG_LEVEL: debug
+      ELASTICSEARCH_ENABLED: false
+      ELASTICSEARCH_NODE: http://elasticsearch:9200
+      ELASTICSEARCH_INDEX: technovastore-logs
+      ALERTS_ENABLED: true
+      ALERT_WEBHOOK_URL: ""
+      FILE_LOGGING_ENABLED: true
+    depends_on:
+      - mongodb
+      - postgresql
+      - redis
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Core Services
+  product-service:
+    build:
+      context: .
+      dockerfile: ./services/product/Dockerfile
+    container_name: technovastore-product-service
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  order-service:
+    build:
+      context: .
+      dockerfile: ./services/order/Dockerfile
+    container_name: technovastore-order-service
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  user-service:
+    build:
+      context: .
+      dockerfile: ./services/user/Dockerfile
+    container_name: technovastore-user-service
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./services/payment/Dockerfile
+    container_name: technovastore-payment-service
+    restart: unless-stopped
+    ports:
+      - "3004:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./services/notification/Dockerfile
+    container_name: technovastore-notification-service
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-password
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  ticket-service:
+    build:
+      context: .
+      dockerfile: ./services/ticket/Dockerfile
+    container_name: technovastore-ticket-service
+    restart: unless-stopped
+    ports:
+      - "3012:3005"
+    environment:
+      NODE_ENV: development
+      TICKET_SERVICE_PORT: 3005
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      FRONTEND_URL: http://localhost:3011
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Automation Services
+  sync-engine:
+    build:
+      context: .
+      dockerfile: ./automation/sync-engine/Dockerfile
+    container_name: technovastore-sync-engine
+    restart: unless-stopped
+    ports:
+      - "3006:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      REDIS_URI: redis://:password@redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  auto-purchase:
+    build:
+      context: .
+      dockerfile: ./automation/auto-purchase/Dockerfile
+    container_name: technovastore-auto-purchase
+    restart: unless-stopped
+    ports:
+      - "3007:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://admin:password@postgresql:5432/technovastore
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  shipment-tracker:
+    build:
+      context: .
+      dockerfile: ./automation/shipment-tracker/Dockerfile
+    container_name: technovastore-shipment-tracker
+    restart: unless-stopped
+    ports:
+      - "3008:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://admin:password@postgresql:5432/technovastore
+    depends_on:
+      - postgresql
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # AI Services
+  chatbot:
+    build:
+      context: ./ai-services/chatbot
+      dockerfile: Dockerfile
+    container_name: technovastore-chatbot
+    restart: unless-stopped
+    ports:
+      - "3009:3001"
+    environment:
+      NODE_ENV: development
+      CHATBOT_PORT: 3001
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      FRONTEND_URL: http://localhost:3011
+      TICKET_SERVICE_URL: http://ticket-service:3005
+    depends_on:
+      - mongodb
+      - ticket-service
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  recommender:
+    build:
+      context: .
+      dockerfile: ./ai-services/recommender/Dockerfile
+    container_name: technovastore-recommender
+    restart: unless-stopped
+    ports:
+      - "3010:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      MONGODB_URL: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      REDIS_URI: redis://:password@redis:6379
+      REDIS_URL: redis://:password@redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: technovastore-frontend
+    restart: unless-stopped
+    ports:
+      - "3011:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: technovastore-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./infrastructure/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: technovastore-grafana
+    restart: unless-stopped
+    ports:
+      - "3013:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: technovastore2024
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - technovastore-network
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Database Exporters
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: technovastore-mongodb-exporter
+    restart: unless-stopped
+    ports:
+      - "9216:9216"
+    environment:
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+    command:
+      - '--mongodb.uri=mongodb://admin:password@mongodb:27017'
+      - '--mongodb.collstats-colls=products,categories,users'
+    networks:
+      - technovastore-network
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: technovastore-postgres-exporter
+    restart: unless-stopped
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: postgresql://admin:password@postgresql:5432/technovastore?sslmode=disable
+    networks:
+      - technovastore-network
+    depends_on:
+      - postgresql
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: technovastore-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: password
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: technovastore-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # Alertmanager
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: technovastore-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./infrastructure/alertmanager:/etc/alertmanager
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+volumes:
+  mongodb_data:
+  postgresql_data:
+  redis_data:
+  elasticsearch_data:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+networks:
+  technovastore-network:
+    driver: bridge
