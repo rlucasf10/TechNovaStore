@@ -220,8 +220,11 @@ credentials/
 
 # Local development overrides
 docker-compose.local.yml
-# Ignore optimized compose (may contain credentials)
-docker-compose.optimized.yml
+
+# Docker Compose files with hardcoded credentials (NEVER commit these)
+# These files have credentials in plain text for local development only
+docker-compose.dev.yml          # Development without limits (admin/password)
+docker-compose.optimized.yml    # Development with 8GB RAM limits (admin/password)
 
 # Ignore git bundle backups
 *.bundle

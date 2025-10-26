@@ -1,4 +1,31 @@
-version: '3.8'
+# ============================================================================
+# TechNovaStore - Docker Compose Staging (Pre-Producción)
+# ============================================================================
+# 
+# PROPÓSITO:
+#   Configuración para entorno de staging/pre-producción. Simula producción
+#   para testing final antes del despliegue real con clientes.
+#
+# USO:
+#   docker-compose -f docker-compose.staging.yml up -d
+#
+# CARACTERÍSTICAS:
+#   - Credenciales desde variables de entorno
+#   - Base de datos separada: technovastore_staging
+#   - Healthchecks habilitados
+#   - Nombres de contenedores: staging-*
+#   - Red aislada: staging-network
+#   - NODE_ENV: staging
+#
+# PROPÓSITO DEL STAGING:
+#   - Testing de features antes de producción
+#   - Validación de integraciones
+#   - Pruebas de carga
+#   - QA final
+#
+# ENTORNO: Pre-Producción/Staging
+# REQUISITOS: Servidor dedicado o VPS
+# ============================================================================
 
 services:
   # Databases
