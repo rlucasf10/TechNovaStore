@@ -45,7 +45,7 @@ export const useChatbot = (): UseChatbotReturn => {
       const csrfToken = csrfResponse.data.csrfToken || csrfResponse.data.token
 
       // Now make the session request with CSRF token
-      const response = await chatApi.post('/chat/session', {}, {
+      const response = await chatApi.post('/api/chat/session', {}, {
         headers: {
           'X-CSRF-Token': csrfToken,
           'X-Session-ID': sessionIdTemp,
