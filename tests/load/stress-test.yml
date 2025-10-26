@@ -1,0 +1,135 @@
+# TechNovaStore Stress Test Configuration
+# High-intensity stress test to find breaking points
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Gradual ramp-up to find limits
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Initial Ramp"
+    
+    # Sustained high load
+    - duration: 120
+      arrivalRate: 100
+      rampTo: 200
+      name: "High Load"
+    
+    # Extreme stress phase
+    - duration: 60
+      arrivalRate: 200
+      rampTo: 500
+      name: "Extreme Stress"
+    
+    # Spike test
+    - duration: 30
+      arrivalRate: 1000
+      name: "Traffic Spike"
+    
+    # Recovery test
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 10
+      name: "Recovery"
+
+  # Relaxed thresholds for stress testing (we expect some failures)
+  ensure:
+    - http.response_time.p95: 10000  # Allow higher response times
+    - http.codes.200: 70             # Lower success rate acceptable
+    - http.codes.503: 25             # Allow service unavailable responses
+
+  http:
+    timeout: 30
+    pool: 200
+    maxSockets: 200
+
+  variables:
+    heavySearchTerms:
+      - "gaming laptop high performance"
+      - "professional workstation computer"
+      - "4K gaming monitor ultra wide"
+      - "mechanical keyboard RGB backlit"
+      - "wireless mouse gaming precision"
+    
+    stressProductIds:
+      - "stress-product-1"
+      - "stress-product-2"
+      - "stress-product-3"
+      - "stress-product-4"
+      - "stress-product-5"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+scenarios:
+  # Heavy search load
+  - name: "Heavy Search Load"
+    weight: 40
+    flow:
+      - loop:
+          # Multiple concurrent searches
+          - get:
+              url: "/api/products/search"
+              name: "Heavy Search"
+              qs:
+                q: "{{ $pick(heavySearchTerms) }}"
+                category: "electronics"
+                minPrice: "{{ $randomInt(100, 500) }}"
+                maxPrice: "{{ $randomInt(500, 2000) }}"
+                sortBy: "price"
+                sortOrder: "desc"
+                page: "{{ $randomInt(1, 20) }}"
+                limit: "50"
+          
+          # Rapid product detail requests
+          - get:
+              url: "/api/products/{{ $pick(stressProductIds) }}"
+              name: "Rapid Product Details"
+        count: 5
+
+  # Concurrent catalog browsing
+  - name: "Concurrent Catalog Browsing"
+    weight: 35
+    flow:
+      - loop:
+          # Heavy catalog requests
+          - get:
+              url: "/api/products"
+              name: "Heavy Catalog Browse"
+              qs:
+                page: "{{ $randomInt(1, 100) }}"
+                limit: "100"
+                category: "electronics"
+                brand: "{{ $pick(['Apple', 'Samsung', 'Dell', 'HP', 'Lenovo']) }}"
+          
+          # Rapid-fire requests
+          - get:
+              url: "/api/products"
+              name: "Rapid Catalog Requests"
+              qs:
+                page: "{{ $randomInt(1, 10) }}"
+                limit: "20"
+        count: 10
+
+  # System resource stress
+  - name: "System Resource Stress"
+    weight: 25
+    flow:
+      # Concurrent health checks (should be lightweight but tests monitoring)
+      - loop:
+          - get:
+              url: "/health"
+              name: "Health Check Stress"
+          
+          # API documentation requests
+          - get:
+              url: "/api/docs"
+              name: "API Docs Stress"
+          
+          # CSRF token requests
+          - get:
+              url: "/api/csrf-token"
+              name: "CSRF Token Stress"
+        count: 20

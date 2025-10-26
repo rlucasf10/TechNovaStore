@@ -1,0 +1,227 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.prod
+.env.staging
+.env.security
+.env.logging
+.env.docker
+
+# Environment files with credentials (keep only .example files)
+**/.env
+!**/.env.example
+!**/.env.*.example
+!.env.docker.example
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Build outputs
+build/
+dist/
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.db
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker volumes
+docker-volumes/
+
+# Temporary files
+tmp/
+temp/
+
+# Test artifacts
+test-results/
+playwright-report/
+test-results.xml
+
+# Backup files
+*.bak
+*.backup
+# S
+SL Certificates and keys
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+infrastructure/nginx/ssl/*.pem
+infrastructure/nginx/ssl/*.key
+infrastructure/nginx/ssl/*.crt
+!infrastructure/nginx/ssl/.gitkeep
+
+# Docker Compose with credentials (keep optimized and prod as templates)
+# docker-compose.override.yml should not be committed
+docker-compose.override.yml
+
+
+# Backup files with potential sensitive data
+backups/
+*.sql
+*.dump
+*.tar.gz
+*.zip
+
+# Logs with potential sensitive information
+logs/
+*.log
+api-gateway/logs/
+services/*/logs/
+automation/*/logs/
+
+# Monitoring data
+prometheus_data/
+grafana_data/
+alertmanager_data/
+
+# Database data directories
+mongodb_data/
+postgresql_data/
+redis_data/
+elasticsearch_data/
+
+# Ollama models (large files)
+ollama_data/
+
+# Secrets and credentials
+secrets/
+credentials/
+*.secret
+*.credentials
+
+# CI/CD secrets
+.github/secrets/
+
+# Local development overrides
+docker-compose.local.yml
+# Ignore optimized compose (may contain credentials)
+docker-compose.optimized.yml
+
+# Ignore git bundle backups
+*.bundle

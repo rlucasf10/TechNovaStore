@@ -1,0 +1,138 @@
+version: '3.8'
+
+# CDN Deployment Configuration for TechNovaStore
+# Includes NGINX CDN server and static content management
+
+services:
+  # CDN Server
+  cdn-server:
+    image: nginx:alpine
+    container_name: technovastore-cdn-server
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx-cdn.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - cdn_static_content:/var/www/static:ro
+      - cdn_uploads:/var/www/uploads:ro
+      - cdn_cache:/var/cache/nginx
+    networks:
+      - technovastore-network
+    environment:
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=2048
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+  # Static Content Sync Service
+  content-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile.content-sync
+    container_name: technovastore-content-sync
+    restart: unless-stopped
+    environment:
+      - SYNC_INTERVAL=300  # 5 minutes
+      - SOURCE_PATH=/app/static
+      - CDN_PATH=/cdn/static
+      - S3_BUCKET=${CDN_S3_BUCKET:-}
+      - S3_ACCESS_KEY=${CDN_S3_ACCESS_KEY:-}
+      - S3_SECRET_KEY=${CDN_S3_SECRET_KEY:-}
+      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID:-}
+      - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY:-}
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL:-}
+    volumes:
+      - cdn_static_content:/cdn/static
+      - cdn_uploads:/cdn/uploads
+      - ./logs:/app/logs
+    networks:
+      - technovastore-network
+    depends_on:
+      - cdn-server
+
+  # Image Optimization Service
+  image-optimizer:
+    build:
+      context: .
+      dockerfile: Dockerfile.image-optimizer
+    container_name: technovastore-image-optimizer
+    restart: unless-stopped
+    environment:
+      - OPTIMIZATION_QUALITY=85
+      - WEBP_ENABLED=true
+      - AVIF_ENABLED=true
+      - MAX_WIDTH=2048
+      - MAX_HEIGHT=2048
+    volumes:
+      - cdn_uploads:/app/uploads
+      - cdn_optimized:/app/optimized
+    networks:
+      - technovastore-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+
+  # Cache Warmer Service
+  cache-warmer:
+    build:
+      context: .
+      dockerfile: Dockerfile.cache-warmer
+    container_name: technovastore-cache-warmer
+    restart: unless-stopped
+    environment:
+      - WARM_INTERVAL=3600  # 1 hour
+      - CDN_BASE_URL=https://cdn.technovastore.com
+      - API_BASE_URL=https://api.technovastore.com
+      - CONCURRENT_REQUESTS=10
+    networks:
+      - technovastore-network
+    depends_on:
+      - cdn-server
+
+volumes:
+  cdn_static_content:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/technovastore/cdn/static
+  cdn_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/technovastore/cdn/uploads
+  cdn_optimized:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/technovastore/cdn/optimized
+  cdn_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/technovastore/cdn/cache
+
+networks:
+  technovastore-network:
+    external: true

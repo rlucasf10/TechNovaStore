@@ -1,0 +1,386 @@
+version: '3.8'
+
+services:
+  # Databases
+  mongodb:
+    image: mongo:6.0
+    container_name: staging-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: technovastore_staging
+    volumes:
+      - mongodb_staging_data:/data/db
+      - ./infrastructure/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgresql:
+    image: postgres:15
+    container_name: staging-postgresql
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: technovastore_staging
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql_staging_data:/var/lib/postgresql/data
+      - ./infrastructure/postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d technovastore_staging"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: staging-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_staging_data:/data
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  api-gateway:
+    image: ghcr.io/technovastore/api-gateway:develop
+    container_name: staging-api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      LOG_LEVEL: debug
+      ELASTICSEARCH_ENABLED: false
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
+      CORS_ORIGIN: ${FRONTEND_URL}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Core Services
+  product-service:
+    image: ghcr.io/technovastore/product-service:develop
+    container_name: staging-product-service
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  order-service:
+    image: ghcr.io/technovastore/order-service:develop
+    container_name: staging-order-service
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  user-service:
+    image: ghcr.io/technovastore/user-service:develop
+    container_name: staging-user-service
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  payment-service:
+    image: ghcr.io/technovastore/payment-service:develop
+    container_name: staging-payment-service
+    restart: unless-stopped
+    ports:
+      - "3004:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  notification-service:
+    image: ghcr.io/technovastore/notification-service:develop
+    container_name: staging-notification-service
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ticket-service:
+    image: ghcr.io/technovastore/ticket-service:develop
+    container_name: staging-ticket-service
+    restart: unless-stopped
+    ports:
+      - "3012:3005"
+    environment:
+      NODE_ENV: staging
+      TICKET_SERVICE_PORT: 3005
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore_staging
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Automation Services
+  sync-engine:
+    image: ghcr.io/technovastore/sync-engine:develop
+    container_name: staging-sync-engine
+    restart: unless-stopped
+    ports:
+      - "3006:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+      AMAZON_API_KEY: ${AMAZON_API_KEY}
+      ALIEXPRESS_API_KEY: ${ALIEXPRESS_API_KEY}
+      EBAY_API_KEY: ${EBAY_API_KEY}
+      BANGGOOD_API_KEY: ${BANGGOOD_API_KEY}
+      NEWEGG_API_KEY: ${NEWEGG_API_KEY}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  auto-purchase:
+    image: ghcr.io/technovastore/auto-purchase:develop
+    container_name: staging-auto-purchase
+    restart: unless-stopped
+    ports:
+      - "3007:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  shipment-tracker:
+    image: ghcr.io/technovastore/shipment-tracker:develop
+    container_name: staging-shipment-tracker
+    restart: unless-stopped
+    ports:
+      - "3008:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # AI Services
+  chatbot:
+    image: ghcr.io/technovastore/chatbot:develop
+    container_name: staging-chatbot
+    restart: unless-stopped
+    ports:
+      - "3009:3001"
+    environment:
+      NODE_ENV: staging
+      CHATBOT_PORT: 3001
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+      FRONTEND_URL: ${FRONTEND_URL}
+      TICKET_SERVICE_URL: http://ticket-service:3005
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      ticket-service:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  recommender:
+    image: ghcr.io/technovastore/recommender:develop
+    container_name: staging-recommender
+    restart: unless-stopped
+    ports:
+      - "3010:3000"
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend
+  frontend:
+    image: ghcr.io/technovastore/frontend:develop
+    container_name: staging-frontend
+    restart: unless-stopped
+    ports:
+      - "3011:3000"
+    environment:
+      NODE_ENV: staging
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_staging_data:
+  postgresql_staging_data:
+  redis_staging_data:
+
+networks:
+  staging-network:
+    driver: bridge

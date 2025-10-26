@@ -1,0 +1,156 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "TechNovaStore - Business Metrics",
+    "tags": ["technovastore", "business"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Orders per Hour",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(orders_total[1h])",
+            "legendFormat": "Orders"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Orders"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Revenue per Hour",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(revenue_total[1h])",
+            "legendFormat": "Revenue (€)"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Euros"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Product Sync Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sync_engine_products_synced_total",
+            "legendFormat": "Products Synced"
+          },
+          {
+            "expr": "sync_engine_failures_total",
+            "legendFormat": "Sync Failures"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Auto Purchase Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "auto_purchase_success_total / (auto_purchase_success_total + auto_purchase_failures_total) * 100",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 80
+                },
+                {
+                  "color": "green",
+                  "value": 95
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Chatbot Interactions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(chatbot_messages_total[5m])",
+            "legendFormat": "Messages/sec"
+          },
+          {
+            "expr": "rate(chatbot_escalations_total[5m])",
+            "legendFormat": "Escalations/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Shipment Tracking Updates",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(shipment_updates_total[5m])",
+            "legendFormat": "Updates/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "1m"
+  }
+}

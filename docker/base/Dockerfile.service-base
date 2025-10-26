@@ -1,0 +1,39 @@
+FROM node:20-alpine
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+WORKDIR /workspace
+
+# Copy root workspace files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Copy ALL shared packages (source and config)
+COPY shared/ ./shared/
+
+# Create services directory structure (needed for file: references)
+RUN mkdir -p services
+
+# Install workspace root dependencies (if any)
+RUN npm install || true
+
+# Install dependencies and build each shared package
+WORKDIR /workspace/shared/types
+RUN npm install --legacy-peer-deps && npm run build
+
+WORKDIR /workspace/shared/config
+RUN npm install --legacy-peer-deps && npm run build
+
+WORKDIR /workspace/shared/utils
+RUN npm install --legacy-peer-deps && npm run build
+
+# Return to workspace root
+WORKDIR /workspace
+
+# Default expose port (can be overridden)
+EXPOSE 3000
+
+# Default health check (can be overridden)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1

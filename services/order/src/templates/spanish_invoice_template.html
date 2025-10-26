@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura {{INVOICE_NUMBER}} - {{COMPANY_NAME}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+        }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .invoice-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .company-info h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .company-info p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+        
+        .invoice-details {
+            text-align: right;
+        }
+        
+        .invoice-number {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .invoice-dates p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .invoice-body {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 25px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .customer-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .customer-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .items-table thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .items-table th {
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .items-table td {
+            font-size: 14px;
+        }
+        
+        .items-table .number {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .items-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .totals-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .totals-table {
+            width: 350px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .totals-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .totals-table .label {
+            font-weight: 600;
+            text-align: right;
+            background: #f8f9ff;
+            width: 60%;
+        }
+        
+        .totals-table .amount {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            width: 40%;
+        }
+        
+        .total-final {
+            background: #667eea !important;
+            color: white !important;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .tax-breakdown {
+            margin-top: 30px;
+        }
+        
+        .tax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .tax-table thead {
+            background: #f8f9ff;
+        }
+        
+        .tax-table th,
+        .tax-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tax-table th {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .tax-table td {
+            font-family: 'Courier New', monospace;
+        }
+        
+        .payment-info {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .notes-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #fffbf0;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .legal-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .legal-footer h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .invoice-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .invoice-header {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .totals-table .total-final {
+                background: #667eea !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+        
+        .qr-code {
+            float: right;
+            margin-left: 20px;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 72px;
+            color: rgba(0,0,0,0.05);
+            font-weight: bold;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div class="company-info">
+                <h1>{{COMPANY_NAME}}</h1>
+                <p><strong>CIF:</strong> {{COMPANY_CIF}}</p>
+                <p>{{COMPANY_ADDRESS}}</p>
+                <p><strong>Teléfono:</strong> {{COMPANY_PHONE}}</p>
+                <p><strong>Email:</strong> {{COMPANY_EMAIL}}</p>
+                <p><strong>Web:</strong> {{COMPANY_WEBSITE}}</p>
+            </div>
+            <div class="invoice-details">
+                <div class="invoice-number">FACTURA</div>
+                <div class="invoice-number">{{INVOICE_NUMBER}}</div>
+                <div class="invoice-dates">
+                    <p><strong>Fecha de Emisión:</strong></p>
+                    <p>{{ISSUE_DATE}}</p>
+                    <p><strong>Fecha de Vencimiento:</strong></p>
+                    <p>{{DUE_DATE}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-body">
+            <div class="section-title">DATOS DEL CLIENTE</div>
+            <div class="customer-section">
+                <div class="customer-name">{{CUSTOMER_NAME}}</div>
+                <p><strong>Identificación Fiscal:</strong> {{CUSTOMER_TAX_ID}}</p>
+                <p>{{CUSTOMER_ADDRESS}}</p>
+            </div>
+
+            <div class="section-title">DETALLE DE PRODUCTOS Y SERVICIOS</div>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Importe</th>
+                        <th>Tipo IVA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{LINE_ITEMS}}
+                </tbody>
+            </table>
+
+            <div class="totals-section">
+                <table class="totals-table">
+                    <tr>
+                        <td class="label">Subtotal (Base Imponible):</td>
+                        <td class="amount">{{SUBTOTAL}} {{CURRENCY}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">IVA Total:</td>
+                        <td class="amount">{{TOTAL_TAX}} {{CURRENCY}}</td>
+                    </tr>
+                    <tr class="total-final">
+                        <td class="label">TOTAL A PAGAR:</td>
+                        <td class="amount">{{TOTAL_AMOUNT}} {{CURRENCY}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="tax-breakdown">
+                <div class="section-title">DESGLOSE DEL IVA</div>
+                {{TAX_BREAKDOWN}}
+            </div>
+
+            <div class="payment-info">
+                <div class="section-title">INFORMACIÓN DE PAGO</div>
+                <p><strong>Forma de Pago:</strong> {{PAYMENT_METHOD}}</p>
+                <p><strong>Moneda:</strong> {{CURRENCY}}</p>
+            </div>
+
+            {{#if NOTES}}
+            <div class="notes-section">
+                <div class="section-title">OBSERVACIONES</div>
+                <p>{{NOTES}}</p>
+            </div>
+            {{/if}}
+
+            <div class="legal-footer">
+                <h4>INFORMACIÓN LEGAL</h4>
+                <p>
+                    Esta factura se emite de conformidad con la normativa fiscal española vigente, 
+                    según el Real Decreto 1619/2012, de 30 de noviembre, por el que se aprueba el 
+                    Reglamento por el que se regulan las obligaciones de facturación.
+                </p>
+                <p>
+                    <strong>Régimen de IVA:</strong> Régimen General. 
+                    <strong>Exención del IVA:</strong> No aplicable.
+                </p>
+                <p>
+                    En caso de impago, se aplicarán los intereses de demora legalmente establecidos 
+                    según la Ley 3/2004, de 29 de diciembre, por la que se establecen medidas de 
+                    lucha contra la morosidad en las operaciones comerciales.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

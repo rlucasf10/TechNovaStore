@@ -1,0 +1,60 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["./shared/*/src"],
+      "@services/*": ["./services/*/src"],
+      "@automation/*": ["./automation/*/src"],
+      "@ai-services/*": ["./ai-services/*/src"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "shared/**/*",
+    "services/**/*",
+    "automation/**/*",
+    "ai-services/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.js"
+  ],
+  "references": [
+    { "path": "./shared/types" },
+    { "path": "./shared/utils" },
+    { "path": "./shared/config" },
+    { "path": "./shared/models" }
+  ]
+}

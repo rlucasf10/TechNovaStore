@@ -1,0 +1,161 @@
+name: 'Deploy TechNovaStore'
+description: 'Deploy TechNovaStore to specified environment'
+
+inputs:
+  environment:
+    description: 'Target environment (staging or production)'
+    required: true
+  host:
+    description: 'Target host'
+    required: true
+  user:
+    description: 'SSH user'
+    required: true
+  compose-file:
+    description: 'Docker compose file to use'
+    required: true
+  env-vars:
+    description: 'Environment variables (multiline string)'
+    required: true
+  backup:
+    description: 'Create backup before deployment'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create deployment directory
+      shell: bash
+      run: |
+        ssh ${{ inputs.user }}@${{ inputs.host }} << 'EOF'
+          sudo mkdir -p /opt/technovastore
+          sudo chown ${{ inputs.user }}:${{ inputs.user }} /opt/technovastore
+        EOF
+
+    - name: Copy deployment files
+      shell: bash
+      run: |
+        scp ${{ inputs.compose-file }} ${{ inputs.user }}@${{ inputs.host }}:/opt/technovastore/
+        if [ -d "infrastructure" ]; then
+          scp -r infrastructure/ ${{ inputs.user }}@${{ inputs.host }}:/opt/technovastore/
+        fi
+
+    - name: Create backup
+      if: inputs.backup == 'true'
+      shell: bash
+      run: |
+        ssh ${{ inputs.user }}@${{ inputs.host }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Create backup directory
+          BACKUP_DIR="/opt/backups/$(date +%Y%m%d_%H%M%S)"
+          sudo mkdir -p $BACKUP_DIR
+          sudo chown ${{ inputs.user }}:${{ inputs.user }} $BACKUP_DIR
+          
+          # Backup PostgreSQL if running
+          if [ "$(docker ps -q -f name=technovastore.*postgresql)" ]; then
+            echo "Backing up PostgreSQL..."
+            docker-compose -f ${{ inputs.compose-file }} exec -T postgresql pg_dump -U $POSTGRES_USER technovastore > $BACKUP_DIR/postgresql_backup.sql
+          fi
+          
+          # Backup MongoDB if running
+          if [ "$(docker ps -q -f name=technovastore.*mongodb)" ]; then
+            echo "Backing up MongoDB..."
+            docker-compose -f ${{ inputs.compose-file }} exec -T mongodb mongodump --uri="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@localhost:27017/technovastore?authSource=admin" --out=$BACKUP_DIR/mongodb_backup
+          fi
+          
+          echo "Backup created at $BACKUP_DIR"
+        EOF
+
+    - name: Deploy services
+      shell: bash
+      run: |
+        ssh ${{ inputs.user }}@${{ inputs.host }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Set environment variables
+          ${{ inputs.env-vars }}
+          
+          # Login to GitHub Container Registry
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull latest images
+          docker-compose -f ${{ inputs.compose-file }} pull
+          
+          # Stop existing services gracefully
+          docker-compose -f ${{ inputs.compose-file }} down --timeout 30
+          
+          # Start services
+          docker-compose -f ${{ inputs.compose-file }} up -d
+          
+          # Wait for services to be ready
+          echo "Waiting for services to start..."
+          sleep 90
+          
+          echo "Deployment completed!"
+        EOF
+
+    - name: Health check
+      shell: bash
+      run: |
+        # Wait a bit more for services to fully start
+        sleep 30
+        
+        # Health check API Gateway
+        for i in {1..10}; do
+          if curl -f http://${{ inputs.host }}:3000/health; then
+            echo "API Gateway is healthy"
+            break
+          fi
+          if [ $i -eq 10 ]; then
+            echo "API Gateway health check failed after 10 attempts"
+            exit 1
+          fi
+          echo "Attempt $i: API Gateway not ready, waiting..."
+          sleep 15
+        done
+        
+        # Health check Frontend
+        for i in {1..10}; do
+          if curl -f http://${{ inputs.host }}:3011; then
+            echo "Frontend is healthy"
+            break
+          fi
+          if [ $i -eq 10 ]; then
+            echo "Frontend health check failed after 10 attempts"
+            exit 1
+          fi
+          echo "Attempt $i: Frontend not ready, waiting..."
+          sleep 15
+        done
+        
+        echo "Health checks passed successfully!"
+
+    - name: Verify deployment
+      shell: bash
+      run: |
+        ssh ${{ inputs.user }}@${{ inputs.host }} << 'EOF'
+          cd /opt/technovastore
+          
+          echo "=== Deployment Status ==="
+          docker-compose -f ${{ inputs.compose-file }} ps
+          
+          echo ""
+          echo "=== Failed Containers ==="
+          FAILED_CONTAINERS=$(docker-compose -f ${{ inputs.compose-file }} ps --filter "status=exited" --format "table {{.Service}}" | tail -n +2)
+          if [ -n "$FAILED_CONTAINERS" ]; then
+            echo "$FAILED_CONTAINERS"
+            echo ""
+            echo "=== Logs for Failed Containers ==="
+            echo "$FAILED_CONTAINERS" | while read -r container; do
+              if [ -n "$container" ]; then
+                echo "--- Logs for $container ---"
+                docker-compose -f ${{ inputs.compose-file }} logs --tail=20 "$container"
+                echo ""
+              fi
+            done
+          else
+            echo "No failed containers"
+          fi
+        EOF

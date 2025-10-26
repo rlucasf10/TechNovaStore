@@ -1,0 +1,190 @@
+# TechNovaStore Performance Benchmark Configuration
+# Comprehensive performance benchmarking for all API endpoints
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Baseline performance measurement
+    - duration: 60
+      arrivalRate: 1
+      name: "Baseline Single User"
+    
+    # Light load benchmark
+    - duration: 120
+      arrivalRate: 10
+      name: "Light Load (10 RPS)"
+    
+    # Medium load benchmark
+    - duration: 120
+      arrivalRate: 25
+      name: "Medium Load (25 RPS)"
+    
+    # Heavy load benchmark
+    - duration: 120
+      arrivalRate: 50
+      name: "Heavy Load (50 RPS)"
+    
+    # Peak load benchmark
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak Load (100 RPS)"
+
+  # Comprehensive performance metrics
+  ensure:
+    - http.response_time.p50: 500   # Median response time
+    - http.response_time.p95: 2000  # 95th percentile
+    - http.response_time.p99: 5000  # 99th percentile
+    - http.codes.200: 95            # Success rate
+    - http.codes.4xx: 3             # Client error rate
+    - http.codes.5xx: 2             # Server error rate
+
+  http:
+    timeout: 20
+    pool: 100
+    maxSockets: 100
+
+  variables:
+    benchmarkProducts:
+      - "benchmark-laptop-001"
+      - "benchmark-phone-002"
+      - "benchmark-tablet-003"
+      - "benchmark-monitor-004"
+      - "benchmark-keyboard-005"
+    
+    benchmarkSearches:
+      - "laptop"
+      - "smartphone"
+      - "tablet"
+      - "monitor"
+      - "keyboard"
+      - "mouse"
+      - "headphones"
+      - "camera"
+      - "printer"
+      - "router"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    publish-metrics:
+      - type: "datadog"
+        tags:
+          - "environment:load-test"
+          - "service:technovastore"
+
+scenarios:
+  # Core API performance benchmark
+  - name: "Core API Benchmark"
+    weight: 50
+    flow:
+      # Health check performance
+      - get:
+          url: "/health"
+          name: "Health Check"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"
+      
+      # Product catalog performance
+      - get:
+          url: "/api/products"
+          name: "Product Catalog"
+          qs:
+            page: "{{ $randomInt(1, 10) }}"
+            limit: "20"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+      
+      # Product search performance
+      - get:
+          url: "/api/products/search"
+          name: "Product Search"
+          qs:
+            q: "{{ $pick(benchmarkSearches) }}"
+            limit: "10"
+          expect:
+            - statusCode: 200
+      
+      # Product details performance
+      - get:
+          url: "/api/products/{{ $pick(benchmarkProducts) }}"
+          name: "Product Details"
+          expect:
+            - statusCode: [200, 404]
+      
+      # API documentation performance
+      - get:
+          url: "/api/docs"
+          name: "API Documentation"
+          expect:
+            - statusCode: 200
+
+  # Search performance benchmark
+  - name: "Search Performance Benchmark"
+    weight: 30
+    flow:
+      # Simple search
+      - get:
+          url: "/api/products/search"
+          name: "Simple Search"
+          qs:
+            q: "{{ $pick(benchmarkSearches) }}"
+          expect:
+            - statusCode: 200
+      
+      # Complex search with filters
+      - get:
+          url: "/api/products/search"
+          name: "Complex Search"
+          qs:
+            q: "{{ $pick(benchmarkSearches) }}"
+            category: "electronics"
+            minPrice: "100"
+            maxPrice: "1000"
+            sortBy: "price"
+            sortOrder: "asc"
+            page: "1"
+            limit: "20"
+          expect:
+            - statusCode: 200
+      
+      # Category-based search
+      - get:
+          url: "/api/products/search"
+          name: "Category Search"
+          qs:
+            category: "electronics"
+            subcategory: "computers"
+            limit: "15"
+          expect:
+            - statusCode: 200
+
+  # Security endpoints benchmark
+  - name: "Security Endpoints Benchmark"
+    weight: 20
+    flow:
+      # CSRF token generation
+      - get:
+          url: "/api/csrf-token"
+          name: "CSRF Token Generation"
+          expect:
+            - statusCode: 200
+            - hasProperty: "csrfToken"
+      
+      # Metrics endpoint (if accessible)
+      - get:
+          url: "/metrics"
+          name: "Metrics Endpoint"
+          expect:
+            - statusCode: [200, 401, 403]
+      
+      # Rate limiting test (should be handled gracefully)
+      - loop:
+          - get:
+              url: "/api/products"
+              name: "Rate Limit Test"
+              qs:
+                page: "1"
+                limit: "5"
+        count: 10

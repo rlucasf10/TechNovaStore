@@ -1,0 +1,21 @@
+{
+  "metrics": {
+    "totalOperations": 0,
+    "successfulOperations": 0,
+    "failedOperations": 0,
+    "successRate": 100,
+    "errorRate": 0,
+    "resourceTypeStats": {},
+    "startTime": 1760778766610
+  },
+  "performance": {
+    "totalOperations": 0,
+    "averageResponseTime": 0,
+    "p95ResponseTime": 0,
+    "p99ResponseTime": 0,
+    "throughput": 0,
+    "errorRate": 0,
+    "resourceTypeBreakdown": {},
+    "timeSeriesData": []
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "technovastore",
+  "version": "1.0.0",
+  "description": "TechNovaStore - Tienda online automatizada de productos tecnológicos",
+  "private": true,
+  "workspaces": [
+    "shared/config",
+    "api-gateway",
+    "services/*",
+    "automation/*",
+    "ai-services/*",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "build": "npm run build --workspaces --if-present",
+    "build:services": "npm run build -w api-gateway -w services/product -w services/user -w services/order -w services/payment -w services/notification -w services/ticket",
+    "build:automation": "npm run build -w automation/sync-engine -w automation/auto-purchase -w automation/shipment-tracker",
+    "build:ai": "npm run build -w ai-services/chatbot -w ai-services/recommender",
+    "build:frontend": "npm run build -w frontend",
+    "dev": "npm run dev --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules",
+    "docker:build": "docker-compose -f docker-compose.optimized.yml build",
+    "docker:up": "docker-compose -f docker-compose.optimized.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.optimized.yml down",
+    "docker:logs": "docker-compose -f docker-compose.optimized.yml logs -f"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/technovastore.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "dropshipping",
+    "automation",
+    "microservices",
+    "nodejs",
+    "react",
+    "mongodb",
+    "postgresql"
+  ],
+  "author": "TechNovaStore Team",
+  "license": "MIT"
+}

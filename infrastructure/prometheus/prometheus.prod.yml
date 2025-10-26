@@ -1,0 +1,165 @@
+# Prometheus Production Configuration for TechNovaStore
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'technovastore-prod'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # Node Exporter
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # API Gateway instances
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: 
+        - 'api-gateway-1:3000'
+        - 'api-gateway-2:3000'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Frontend instances
+  - job_name: 'frontend'
+    static_configs:
+      - targets:
+        - 'frontend-1:3000'
+        - 'frontend-2:3000'
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+
+  # Core Services
+  - job_name: 'product-service'
+    static_configs:
+      - targets: ['product-service:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'order-service'
+    static_configs:
+      - targets: ['order-service:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'ticket-service'
+    static_configs:
+      - targets: ['ticket-service:3005']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Automation Services
+  - job_name: 'sync-engine'
+    static_configs:
+      - targets: ['sync-engine:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'auto-purchase'
+    static_configs:
+      - targets: ['auto-purchase:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'shipment-tracker'
+    static_configs:
+      - targets: ['shipment-tracker:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # AI Services
+  - job_name: 'chatbot'
+    static_configs:
+      - targets: ['chatbot:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'recommender'
+    static_configs:
+      - targets: ['recommender:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Database Exporters
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 30s
+
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # NGINX metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:8080']
+    metrics_path: '/nginx_status'
+    scrape_interval: 15s
+
+  # Backup service health
+  - job_name: 'backup-service'
+    static_configs:
+      - targets: ['db-backup:8080']
+    metrics_path: '/health'
+    scrape_interval: 60s
+
+# Remote write configuration (for long-term storage)
+# remote_write:
+#   - url: "https://prometheus-remote-write-endpoint.com/api/v1/write"
+#     basic_auth:
+#       username: "your-username"
+#       password: "your-password"
+
+# Storage configuration
+storage:
+  tsdb:
+    retention.time: 30d
+    retention.size: 10GB
+    wal-compression: true

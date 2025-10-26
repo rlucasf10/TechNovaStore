@@ -1,0 +1,687 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  # Test Job
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+          MONGO_INITDB_DATABASE: technovastore_test
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgresql:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: technovastore_test
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Check code formatting
+      run: npm run format:check
+
+    - name: Run unit tests
+      run: npm run test:ci
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://REDACTED_DB_PASSWORD@localhost:27017/technovastore_test?authSource=admin
+        POSTGRESQL_URI: postgresql://REDACTED_DB_PASSWORD@localhost:5432/technovastore_test
+        REDIS_URI: redis://localhost:6379
+
+    - name: Run integration tests
+      run: npm run test:ci:integration
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://REDACTED_DB_PASSWORD@localhost:27017/technovastore_test?authSource=admin
+        POSTGRESQL_URI: postgresql://REDACTED_DB_PASSWORD@localhost:5432/technovastore_test
+        REDIS_URI: redis://localhost:6379
+
+    - name: Generate test coverage
+      run: npm run test:coverage
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://REDACTED_DB_PASSWORD@localhost:27017/technovastore_test?authSource=admin
+        POSTGRESQL_URI: postgresql://REDACTED_DB_PASSWORD@localhost:5432/technovastore_test
+        REDIS_URI: redis://localhost:6379
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+
+  # Build Job
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api-gateway
+            context: ./api-gateway
+            dockerfile: ./api-gateway/Dockerfile
+          - service: product-service
+            context: ./services/product
+            dockerfile: ./services/product/Dockerfile
+          - service: order-service
+            context: ./services/order
+            dockerfile: ./services/order/Dockerfile
+          - service: user-service
+            context: ./services/user
+            dockerfile: ./services/user/Dockerfile
+          - service: payment-service
+            context: ./services/payment
+            dockerfile: ./services/payment/Dockerfile
+          - service: notification-service
+            context: ./services/notification
+            dockerfile: ./services/notification/Dockerfile
+          - service: ticket-service
+            context: ./services/ticket
+            dockerfile: ./services/ticket/Dockerfile
+          - service: sync-engine
+            context: ./automation/sync-engine
+            dockerfile: ./automation/sync-engine/Dockerfile
+          - service: auto-purchase
+            context: ./automation/auto-purchase
+            dockerfile: ./automation/auto-purchase/Dockerfile
+          - service: shipment-tracker
+            context: ./automation/shipment-tracker
+            dockerfile: ./automation/shipment-tracker/Dockerfile
+          - service: chatbot
+            context: ./ai-services/chatbot
+            dockerfile: ./ai-services/chatbot/Dockerfile
+          - service: recommender
+            context: ./ai-services/recommender
+            dockerfile: ./ai-services/recommender/Dockerfile
+          - service: frontend
+            context: ./frontend
+            dockerfile: ./frontend/Dockerfile
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=staging,enable=${{ github.ref == 'refs/heads/develop' }}
+          type=raw,value=production,enable=${{ github.ref == 'refs/heads/main' }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha,scope=${{ matrix.service }}
+        cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+        platforms: linux/amd64,linux/arm64
+        build-args: |
+          NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+  # Security scanning
+  security-scan:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api-gateway, product-service, order-service, user-service, payment-service, notification-service, ticket-service, sync-engine, auto-purchase, shipment-tracker, chatbot, recommender, frontend]
+
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ github.ref_name }}
+        format: 'sarif'
+        output: 'trivy-results-${{ matrix.service }}.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results-${{ matrix.service }}.sarif'
+
+  # E2E Tests Job
+  e2e-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Start services with Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml up -d
+        sleep 60  # Wait for services to be ready
+
+    - name: Wait for services to be healthy
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:3000/health; do sleep 5; done'
+        timeout 300 bash -c 'until curl -f http://localhost:3011; do sleep 5; done'
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        BASE_URL: http://localhost:3011
+
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: |
+          frontend/test-results/
+          frontend/playwright-report/
+
+    - name: Stop services
+      if: always()
+      run: docker-compose down
+
+  # Load Tests Job
+  load-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Start services with Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml up -d
+        sleep 60  # Wait for services to be ready
+
+    - name: Wait for services to be healthy
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:3000/health; do sleep 5; done'
+
+    - name: Run load tests
+      run: npm run test:load:critical
+
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: load-test-results
+        path: tests/load/reports/
+
+    - name: Stop services
+      if: always()
+      run: docker-compose down
+
+  # Deploy to Staging
+  deploy-staging:
+    needs: [build, security-scan]
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+    - name: Add staging server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Create deployment directory
+      run: |
+        ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
+          sudo mkdir -p /opt/technovastore
+          sudo chown ${{ secrets.STAGING_USER }}:${{ secrets.STAGING_USER }} /opt/technovastore
+        EOF
+
+    - name: Copy deployment files
+      run: |
+        scp docker-compose.staging.yml ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/opt/technovastore/
+        scp .env.staging.example ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/opt/technovastore/.env.staging
+
+    - name: Deploy to staging server
+      run: |
+        ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Set environment variables
+          export MONGO_USERNAME="${{ secrets.STAGING_MONGO_USERNAME }}"
+          export MONGO_PASSWORD="${{ secrets.STAGING_MONGO_PASSWORD }}"
+          export POSTGRES_USERNAME="${{ secrets.STAGING_POSTGRES_USERNAME }}"
+          export POSTGRES_PASSWORD="${{ secrets.STAGING_POSTGRES_PASSWORD }}"
+          export REDIS_PASSWORD="${{ secrets.STAGING_REDIS_PASSWORD }}"
+          export JWT_SECRET="${{ secrets.STAGING_JWT_SECRET }}"
+          export SMTP_HOST="${{ secrets.STAGING_SMTP_HOST }}"
+          export SMTP_PORT="${{ secrets.STAGING_SMTP_PORT }}"
+          export SMTP_USER="${{ secrets.STAGING_SMTP_USER }}"
+          export SMTP_PASS="${{ secrets.STAGING_SMTP_PASS }}"
+          export NEXT_PUBLIC_API_URL="http://${{ secrets.STAGING_HOST }}:3000"
+          export FRONTEND_URL="http://${{ secrets.STAGING_HOST }}:3011"
+          
+          # Login to GitHub Container Registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull latest images
+          docker-compose -f docker-compose.staging.yml pull
+          
+          # Create backup of current deployment
+          if [ "$(docker ps -q)" ]; then
+            echo "Creating backup of current deployment..."
+            docker-compose -f docker-compose.staging.yml exec -T postgresql pg_dump -U ${POSTGRES_USERNAME} technovastore_staging > backup_$(date +%Y%m%d_%H%M%S).sql || true
+          fi
+          
+          # Stop existing services gracefully
+          docker-compose -f docker-compose.staging.yml down --timeout 30
+          
+          # Start services
+          docker-compose -f docker-compose.staging.yml up -d
+          
+          # Wait for services to be ready
+          echo "Waiting for services to start..."
+          sleep 90
+          
+          # Health checks with retries
+          echo "Running health checks..."
+          for i in {1..10}; do
+            if curl -f http://localhost:3000/health; then
+              echo "API Gateway is healthy"
+              break
+            fi
+            echo "Attempt $i: API Gateway not ready, waiting..."
+            sleep 10
+          done
+          
+          for i in {1..10}; do
+            if curl -f http://localhost:3011; then
+              echo "Frontend is healthy"
+              break
+            fi
+            echo "Attempt $i: Frontend not ready, waiting..."
+            sleep 10
+          done
+          
+          echo "Staging deployment completed successfully!"
+        EOF
+
+    - name: Run post-deployment tests
+      run: |
+        sleep 30
+        
+        # Test API Gateway health
+        for i in {1..5}; do
+          if curl -f http://${{ secrets.STAGING_HOST }}:3000/health; then
+            echo "API Gateway health check passed"
+            break
+          fi
+          echo "Attempt $i: API Gateway health check failed, retrying..."
+          sleep 10
+        done
+        
+        # Test Frontend
+        for i in {1..5}; do
+          if curl -f http://${{ secrets.STAGING_HOST }}:3011; then
+            echo "Frontend health check passed"
+            break
+          fi
+          echo "Attempt $i: Frontend health check failed, retrying..."
+          sleep 10
+        done
+        
+        # Test core services (non-blocking)
+        curl -f http://${{ secrets.STAGING_HOST }}:3001/health || echo "Product service health check failed (non-blocking)"
+        curl -f http://${{ secrets.STAGING_HOST }}:3002/health || echo "Order service health check failed (non-blocking)"
+        curl -f http://${{ secrets.STAGING_HOST }}:3003/health || echo "User service health check failed (non-blocking)"
+
+    - name: Update deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          STATUS="✅ SUCCESS"
+          COLOR="good"
+        else
+          STATUS="❌ FAILED"
+          COLOR="danger"
+        fi
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"color\": \"$COLOR\",
+              \"title\": \"TechNovaStore Staging Deployment\",
+              \"fields\": [
+                {\"title\": \"Status\", \"value\": \"$STATUS\", \"short\": true},
+                {\"title\": \"Branch\", \"value\": \"develop\", \"short\": true},
+                {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                {\"title\": \"Environment\", \"value\": \"Staging\", \"short\": true},
+                {\"title\": \"URL\", \"value\": \"http://${{ secrets.STAGING_HOST }}:3011\", \"short\": true}
+              ],
+              \"footer\": \"GitHub Actions\",
+              \"ts\": $(date +%s)
+            }]
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }} || echo "Slack notification failed"
+
+  # Deploy to Production
+  deploy-production:
+    needs: [build, security-scan]
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
+
+    - name: Add production server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Create deployment directory
+      run: |
+        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          sudo mkdir -p /opt/technovastore
+          sudo chown ${{ secrets.PRODUCTION_USER }}:${{ secrets.PRODUCTION_USER }} /opt/technovastore
+        EOF
+
+    - name: Copy deployment files
+      run: |
+        scp docker-compose.prod.yml ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:/opt/technovastore/
+        scp -r infrastructure/ ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:/opt/technovastore/
+
+    - name: Deploy to production server
+      run: |
+        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Set environment variables
+          export MONGO_ROOT_USERNAME="${{ secrets.PRODUCTION_MONGO_USERNAME }}"
+          export MONGO_ROOT_PASSWORD="${{ secrets.PRODUCTION_MONGO_PASSWORD }}"
+          export POSTGRES_USER="${{ secrets.PRODUCTION_POSTGRES_USERNAME }}"
+          export POSTGRES_PASSWORD="${{ secrets.PRODUCTION_POSTGRES_PASSWORD }}"
+          export REDIS_PASSWORD="${{ secrets.PRODUCTION_REDIS_PASSWORD }}"
+          export JWT_SECRET="${{ secrets.PRODUCTION_JWT_SECRET }}"
+          export SMTP_HOST="${{ secrets.PRODUCTION_SMTP_HOST }}"
+          export SMTP_PORT="${{ secrets.PRODUCTION_SMTP_PORT }}"
+          export SMTP_USER="${{ secrets.PRODUCTION_SMTP_USER }}"
+          export SMTP_PASS="${{ secrets.PRODUCTION_SMTP_PASS }}"
+          
+          # Login to GitHub Container Registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Create comprehensive backup
+          echo "Creating backup..."
+          BACKUP_DIR="/opt/backups/$(date +%Y%m%d_%H%M%S)"
+          sudo mkdir -p $BACKUP_DIR
+          
+          if [ "$(docker ps -q -f name=technovastore-postgresql-prod)" ]; then
+            docker-compose -f docker-compose.prod.yml exec -T postgresql pg_dump -U ${POSTGRES_USER} technovastore > $BACKUP_DIR/postgresql_backup.sql
+          fi
+          
+          if [ "$(docker ps -q -f name=technovastore-mongodb-prod)" ]; then
+            docker-compose -f docker-compose.prod.yml exec -T mongodb mongodump --uri="mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@localhost:27017/technovastore?authSource=admin" --out=$BACKUP_DIR/mongodb_backup
+          fi
+          
+          # Pull latest production images
+          docker-compose -f docker-compose.prod.yml pull
+          
+          # Blue-green deployment strategy
+          echo "Starting blue-green deployment..."
+          
+          # Scale up new instances
+          docker-compose -f docker-compose.prod.yml up -d --scale api-gateway=2 --scale frontend=2
+          sleep 90
+          
+          # Health check new instances
+          echo "Health checking new instances..."
+          for i in {1..10}; do
+            if curl -f http://localhost:3000/health && curl -f http://localhost:3011; then
+              echo "New instances are healthy"
+              break
+            fi
+            echo "Attempt $i: New instances not ready, waiting..."
+            sleep 15
+          done
+          
+          # Scale down to single instances (removes old containers)
+          docker-compose -f docker-compose.prod.yml up -d
+          
+          # Final health check
+          curl -f http://localhost:3000/health || exit 1
+          curl -f http://localhost:3011 || exit 1
+          
+          echo "Production deployment completed successfully!"
+        EOF
+
+    - name: Run production smoke tests
+      run: |
+        sleep 30
+        
+        # Comprehensive production health checks
+        for i in {1..5}; do
+          if curl -f http://${{ secrets.PRODUCTION_HOST }}:3000/health; then
+            echo "Production API Gateway health check passed"
+            break
+          fi
+          echo "Attempt $i: Production API Gateway health check failed, retrying..."
+          sleep 15
+        done
+        
+        for i in {1..5}; do
+          if curl -f http://${{ secrets.PRODUCTION_HOST }}:3011; then
+            echo "Production Frontend health check passed"
+            break
+          fi
+          echo "Attempt $i: Production Frontend health check failed, retrying..."
+          sleep 15
+        done
+
+    - name: Update deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          STATUS="🚀 SUCCESS"
+          COLOR="good"
+        else
+          STATUS="🚨 FAILED"
+          COLOR="danger"
+        fi
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"color\": \"$COLOR\",
+              \"title\": \"TechNovaStore Production Deployment\",
+              \"fields\": [
+                {\"title\": \"Status\", \"value\": \"$STATUS\", \"short\": true},
+                {\"title\": \"Branch\", \"value\": \"main\", \"short\": true},
+                {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                {\"title\": \"Environment\", \"value\": \"Production\", \"short\": true}
+              ],
+              \"footer\": \"GitHub Actions\",
+              \"ts\": $(date +%s)
+            }]
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }} || echo "Slack notification failed"
+
+  # Rollback capability
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && (needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure')
+    needs: [deploy-staging, deploy-production]
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    
+    steps:
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
+
+    - name: Rollback deployment
+      run: |
+        HOST=${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_HOST || secrets.STAGING_HOST }}
+        USER=${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_USER || secrets.STAGING_USER }}
+        COMPOSE_FILE=${{ github.ref == 'refs/heads/main' && 'docker-compose.prod.yml' || 'docker-compose.staging.yml' }}
+        
+        ssh $USER@$HOST << EOF
+          cd /opt/technovastore
+          
+          # Find the most recent backup
+          LATEST_BACKUP=\$(ls -t /opt/backups/ | head -1)
+          
+          if [ -n "\$LATEST_BACKUP" ]; then
+            echo "Rolling back to backup: \$LATEST_BACKUP"
+            
+            # Stop current services
+            docker-compose -f $COMPOSE_FILE down
+            
+            # Restore database backups if they exist
+            if [ -f "/opt/backups/\$LATEST_BACKUP/postgresql_backup.sql" ]; then
+              docker-compose -f $COMPOSE_FILE up -d postgresql
+              sleep 30
+              docker-compose -f $COMPOSE_FILE exec -T postgresql psql -U \$POSTGRES_USER -d technovastore < /opt/backups/\$LATEST_BACKUP/postgresql_backup.sql
+            fi
+            
+            # Start services with previous images
+            docker-compose -f $COMPOSE_FILE up -d
+            
+            echo "Rollback completed"
+          else
+            echo "No backup found for rollback"
+          fi
+        EOF
+
+    - name: Notify rollback
+      run: |
+        ENV=${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"🔄 TechNovaStore $ENV deployment rolled back due to failure. Commit: ${{ github.sha }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }} || echo "Slack notification failed"

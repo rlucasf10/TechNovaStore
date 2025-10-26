@@ -1,0 +1,8 @@
+export { ProductCatalog } from './ProductCatalog'
+export { ProductCard } from './ProductCard'
+export { ProductDetail } from './ProductDetail'
+export { ProductFilters } from './ProductFilters'
+export { ProductGallery } from './ProductGallery'
+export { ProductSpecs } from './ProductSpecs'
+export { PriceComparator } from './PriceComparator'
+export { SearchBar } from './SearchBar'

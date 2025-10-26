@@ -1,0 +1,6 @@
+Status: FAIL
+Success Rate: 100.0%
+Error Rate: 0.0%
+Leaks Detected: 27
+Active Alerts: 0
+Exit Code: 0

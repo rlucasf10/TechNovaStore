@@ -1,0 +1,472 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Pre-deployment checks
+  pre-deployment:
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Check if deployment should proceed
+      id: check
+      run: |
+        if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+          echo "should_deploy=true" >> $GITHUB_OUTPUT
+          echo "Force deployment requested"
+        else
+          # Check if there are changes that require deployment
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          if echo "$CHANGED_FILES" | grep -E '\.(js|ts|tsx|json|yml|yaml|dockerfile)$|package\.json|docker-compose'; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "Code changes detected, deployment needed"
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "No significant changes detected"
+          fi
+        fi
+
+  # Deploy to staging environment
+  deploy-staging:
+    needs: pre-deployment
+    runs-on: ubuntu-latest
+    if: needs.pre-deployment.outputs.should_deploy == 'true'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+    - name: Add staging server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Create staging docker-compose file
+      run: |
+        cat > docker-compose.staging.yml << 'EOF'
+        version: '3.8'
+        
+        services:
+          # Databases
+          mongodb:
+            image: mongo:6.0
+            container_name: staging-mongodb
+            restart: unless-stopped
+            ports:
+              - "27017:27017"
+            environment:
+              MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+              MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+              MONGO_INITDB_DATABASE: technovastore_staging
+            volumes:
+              - mongodb_staging_data:/data/db
+            networks:
+              - staging-network
+
+          postgresql:
+            image: postgres:15
+            container_name: staging-postgresql
+            restart: unless-stopped
+            ports:
+              - "5432:5432"
+            environment:
+              POSTGRES_DB: technovastore_staging
+              POSTGRES_USER: ${POSTGRES_USERNAME}
+              POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            volumes:
+              - postgresql_staging_data:/var/lib/postgresql/data
+            networks:
+              - staging-network
+
+          redis:
+            image: redis:7-alpine
+            container_name: staging-redis
+            restart: unless-stopped
+            ports:
+              - "6379:6379"
+            command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+            volumes:
+              - redis_staging_data:/data
+            networks:
+              - staging-network
+
+          # API Gateway
+          api-gateway:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:develop
+            container_name: staging-api-gateway
+            restart: unless-stopped
+            ports:
+              - "3000:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+              REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+              JWT_SECRET: ${JWT_SECRET}
+            depends_on:
+              - mongodb
+              - postgresql
+              - redis
+            networks:
+              - staging-network
+            healthcheck:
+              test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+              interval: 30s
+              timeout: 10s
+              retries: 3
+
+          # Core Services
+          product-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/product-service:develop
+            container_name: staging-product-service
+            restart: unless-stopped
+            ports:
+              - "3001:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+            depends_on:
+              - mongodb
+            networks:
+              - staging-network
+
+          order-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/order-service:develop
+            container_name: staging-order-service
+            restart: unless-stopped
+            ports:
+              - "3002:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          user-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/user-service:develop
+            container_name: staging-user-service
+            restart: unless-stopped
+            ports:
+              - "3003:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+              JWT_SECRET: ${JWT_SECRET}
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          payment-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/payment-service:develop
+            container_name: staging-payment-service
+            restart: unless-stopped
+            ports:
+              - "3004:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          notification-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/notification-service:develop
+            container_name: staging-notification-service
+            restart: unless-stopped
+            ports:
+              - "3005:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              SMTP_HOST: ${SMTP_HOST}
+              SMTP_PORT: ${SMTP_PORT}
+              SMTP_USER: ${SMTP_USER}
+              SMTP_PASS: ${SMTP_PASS}
+            networks:
+              - staging-network
+
+          ticket-service:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ticket-service:develop
+            container_name: staging-ticket-service
+            restart: unless-stopped
+            ports:
+              - "3012:3005"
+            environment:
+              NODE_ENV: staging
+              TICKET_SERVICE_PORT: 3005
+              POSTGRES_HOST: postgresql
+              POSTGRES_PORT: 5432
+              POSTGRES_DB: technovastore_staging
+              POSTGRES_USER: ${POSTGRES_USERNAME}
+              POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+              JWT_SECRET: ${JWT_SECRET}
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          # Automation Services
+          sync-engine:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sync-engine:develop
+            container_name: staging-sync-engine
+            restart: unless-stopped
+            ports:
+              - "3006:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+              REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+            depends_on:
+              - mongodb
+              - redis
+            networks:
+              - staging-network
+
+          auto-purchase:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auto-purchase:develop
+            container_name: staging-auto-purchase
+            restart: unless-stopped
+            ports:
+              - "3007:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          shipment-tracker:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/shipment-tracker:develop
+            container_name: staging-shipment-tracker
+            restart: unless-stopped
+            ports:
+              - "3008:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              POSTGRESQL_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore_staging
+            depends_on:
+              - postgresql
+            networks:
+              - staging-network
+
+          # AI Services
+          chatbot:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/chatbot:develop
+            container_name: staging-chatbot
+            restart: unless-stopped
+            ports:
+              - "3009:3001"
+            environment:
+              NODE_ENV: staging
+              CHATBOT_PORT: 3001
+              MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+            depends_on:
+              - mongodb
+            networks:
+              - staging-network
+
+          recommender:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/recommender:develop
+            container_name: staging-recommender
+            restart: unless-stopped
+            ports:
+              - "3010:3000"
+            environment:
+              NODE_ENV: staging
+              PORT: 3000
+              MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/technovastore_staging?authSource=admin
+              REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+            depends_on:
+              - mongodb
+              - redis
+            networks:
+              - staging-network
+
+          # Frontend
+          frontend:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:develop
+            container_name: staging-frontend
+            restart: unless-stopped
+            ports:
+              - "3011:3000"
+            environment:
+              NODE_ENV: staging
+              NEXT_PUBLIC_API_URL: http://${{ secrets.STAGING_HOST }}:3000
+            depends_on:
+              - api-gateway
+            networks:
+              - staging-network
+
+        volumes:
+          mongodb_staging_data:
+          postgresql_staging_data:
+          redis_staging_data:
+
+        networks:
+          staging-network:
+            driver: bridge
+        EOF
+
+    - name: Copy files to staging server
+      run: |
+        scp docker-compose.staging.yml ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/opt/technovastore/
+        scp .env.staging.example ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/opt/technovastore/.env.staging
+
+    - name: Deploy to staging server
+      run: |
+        ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Set environment variables
+          export MONGO_USERNAME="${{ secrets.STAGING_MONGO_USERNAME }}"
+          export MONGO_PASSWORD="${{ secrets.STAGING_MONGO_PASSWORD }}"
+          export POSTGRES_USERNAME="${{ secrets.STAGING_POSTGRES_USERNAME }}"
+          export POSTGRES_PASSWORD="${{ secrets.STAGING_POSTGRES_PASSWORD }}"
+          export REDIS_PASSWORD="${{ secrets.STAGING_REDIS_PASSWORD }}"
+          export JWT_SECRET="${{ secrets.STAGING_JWT_SECRET }}"
+          export SMTP_HOST="${{ secrets.STAGING_SMTP_HOST }}"
+          export SMTP_PORT="${{ secrets.STAGING_SMTP_PORT }}"
+          export SMTP_USER="${{ secrets.STAGING_SMTP_USER }}"
+          export SMTP_PASS="${{ secrets.STAGING_SMTP_PASS }}"
+          
+          # Login to GitHub Container Registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull latest images
+          docker-compose -f docker-compose.staging.yml pull
+          
+          # Stop existing services gracefully
+          docker-compose -f docker-compose.staging.yml down --timeout 30
+          
+          # Start services
+          docker-compose -f docker-compose.staging.yml up -d
+          
+          # Wait for services to be ready
+          echo "Waiting for services to start..."
+          sleep 60
+          
+          # Health checks
+          echo "Running health checks..."
+          timeout 300 bash -c 'until curl -f http://localhost:3000/health; do echo "Waiting for API Gateway..."; sleep 10; done'
+          timeout 300 bash -c 'until curl -f http://localhost:3011; do echo "Waiting for Frontend..."; sleep 10; done'
+          
+          echo "Staging deployment completed successfully!"
+        EOF
+
+    - name: Run post-deployment tests
+      run: |
+        sleep 30
+        
+        # Test API Gateway health
+        curl -f http://${{ secrets.STAGING_HOST }}:3000/health || exit 1
+        
+        # Test Frontend
+        curl -f http://${{ secrets.STAGING_HOST }}:3011 || exit 1
+        
+        # Test core services
+        curl -f http://${{ secrets.STAGING_HOST }}:3001/health || echo "Product service health check failed"
+        curl -f http://${{ secrets.STAGING_HOST }}:3002/health || echo "Order service health check failed"
+        curl -f http://${{ secrets.STAGING_HOST }}:3003/health || echo "User service health check failed"
+
+    - name: Update deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          STATUS="✅ SUCCESS"
+          COLOR="good"
+        else
+          STATUS="❌ FAILED"
+          COLOR="danger"
+        fi
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"color\": \"$COLOR\",
+              \"title\": \"TechNovaStore Staging Deployment\",
+              \"fields\": [
+                {\"title\": \"Status\", \"value\": \"$STATUS\", \"short\": true},
+                {\"title\": \"Branch\", \"value\": \"develop\", \"short\": true},
+                {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                {\"title\": \"Environment\", \"value\": \"Staging\", \"short\": true}
+              ],
+              \"footer\": \"GitHub Actions\",
+              \"ts\": $(date +%s)
+            }]
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback on failure
+  rollback-staging:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    if: failure()
+    environment: staging
+    
+    steps:
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+    - name: Rollback to previous version
+      run: |
+        ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
+          cd /opt/technovastore
+          
+          # Get previous commit
+          PREVIOUS_COMMIT=$(git log --format="%H" -n 2 | tail -1)
+          
+          # Checkout previous commit
+          git checkout $PREVIOUS_COMMIT
+          
+          # Restart services with previous version
+          docker-compose -f docker-compose.staging.yml down
+          docker-compose -f docker-compose.staging.yml up -d
+          
+          echo "Rollback completed to commit: $PREVIOUS_COMMIT"
+        EOF
+
+    - name: Notify rollback
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"🔄 TechNovaStore staging deployment rolled back due to failure. Commit: ${{ github.sha }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
