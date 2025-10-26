@@ -222,6 +222,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: password
+      NODE_OPTIONS: "--max-old-space-size=1536"
     depends_on:
       - mongodb
       - redis
@@ -230,9 +231,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 2G
         reservations:
-          memory: 256M
+          memory: 512M
 
   order-service:
     build:
@@ -384,6 +385,10 @@ services:
       PORT: 3000
       MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
       REDIS_URI: redis://:password@redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+      NODE_OPTIONS: "--max-old-space-size=768"
     depends_on:
       - mongodb
       - redis
@@ -392,9 +397,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1G
         reservations:
-          memory: 256M
+          memory: 512M
 
   auto-purchase:
     build:
@@ -431,6 +436,13 @@ services:
       NODE_ENV: development
       PORT: 3000
       POSTGRESQL_URI: postgresql://admin:password@postgresql:5432/technovastore
+      DATABASE_URL: postgresql://admin:password@postgresql:5432/technovastore
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: technovastore
+      NODE_OPTIONS: "--max-old-space-size=768"
     depends_on:
       - postgresql
     networks:
@@ -438,9 +450,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1G
         reservations:
-          memory: 256M
+          memory: 512M
 
   # AI Services
   chatbot:
@@ -482,8 +494,13 @@ services:
       PORT: 3000
       MONGODB_URI: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
       MONGODB_URL: mongodb://admin:password@mongodb:27017/technovastore?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+      REDIS_DB: 0
       REDIS_URI: redis://:password@redis:6379
       REDIS_URL: redis://:password@redis:6379
+      NODE_OPTIONS: "--max-old-space-size=1536"
     depends_on:
       - mongodb
       - redis
@@ -492,9 +509,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 2G
         reservations:
-          memory: 256M
+          memory: 512M
 
   # Frontend
   frontend:
@@ -507,7 +524,8 @@ services:
       - "3011:3000"
     environment:
       NODE_ENV: development
-      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+      INTERNAL_API_URL: http://api-gateway:3000/api
     depends_on:
       - api-gateway
     volumes:
