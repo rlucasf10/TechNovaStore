@@ -1,0 +1,1349 @@
+openapi: 3.0.3
+info:
+  title: TechNovaStore API
+  description: |
+    API completa para TechNovaStore - Plataforma de e-commerce automatizada
+    
+    ## Características
+    - Arquitectura de microservicios
+    - Autenticación JWT
+    - Rate limiting avanzado
+    - Seguridad CSRF/XSS
+    - Documentación interactiva
+    
+    ## Autenticación
+    La mayoría de endpoints requieren autenticación JWT. Incluye el token en el header:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    
+    ## Rate Limiting
+    Todos los endpoints tienen límites de velocidad. Consulta los headers de respuesta:
+    - `X-RateLimit-Limit`: Límite total
+    - `X-RateLimit-Remaining`: Requests restantes
+    - `X-RateLimit-Reset`: Timestamp de reset
+    
+  version: 1.0.0
+  contact:
+    name: TechNovaStore API Support
+    url: https://github.com/technovastore/issues
+    email: api-support@technovastore.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Desarrollo local
+  - url: https://api-staging.technovastore.com
+    description: Staging
+  - url: https://api.technovastore.com
+    description: Producción
+
+security:
+  - BearerAuth: []
+  - CSRFToken: []
+
+paths:
+  # Health & System
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health check del sistema
+      description: Verifica el estado de salud de todos los servicios
+      security: []
+      responses:
+        '200':
+          description: Sistema saludable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Sistema no disponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/csrf-token:
+    get:
+      tags:
+        - System
+      summary: Obtener token CSRF
+      description: Genera un token CSRF para requests seguros
+      security: []
+      responses:
+        '200':
+          description: Token CSRF generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csrfToken:
+                    type: string
+                    description: Token CSRF para usar en requests POST/PUT/DELETE
+                  sessionId:
+                    type: string
+                    description: ID de sesión
+
+  # Authentication
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registro de usuario
+      description: Registra un nuevo usuario en el sistema
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos de registro inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de registro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Inicio de sesión
+      description: Autentica un usuario y devuelve tokens JWT
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Renovar token
+      description: Renueva el access token usando el refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: Refresh token válido
+              required:
+                - refreshToken
+      responses:
+        '200':
+          description: Token renovado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Refresh token inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Products
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Listar productos
+      description: Obtiene una lista paginada de productos
+      security: []
+      parameters:
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Productos por página
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: category
+          in: query
+          description: Filtrar por categoría
+          schema:
+            type: string
+        - name: brand
+          in: query
+          description: Filtrar por marca
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          description: Precio mínimo
+          schema:
+            type: number
+            minimum: 0
+        - name: maxPrice
+          in: query
+          description: Precio máximo
+          schema:
+            type: number
+            minimum: 0
+        - name: sortBy
+          in: query
+          description: Campo para ordenar
+          schema:
+            type: string
+            enum: [name, price, createdAt, popularity]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          description: Orden de clasificación
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          description: Parámetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Products
+      summary: Crear producto
+      description: Crea un nuevo producto (solo administradores)
+      security:
+        - BearerAuth: []
+        - CSRFToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Producto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Datos del producto inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Permisos insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Obtener producto por ID
+      description: Obtiene los detalles de un producto específico
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles del producto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Products
+      summary: Actualizar producto
+      description: Actualiza un producto existente (solo administradores)
+      security:
+        - BearerAuth: []
+        - CSRFToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Datos del producto inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Permisos insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/search:
+    get:
+      tags:
+        - Products
+      summary: Búsqueda de productos
+      description: Busca productos por texto, con rate limiting especial
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Término de búsqueda
+          schema:
+            type: string
+            minLength: 2
+        - name: category
+          in: query
+          description: Filtrar por categoría
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Productos por página
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Resultados de búsqueda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Parámetros de búsqueda inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiadas búsquedas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Orders
+  /api/orders:
+    get:
+      tags:
+        - Orders
+      summary: Listar pedidos del usuario
+      description: Obtiene el historial de pedidos del usuario autenticado
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Pedidos por página
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+        - name: status
+          in: query
+          description: Filtrar por estado
+          schema:
+            type: string
+            enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/create:
+    post:
+      tags:
+        - Orders
+      summary: Crear pedido
+      description: Crea un nuevo pedido con seguridad mejorada
+      security:
+        - BearerAuth: []
+        - CSRFToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Pedido creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Datos del pedido inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados pedidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Obtener pedido por ID
+      description: Obtiene los detalles de un pedido específico
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del pedido
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles del pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso denegado al pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Pedido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{id}/tracking:
+    get:
+      tags:
+        - Orders
+      summary: Información de seguimiento
+      description: Obtiene la información de seguimiento del pedido
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del pedido
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Información de seguimiento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Pedido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Users
+  /api/users/profile:
+    get:
+      tags:
+        - Users
+      summary: Obtener perfil del usuario
+      description: Obtiene el perfil del usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Users
+      summary: Actualizar perfil
+      description: Actualiza el perfil del usuario autenticado
+      security:
+        - BearerAuth: []
+        - CSRFToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Perfil actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Datos del perfil inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido del endpoint de login
+    CSRFToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: Token CSRF obtenido del endpoint /api/csrf-token
+
+  schemas:
+    # System Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        services:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, degraded, unhealthy]
+              responseTime:
+                type: number
+              lastCheck:
+                type: string
+                format: date-time
+        security:
+          type: object
+          properties:
+            https:
+              type: boolean
+            csrf:
+              type: boolean
+            xss:
+              type: boolean
+            rateLimit:
+              type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Código de error específico
+            message:
+              type: string
+              description: Mensaje de error legible
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+            timestamp:
+              type: string
+              format: date-time
+            requestId:
+              type: string
+              description: ID único de la request para debugging
+
+    # Authentication Schemas
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+        password:
+          type: string
+          minLength: 8
+          description: Contraseña (mínimo 8 caracteres)
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Nombre del usuario
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Apellido del usuario
+        phone:
+          type: string
+          pattern: '^[+]?[0-9\s\-\(\)]+$'
+          description: Teléfono del usuario (opcional)
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+        password:
+          type: string
+          description: Contraseña del usuario
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/UserProfile'
+            tokens:
+              $ref: '#/components/schemas/TokenResponse'
+
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Token JWT para autenticación
+        refreshToken:
+          type: string
+          description: Token para renovar el access token
+        expiresIn:
+          type: integer
+          description: Tiempo de expiración en segundos
+
+    # User Schemas
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del usuario
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+        firstName:
+          type: string
+          description: Nombre del usuario
+        lastName:
+          type: string
+          description: Apellido del usuario
+        phone:
+          type: string
+          description: Teléfono del usuario
+        role:
+          type: string
+          enum: [customer, admin]
+          description: Rol del usuario
+        address:
+          $ref: '#/components/schemas/Address'
+        preferences:
+          type: object
+          properties:
+            notifications:
+              type: object
+              properties:
+                email:
+                  type: boolean
+                sms:
+                  type: boolean
+            language:
+              type: string
+              enum: [es, en]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        phone:
+          type: string
+          pattern: '^[+]?[0-9\s\-\(\)]+$'
+        address:
+          $ref: '#/components/schemas/Address'
+        preferences:
+          type: object
+          properties:
+            notifications:
+              type: object
+              properties:
+                email:
+                  type: boolean
+                sms:
+                  type: boolean
+            language:
+              type: string
+              enum: [es, en]
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Dirección de la calle
+        city:
+          type: string
+          description: Ciudad
+        state:
+          type: string
+          description: Provincia/Estado
+        postalCode:
+          type: string
+          description: Código postal
+        country:
+          type: string
+          description: País
+
+    # Product Schemas
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del producto
+        sku:
+          type: string
+          description: SKU del producto
+        name:
+          type: string
+          description: Nombre del producto
+        description:
+          type: string
+          description: Descripción del producto
+        category:
+          type: string
+          description: Categoría del producto
+        subcategory:
+          type: string
+          description: Subcategoría del producto
+        brand:
+          type: string
+          description: Marca del producto
+        price:
+          type: number
+          minimum: 0
+          description: Precio actual del producto
+        originalPrice:
+          type: number
+          minimum: 0
+          description: Precio original sin descuento
+        stock:
+          type: integer
+          minimum: 0
+          description: Cantidad en stock
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: URLs de las imágenes del producto
+        specifications:
+          type: object
+          additionalProperties: true
+          description: Especificaciones técnicas del producto
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+        isActive:
+          type: boolean
+          description: Si el producto está activo
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Provider:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nombre del proveedor
+        price:
+          type: number
+          minimum: 0
+          description: Precio del proveedor
+        availability:
+          type: boolean
+          description: Disponibilidad en el proveedor
+        shippingCost:
+          type: number
+          minimum: 0
+          description: Costo de envío
+        deliveryTime:
+          type: integer
+          minimum: 1
+          description: Tiempo de entrega en días
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Última actualización de datos
+
+    CreateProductRequest:
+      type: object
+      required:
+        - sku
+        - name
+        - description
+        - category
+        - brand
+        - price
+      properties:
+        sku:
+          type: string
+          minLength: 3
+          maxLength: 50
+        name:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        category:
+          type: string
+          minLength: 2
+          maxLength: 50
+        subcategory:
+          type: string
+          maxLength: 50
+        brand:
+          type: string
+          minLength: 2
+          maxLength: 50
+        price:
+          type: number
+          minimum: 0.01
+        stock:
+          type: integer
+          minimum: 0
+          default: 0
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        specifications:
+          type: object
+          additionalProperties: true
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        category:
+          type: string
+          minLength: 2
+          maxLength: 50
+        subcategory:
+          type: string
+          maxLength: 50
+        brand:
+          type: string
+          minLength: 2
+          maxLength: 50
+        price:
+          type: number
+          minimum: 0.01
+        stock:
+          type: integer
+          minimum: 0
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        specifications:
+          type: object
+          additionalProperties: true
+        isActive:
+          type: boolean
+
+    ProductListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+            filters:
+              type: object
+              properties:
+                categories:
+                  type: array
+                  items:
+                    type: string
+                brands:
+                  type: array
+                  items:
+                    type: string
+                priceRange:
+                  type: object
+                  properties:
+                    min:
+                      type: number
+                    max:
+                      type: number
+
+    SearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+            query:
+              type: string
+              description: Término de búsqueda utilizado
+            suggestions:
+              type: array
+              items:
+                type: string
+              description: Sugerencias de búsqueda alternativas
+            totalResults:
+              type: integer
+              description: Total de resultados encontrados
+
+    # Order Schemas
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del pedido
+        orderNumber:
+          type: string
+          description: Número de pedido legible
+        userId:
+          type: string
+          description: ID del usuario que realizó el pedido
+        status:
+          type: string
+          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+          description: Estado actual del pedido
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        totalAmount:
+          type: number
+          minimum: 0
+          description: Monto total del pedido
+        shippingAddress:
+          $ref: '#/components/schemas/Address'
+        billingAddress:
+          $ref: '#/components/schemas/Address'
+        paymentMethod:
+          type: string
+          enum: [card, paypal, bank_transfer]
+          description: Método de pago utilizado
+        paymentStatus:
+          type: string
+          enum: [pending, completed, failed, refunded]
+          description: Estado del pago
+        providerOrderId:
+          type: string
+          description: ID del pedido en el proveedor
+        trackingNumber:
+          type: string
+          description: Número de seguimiento del envío
+        estimatedDelivery:
+          type: string
+          format: date
+          description: Fecha estimada de entrega
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: ID del producto
+        productSku:
+          type: string
+          description: SKU del producto
+        productName:
+          type: string
+          description: Nombre del producto
+        quantity:
+          type: integer
+          minimum: 1
+          description: Cantidad del producto
+        unitPrice:
+          type: number
+          minimum: 0
+          description: Precio unitario
+        totalPrice:
+          type: number
+          minimum: 0
+          description: Precio total del item
+        providerName:
+          type: string
+          description: Nombre del proveedor seleccionado
+        providerItemId:
+          type: string
+          description: ID del item en el proveedor
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - items
+        - shippingAddress
+        - paymentMethod
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - productId
+              - quantity
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+        shippingAddress:
+          $ref: '#/components/schemas/Address'
+        billingAddress:
+          $ref: '#/components/schemas/Address'
+        paymentMethod:
+          type: string
+          enum: [card, paypal, bank_transfer]
+        notes:
+          type: string
+          maxLength: 500
+          description: Notas adicionales para el pedido
+
+    OrderListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            orders:
+              type: array
+              items:
+                $ref: '#/components/schemas/Order'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+
+    TrackingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            orderId:
+              type: string
+            trackingNumber:
+              type: string
+            status:
+              type: string
+            estimatedDelivery:
+              type: string
+              format: date
+            events:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                  location:
+                    type: string
+                  description:
+                    type: string
+            provider:
+              type: object
+              properties:
+                name:
+                  type: string
+                trackingUrl:
+                  type: string
+                  format: uri
+
+    # Common Schemas
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Página actual
+        limit:
+          type: integer
+          minimum: 1
+          description: Items por página
+        total:
+          type: integer
+          minimum: 0
+          description: Total de items
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total de páginas
+        hasNext:
+          type: boolean
+          description: Si hay página siguiente
+        hasPrev:
+          type: boolean
+          description: Si hay página anterior
+
+tags:
+  - name: System
+    description: Endpoints del sistema y salud
+  - name: Authentication
+    description: Autenticación y gestión de sesiones
+  - name: Products
+    description: Gestión del catálogo de productos
+  - name: Orders
+    description: Gestión de pedidos
+  - name: Users
+    description: Gestión de usuarios y perfiles

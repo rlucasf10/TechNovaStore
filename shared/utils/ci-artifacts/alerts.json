@@ -1,0 +1,71 @@
+{
+  "timestamp": 1760778766617,
+  "config": {
+    "gracefulTimeout": 5000,
+    "forceTimeout": 10000,
+    "maxRetries": 3,
+    "retryDelay": 1000,
+    "logLevel": "info",
+    "logToFile": false,
+    "detectHandles": true,
+    "handleDetectionTimeout": 2000,
+    "databaseStrategy": "graceful",
+    "serverStrategy": "graceful",
+    "strictMode": false,
+    "enableMetrics": true,
+    "enableDiagnostics": true,
+    "database": {
+      "connectionTimeout": 5000,
+      "queryTimeout": 10000,
+      "poolCleanupTimeout": 3000
+    },
+    "server": {
+      "shutdownTimeout": 5000,
+      "keepAliveTimeout": 2000,
+      "requestTimeout": 10000
+    },
+    "timer": {
+      "cleanupBatchSize": 100,
+      "maxActiveTimers": 1000
+    },
+    "environment": "testing"
+  },
+  "alertHistory": [],
+  "statistics": {
+    "total": 0,
+    "last24Hours": 0,
+    "lastWeek": 0,
+    "bySeverity": {
+      "low": 0,
+      "medium": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "byType": {},
+    "recurringIssues": [],
+    "trends": {
+      "hourly": 0,
+      "sixHourly": 0,
+      "daily": 0,
+      "direction": "stable"
+    }
+  },
+  "thresholds": {
+    "errorRate": {
+      "warning": 10,
+      "critical": 25
+    },
+    "responseTime": {
+      "warning": 4000,
+      "critical": 10000
+    },
+    "throughput": {
+      "warning": 1,
+      "critical": 0.1
+    },
+    "handleLeaks": {
+      "warning": 5,
+      "critical": 15
+    }
+  }
+}

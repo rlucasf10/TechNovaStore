@@ -1,0 +1,8 @@
+export { ChatWidget } from './ChatWidget'
+export { ChatMessage } from './ChatMessage'
+export { ChatInput } from './ChatInput'
+export { ProductRecommendations } from './ProductRecommendations'
+export { ProductCarousel } from './ProductCarousel'
+export { ChatRecommendationCard } from './ChatRecommendationCard'
+export { ChatTypingIndicator } from './ChatTypingIndicator'
+export { QuickReplies } from './QuickReplies'

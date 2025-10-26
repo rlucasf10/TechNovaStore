@@ -1,0 +1,15 @@
+# HELP cleanup_operations_total Total number of cleanup operations
+# TYPE cleanup_operations_total counter
+cleanup_operations_total 0 1760778766622
+
+# HELP cleanup_success_rate Success rate of cleanup operations
+# TYPE cleanup_success_rate gauge
+cleanup_success_rate 1 1760778766622
+
+# HELP cleanup_response_time_seconds Average cleanup response time in seconds
+# TYPE cleanup_response_time_seconds gauge
+cleanup_response_time_seconds 0 1760778766622
+
+# HELP cleanup_error_rate Error rate of cleanup operations
+# TYPE cleanup_error_rate gauge
+cleanup_error_rate 0 1760778766622

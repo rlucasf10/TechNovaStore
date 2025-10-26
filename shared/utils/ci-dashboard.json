@@ -1,0 +1,124 @@
+{
+  "timestamp": 1760778766610,
+  "environment": "testing",
+  "status": "fail",
+  "summary": {
+    "totalResources": 0,
+    "successRate": 100,
+    "errorRate": 0,
+    "leaksDetected": 27,
+    "averageCleanupTime": 0,
+    "alertsActive": 0,
+    "overallHealth": "critical"
+  },
+  "metrics": {
+    "performance": {
+      "totalOperations": 0,
+      "averageResponseTime": 0,
+      "p95ResponseTime": 0,
+      "p99ResponseTime": 0,
+      "throughput": 0,
+      "errorRate": 0,
+      "resourceTypeBreakdown": {},
+      "timeSeriesData": []
+    },
+    "alerts": {
+      "timestamp": 1760778766610,
+      "summary": {
+        "totalAlerts": 0,
+        "criticalActive": 0,
+        "recurringIssues": 0,
+        "overallRisk": "low"
+      },
+      "criticalAlerts": [],
+      "recurringPatterns": [],
+      "recommendations": [],
+      "actionItems": []
+    },
+    "dashboard": {
+      "timestamp": 1760778766610,
+      "status": "critical",
+      "summary": {
+        "totalOperations": 0,
+        "successRate": 100,
+        "errorRate": 0,
+        "averageResponseTime": 0,
+        "activeHandles": 27,
+        "leaksDetected": 27
+      },
+      "charts": {
+        "performanceTrend": {
+          "type": "line",
+          "title": "Performance Trend",
+          "data": []
+        },
+        "resourceDistribution": {
+          "type": "pie",
+          "title": "Resources by Type",
+          "data": []
+        },
+        "errorRate": {
+          "type": "gauge",
+          "title": "Error Rate",
+          "data": [
+            {
+              "label": "Error Rate",
+              "value": 0,
+              "max": 100,
+              "color": "#4caf50"
+            }
+          ]
+        },
+        "handleGrowth": {
+          "type": "bar",
+          "title": "Handle Growth",
+          "data": [
+            {
+              "label": "Baseline",
+              "value": 0
+            },
+            {
+              "label": "Current",
+              "value": 27
+            },
+            {
+              "label": "Leaks",
+              "value": 27
+            }
+          ]
+        }
+      },
+      "alerts": [],
+      "recommendations": [
+        "Address resource leaks to prevent Jest hanging issues"
+      ]
+    }
+  },
+  "recommendations": [],
+  "artifacts": [
+    {
+      "name": "Metrics Data",
+      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.json",
+      "type": "json",
+      "description": "Complete metrics data for analysis"
+    },
+    {
+      "name": "Alert Data",
+      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\alerts.json",
+      "type": "json",
+      "description": "Alert history and patterns"
+    },
+    {
+      "name": "Prometheus Metrics",
+      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.prom",
+      "type": "prometheus",
+      "description": "Metrics in Prometheus format"
+    },
+    {
+      "name": "CSV Report",
+      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.csv",
+      "type": "csv",
+      "description": "Metrics data in CSV format"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+# TechNovaStore Load Test Configuration
+# Basic load test for general API endpoints
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm-up"
+    # Ramp-up phase
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp-up"
+    # Sustained load phase
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained load"
+    # Cool-down phase
+    - duration: 30
+      arrivalRate: 10
+      name: "Cool-down"
+  
+  # Performance thresholds
+  ensure:
+    - http.response_time.p95: 2000  # 95% of requests under 2s
+    - http.response_time.p99: 5000  # 99% of requests under 5s
+    - http.codes.200: 95            # 95% success rate
+    - http.codes.503: 2             # Max 2% service unavailable
+
+  # Request configuration
+  http:
+    timeout: 10
+    pool: 50
+    maxSockets: 50
+
+  # Variables for dynamic data
+  variables:
+    productIds:
+      - "64a1b2c3d4e5f6789abcdef0"
+      - "64a1b2c3d4e5f6789abcdef1"
+      - "64a1b2c3d4e5f6789abcdef2"
+      - "64a1b2c3d4e5f6789abcdef3"
+      - "64a1b2c3d4e5f6789abcdef4"
+    
+    searchTerms:
+      - "laptop"
+      - "smartphone"
+      - "tablet"
+      - "headphones"
+      - "monitor"
+      - "keyboard"
+      - "mouse"
+
+  # Plugins for enhanced reporting
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    
+scenarios:
+  # Public endpoints (no authentication required)
+  - name: "Public API Load Test"
+    weight: 60
+    flow:
+      # Health check
+      - get:
+          url: "/health"
+          name: "Health Check"
+          expect:
+            - statusCode: 200
+      
+      # Product catalog browsing
+      - get:
+          url: "/api/products"
+          name: "Product Catalog"
+          qs:
+            page: "{{ $randomInt(1, 10) }}"
+            limit: "20"
+          expect:
+            - statusCode: 200
+      
+      # Product search
+      - get:
+          url: "/api/products/search"
+          name: "Product Search"
+          qs:
+            q: "{{ $pick(searchTerms) }}"
+            category: "electronics"
+          expect:
+            - statusCode: 200
+      
+      # Product details
+      - get:
+          url: "/api/products/{{ $pick(productIds) }}"
+          name: "Product Details"
+          expect:
+            - statusCode: [200, 404]
+      
+      # API documentation
+      - get:
+          url: "/api/docs"
+          name: "API Documentation"
+          expect:
+            - statusCode: 200
+
+  # Mixed load scenario
+  - name: "Mixed Load Scenario"
+    weight: 40
+    flow:
+      # Simulate user browsing behavior
+      - loop:
+          - get:
+              url: "/api/products"
+              name: "Browse Products"
+              qs:
+                page: "{{ $randomInt(1, 5) }}"
+                limit: "10"
+          - think: 2  # User thinks for 2 seconds
+          
+          - get:
+              url: "/api/products/search"
+              name: "Search Products"
+              qs:
+                q: "{{ $pick(searchTerms) }}"
+          - think: 1
+          
+          - get:
+              url: "/api/products/{{ $pick(productIds) }}"
+              name: "View Product Details"
+          - think: 3
+        count: 3

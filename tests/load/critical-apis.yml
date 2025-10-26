@@ -1,0 +1,172 @@
+# TechNovaStore Critical APIs Stress Test
+# Focused stress testing for business-critical endpoints
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Authentication load
+    - duration: 60
+      arrivalRate: 20
+      name: "Auth Load"
+    # Order processing stress
+    - duration: 90
+      arrivalRate: 30
+      rampTo: 100
+      name: "Order Processing Stress"
+    # Payment processing stress
+    - duration: 60
+      arrivalRate: 50
+      name: "Payment Processing"
+    # Recovery phase
+    - duration: 30
+      arrivalRate: 5
+      name: "Recovery"
+
+  # Strict performance requirements for critical APIs
+  ensure:
+    - http.response_time.p95: 1500  # Stricter for critical APIs
+    - http.response_time.p99: 3000
+    - http.codes.200: 98            # Higher success rate required
+    - http.codes.500: 0.5           # Very low error tolerance
+    - http.codes.503: 1
+
+  http:
+    timeout: 15
+    pool: 100
+    maxSockets: 100
+
+  # Test user credentials (for testing purposes)
+  variables:
+    testUsers:
+      - email: "loadtest1@technovastore.com"
+        password: "LoadTest123!"
+      - email: "loadtest2@technovastore.com"
+        password: "LoadTest123!"
+      - email: "loadtest3@technovastore.com"
+        password: "LoadTest123!"
+    
+    productSkus:
+      - "LAPTOP-001"
+      - "PHONE-002"
+      - "TABLET-003"
+      - "MONITOR-004"
+      - "KEYBOARD-005"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    expect: {}
+
+scenarios:
+  # Authentication stress test
+  - name: "Authentication Stress"
+    weight: 30
+    flow:
+      # Get CSRF token
+      - get:
+          url: "/api/csrf-token"
+          name: "Get CSRF Token"
+          capture:
+            - json: "$.csrfToken"
+              as: "csrfToken"
+            - json: "$.sessionId"
+              as: "sessionId"
+      
+      # Login attempt
+      - post:
+          url: "/api/auth/login"
+          name: "User Login"
+          headers:
+            Content-Type: "application/json"
+            X-CSRF-Token: "{{ csrfToken }}"
+            X-Session-ID: "{{ sessionId }}"
+          json:
+            email: "{{ $pick(testUsers).email }}"
+            password: "{{ $pick(testUsers).password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: [200, 401, 429]  # Allow rate limiting responses
+
+  # Order processing stress test
+  - name: "Order Processing Stress"
+    weight: 40
+    flow:
+      # Authenticate first
+      - post:
+          url: "/api/auth/login"
+          name: "Login for Order"
+          json:
+            email: "{{ $pick(testUsers).email }}"
+            password: "{{ $pick(testUsers).password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: [200, 401, 429]
+      
+      # Create order (if authenticated)
+      - post:
+          url: "/api/orders/create"
+          name: "Create Order"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+            Content-Type: "application/json"
+          json:
+            items:
+              - sku: "{{ $pick(productSkus) }}"
+                quantity: "{{ $randomInt(1, 3) }}"
+                price: "{{ $randomInt(100, 1000) }}"
+            shippingAddress:
+              street: "Test Street 123"
+              city: "Test City"
+              postalCode: "12345"
+              country: "ES"
+          expect:
+            - statusCode: [200, 201, 400, 401, 429, 503]
+      
+      # Check order status
+      - get:
+          url: "/api/orders"
+          name: "Get Orders"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: [200, 401, 429]
+
+  # Payment processing stress test
+  - name: "Payment Processing Stress"
+    weight: 30
+    flow:
+      # Authenticate
+      - post:
+          url: "/api/auth/login"
+          name: "Login for Payment"
+          json:
+            email: "{{ $pick(testUsers).email }}"
+            password: "{{ $pick(testUsers).password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: [200, 401, 429]
+      
+      # Process payment
+      - post:
+          url: "/api/payments"
+          name: "Process Payment"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+            Content-Type: "application/json"
+          json:
+            amount: "{{ $randomInt(50, 500) }}"
+            currency: "EUR"
+            paymentMethod: "card"
+            cardDetails:
+              number: "4111111111111111"  # Test card number
+              expiryMonth: "12"
+              expiryYear: "2025"
+              cvv: "123"
+          expect:
+            - statusCode: [200, 201, 400, 401, 429, 503]

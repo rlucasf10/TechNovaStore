@@ -1,0 +1,319 @@
+version: '3.8'
+
+# Redis Cluster Configuration for Distributed Caching
+# Provides high availability and horizontal scaling for cache
+
+services:
+  # Redis Master Nodes
+  redis-master-1:
+    image: redis:7-alpine
+    container_name: technovastore-redis-master-1
+    restart: unless-stopped
+    ports:
+      - "7001:6379"
+      - "17001:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_master_1_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-master-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-master-2:
+    image: redis:7-alpine
+    container_name: technovastore-redis-master-2
+    restart: unless-stopped
+    ports:
+      - "7002:6379"
+      - "17002:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_master_2_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-master-2
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-master-3:
+    image: redis:7-alpine
+    container_name: technovastore-redis-master-3
+    restart: unless-stopped
+    ports:
+      - "7003:6379"
+      - "17003:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_master_3_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-master-3
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Replica Nodes
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: technovastore-redis-replica-1
+    restart: unless-stopped
+    ports:
+      - "7004:6379"
+      - "17004:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_replica_1_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-replica-1
+    depends_on:
+      - redis-master-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-replica-2:
+    image: redis:7-alpine
+    container_name: technovastore-redis-replica-2
+    restart: unless-stopped
+    ports:
+      - "7005:6379"
+      - "17005:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_replica_2_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-replica-2
+    depends_on:
+      - redis-master-2
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-replica-3:
+    image: redis:7-alpine
+    container_name: technovastore-redis-replica-3
+    restart: unless-stopped
+    ports:
+      - "7006:6379"
+      - "17006:16379"
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_replica_3_data:/data
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - technovastore-network
+    environment:
+      - REDIS_CLUSTER_ANNOUNCE_IP=redis-replica-3
+    depends_on:
+      - redis-master-3
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cluster Setup Service
+  redis-cluster-setup:
+    image: redis:7-alpine
+    container_name: technovastore-redis-cluster-setup
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+      - redis-replica-1
+      - redis-replica-2
+      - redis-replica-3
+    command: >
+      sh -c "
+        sleep 10 &&
+        redis-cli -a ${REDIS_PASSWORD} --cluster create
+        redis-master-1:6379
+        redis-master-2:6379
+        redis-master-3:6379
+        redis-replica-1:6379
+        redis-replica-2:6379
+        redis-replica-3:6379
+        --cluster-replicas 1
+        --cluster-yes
+      "
+    restart: "no"
+
+  # Redis Sentinel for High Availability
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: technovastore-redis-sentinel-1
+    restart: unless-stopped
+    ports:
+      - "26379:26379"
+    command: redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis/sentinel.conf
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: technovastore-redis-sentinel-2
+    restart: unless-stopped
+    ports:
+      - "26380:26379"
+    command: redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis/sentinel.conf
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: technovastore-redis-sentinel-3
+    restart: unless-stopped
+    ports:
+      - "26381:26379"
+    command: redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./redis-sentinel.conf:/etc/redis/sentinel.conf
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+
+  # Cache Management Service
+  cache-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.cache-manager
+    container_name: technovastore-cache-manager
+    restart: unless-stopped
+    environment:
+      - REDIS_CLUSTER_NODES=redis-master-1:6379,redis-master-2:6379,redis-master-3:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CACHE_TTL_DEFAULT=3600
+      - CACHE_TTL_PRODUCTS=1800
+      - CACHE_TTL_PRICES=300
+      - CACHE_TTL_SESSIONS=86400
+      - MONITORING_INTERVAL=60
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - technovastore-network
+    depends_on:
+      - redis-cluster-setup
+
+volumes:
+  redis_master_1_data:
+  redis_master_2_data:
+  redis_master_3_data:
+  redis_replica_1_data:
+  redis_replica_2_data:
+  redis_replica_3_data:
+
+networks:
+  technovastore-network:
+    external: true

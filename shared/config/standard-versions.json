@@ -1,0 +1,105 @@
+{
+  "dependencies": {
+    "common": {
+      "runtime": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5",
+        "helmet": "^7.1.0",
+        "morgan": "^1.10.0",
+        "winston": "^3.11.0",
+        "dotenv": "^16.3.1"
+      },
+      "database": {
+        "pg": "^8.11.3",
+        "sequelize": "^6.37.7",
+        "mongoose": "^8.0.3",
+        "redis": "^4.6.12"
+      },
+      "validation": {
+        "joi": "^17.11.0",
+        "express-validator": "^7.0.1"
+      },
+      "auth": {
+        "bcrypt": "^5.1.1",
+        "jsonwebtoken": "^9.0.2"
+      },
+      "utils": {
+        "axios": "^1.6.2",
+        "uuid": "^9.0.1",
+        "nodemailer": "^7.0.9"
+      }
+    },
+    "development": {
+      "typescript": "^5.3.3",
+      "ts-node": "^10.9.2",
+      "nodemon": "^3.0.2",
+      "@types/node": "^20.10.0",
+      "@types/express": "^4.17.21",
+      "@types/cors": "^2.8.17",
+      "@types/morgan": "^1.9.9",
+      "@types/pg": "^8.10.9",
+      "@types/bcrypt": "^5.0.2",
+      "@types/jsonwebtoken": "^9.0.5",
+      "@types/uuid": "^9.0.7",
+      "@types/nodemailer": "^6.4.15"
+    },
+    "testing": {
+      "jest": "^29.7.0",
+      "@types/jest": "^29.5.12",
+      "ts-jest": "^29.1.2"
+    }
+  },
+  "environment": {
+    "development": {
+      "POSTGRES_HOST": "localhost",
+      "POSTGRES_PORT": "5432",
+      "POSTGRES_DB": "technovastore",
+      "POSTGRES_USER": "technovastore_user",
+      "POSTGRES_PASSWORD": "your_secure_postgres_password",
+      "REDIS_HOST": "localhost",
+      "REDIS_PORT": "6379",
+      "REDIS_PASSWORD": "your_secure_redis_password",
+      "REDIS_DB": "0",
+      "MONGODB_URI": "mongodb://localhost:27017/technovastore",
+      "JWT_SECRET": "your_super_secure_jwt_secret_key_minimum_32_characters",
+      "SMTP_HOST": "smtp.gmail.com",
+      "SMTP_PORT": "587",
+      "SMTP_USER": "noreply@technovastore.com",
+      "SMTP_PASS": "your_smtp_app_password",
+      "NODE_ENV": "development",
+      "LOG_LEVEL": "info",
+      "FRONTEND_URL": "http://localhost:3011",
+      "API_BASE_URL": "http://localhost:3000",
+      "CORS_ORIGIN": "http://localhost:3011",
+      "RATE_LIMIT_WINDOW_MS": "900000",
+      "RATE_LIMIT_MAX_REQUESTS": "100",
+      "CACHE_TTL": "3600",
+      "AMAZON_API_KEY": "",
+      "AMAZON_SECRET_KEY": "",
+      "ALIEXPRESS_API_KEY": "",
+      "BANGGOOD_API_KEY": "",
+      "EBAY_API_KEY": "",
+      "NEWEGG_API_KEY": ""
+    },
+    "common": {
+      "database": {
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "technovastore",
+        "MONGODB_URI": "mongodb://localhost:27017/technovastore",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "REDIS_DB": "0"
+      },
+      "security": {
+        "CORS_ORIGIN": "http://localhost:3011",
+        "RATE_LIMIT_WINDOW_MS": "900000",
+        "RATE_LIMIT_MAX_REQUESTS": "100"
+      },
+      "email": {
+        "SMTP_HOST": "smtp.gmail.com",
+        "SMTP_PORT": "587"
+      }
+    }
+  }
+}

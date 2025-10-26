@@ -1,0 +1,289 @@
+version: '3.8'
+
+# Docker Swarm configuration for horizontal auto-scaling
+# Deploy with: docker stack deploy -c docker-swarm.yml technovastore
+
+services:
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.swarm.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.2'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+
+  # API Gateway with auto-scaling
+  api-gateway:
+    image: technovastore/api-gateway:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/technovastore?authSource=admin
+      POSTGRESQL_URI: postgresql://admin:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Product Service with auto-scaling
+  product-service:
+    image: technovastore/product-service:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/technovastore?authSource=admin
+      REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.15'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Order Service with auto-scaling
+  order-service:
+    image: technovastore/order-service:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      POSTGRESQL_URI: postgresql://admin:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.15'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend with auto-scaling
+  frontend:
+    image: technovastore/frontend:latest
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.technovastore.com
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Databases (single instance with high availability)
+  mongodb:
+    image: mongo:6.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: technovastore
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # Redis Cluster for distributed caching
+  redis-master:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.15'
+
+  redis-replica:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru --replicaof redis-master 6379
+    networks:
+      - technovastore-network
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.15'
+    depends_on:
+      - redis-master
+
+volumes:
+  mongodb_data:
+    driver: local
+  postgresql_data:
+    driver: local
+
+networks:
+  technovastore-network:
+    driver: overlay
+    attachable: true
