@@ -14,6 +14,15 @@ const nextConfig = {
       ...config.optimization,
       moduleIds: 'deterministic',
     }
+    
+    // Fix for browser extension listener errors
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    }
+    
     return config
   },
   // Optimize for faster development

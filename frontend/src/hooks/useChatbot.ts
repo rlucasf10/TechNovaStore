@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { ChatMessage, ChatbotResponse } from '@/types'
 import api from '@/lib/api'
 import axios from 'axios'
+import { handleApiError } from '@/middleware/errorHandler'
 
 interface UseChatbotReturn {
   messages: ChatMessage[]
@@ -70,7 +71,10 @@ export const useChatbot = (): UseChatbotReturn => {
       }
       setMessages([welcomeMessage])
     } catch (error) {
-      console.error('Error initializing chat session:', error)
+      const handledError = handleApiError(error)
+      if (handledError) {
+        console.error('Error initializing chat session:', handledError)
+      }
       // Fallback to local session with welcome message
       setSessionId(`local_${Date.now()}`)
 
@@ -144,7 +148,10 @@ export const useChatbot = (): UseChatbotReturn => {
 
       setMessages(prev => [...prev, botMessage])
     } catch (error) {
-      console.error('Error sending message:', error)
+      const handledError = handleApiError(error)
+      if (handledError) {
+        console.error('Error sending message:', handledError)
+      }
 
       // Smart fallback responses based on user input
       let fallbackResponse = 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo o contacta con nuestro soporte.'
