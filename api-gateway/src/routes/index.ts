@@ -289,13 +289,13 @@ export const setupRoutes = (app: Express) => {
   }));
 
   // Chatbot Service Routes (public access for chat functionality)
-  app.use('/chat', publicSecurity, optionalAuth, createProxyMiddleware({
+  app.use('/api/chat', publicSecurity, optionalAuth, createProxyMiddleware({
     target: services.chatbot,
     changeOrigin: true,
     timeout: 60000, // 60 seconds timeout for chatbot responses
     proxyTimeout: 60000,
     pathRewrite: {
-      '^/chat': '/api',
+      '^/api/chat': '/api',
     },
     onError: (err: any, req: any, res: any) => {
       logger.error('Chatbot service proxy error:', err);
