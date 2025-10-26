@@ -88,9 +88,9 @@ app.use(speedLimiter);
 app.use(xssProtection);
 
 // Body parsing middleware with security limits
-// Body parser - Skip for /chat routes (handled by proxy)
+// Body parser - Skip for /api/chat routes (handled by proxy)
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (req.path.startsWith('/chat')) {
+  if (req.path.startsWith('/api/chat')) {
     return next();
   }
   express.json({
@@ -102,7 +102,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   })(req, res, next);
 });
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (req.path.startsWith('/chat')) {
+  if (req.path.startsWith('/api/chat')) {
     return next();
   }
   express.urlencoded({
@@ -112,11 +112,11 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   })(req, res, next);
 });
 
-// CSRF Protection (after body parsing) - Skip for /chat routes
+// CSRF Protection (after body parsing) - Skip for /api/chat routes
 if (securityConfig.csrf.enabled) {
   app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     // Skip CSRF for chatbot routes
-    if (req.path.startsWith('/chat')) {
+    if (req.path.startsWith('/api/chat')) {
       return next();
     }
     return csrfProtection(req, res, next);
