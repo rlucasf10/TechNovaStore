@@ -223,8 +223,8 @@ docker-compose.local.yml
 
 # Docker Compose files with hardcoded credentials (NEVER commit these)
 # These files have credentials in plain text for local development only
-docker-compose.dev.yml          # Development without limits (admin/password)
-docker-compose.optimized.yml    # Development with 8GB RAM limits (admin/password)
+/docker-compose.dev.yml
+/docker-compose.optimized.yml
 
 # Ignore git bundle backups
 *.bundle
