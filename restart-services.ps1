@@ -7,7 +7,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Verificar que Docker está corriendo
-Write-Host "[1/6] Verificando Docker..." -ForegroundColor Yellow
+Write-Host "[1/7] Verificando Docker..." -ForegroundColor Yellow
 $dockerRunning = docker info 2>$null
 if (-not $dockerRunning) {
     Write-Host "ERROR: Docker no está corriendo. Inicia Docker Desktop primero." -ForegroundColor Red
@@ -17,7 +17,7 @@ Write-Host "✓ Docker está corriendo" -ForegroundColor Green
 Write-Host ""
 
 # FASE 1: Bases de datos (crítico)
-Write-Host "[2/6] FASE 1: Reiniciando bases de datos..." -ForegroundColor Yellow
+Write-Host "[2/7] FASE 1: Reiniciando bases de datos..." -ForegroundColor Yellow
 docker-compose -f docker-compose.optimized.yml restart mongodb postgresql redis
 Write-Host "  Esperando 30 segundos..." -ForegroundColor Gray
 Start-Sleep -Seconds 30
@@ -25,7 +25,7 @@ Write-Host "✓ Bases de datos reiniciadas" -ForegroundColor Green
 Write-Host ""
 
 # FASE 2: Servicios de infraestructura
-Write-Host "[3/6] FASE 2: Reiniciando infraestructura..." -ForegroundColor Yellow
+Write-Host "[3/7] FASE 2: Reiniciando infraestructura..." -ForegroundColor Yellow
 docker-compose -f docker-compose.optimized.yml restart prometheus
 Write-Host "  Esperando 20 segundos..." -ForegroundColor Gray
 Start-Sleep -Seconds 20
@@ -33,7 +33,7 @@ Write-Host "✓ Infraestructura reiniciada" -ForegroundColor Green
 Write-Host ""
 
 # FASE 3: Servicios core
-Write-Host "[4/6] FASE 3: Reiniciando servicios principales..." -ForegroundColor Yellow
+Write-Host "[4/7] FASE 3: Reiniciando servicios principales..." -ForegroundColor Yellow
 docker-compose -f docker-compose.optimized.yml restart api-gateway product-service order-service user-service payment-service notification-service ticket-service
 Write-Host "  Esperando 30 segundos..." -ForegroundColor Gray
 Start-Sleep -Seconds 30
@@ -41,7 +41,7 @@ Write-Host "✓ Servicios principales reiniciados" -ForegroundColor Green
 Write-Host ""
 
 # FASE 4: Servicios de automatización
-Write-Host "[5/6] FASE 4: Reiniciando servicios de automatización..." -ForegroundColor Yellow
+Write-Host "[5/7] FASE 4: Reiniciando servicios de automatización..." -ForegroundColor Yellow
 docker-compose -f docker-compose.optimized.yml restart sync-engine auto-purchase shipment-tracker
 Write-Host "  Esperando 20 segundos..." -ForegroundColor Gray
 Start-Sleep -Seconds 20
@@ -49,11 +49,17 @@ Write-Host "✓ Servicios de automatización reiniciados" -ForegroundColor Green
 Write-Host ""
 
 # FASE 5: AI, Frontend y Monitoring
-Write-Host "[6/6] FASE 5: Reiniciando AI, Frontend y Monitoring..." -ForegroundColor Yellow
-docker-compose -f docker-compose.optimized.yml restart chatbot recommender frontend grafana
-Write-Host "  Esperando 30 segundos..." -ForegroundColor Gray
-Start-Sleep -Seconds 30
+Write-Host "[6/7] FASE 5: Reiniciando AI, Frontend y Monitoring..." -ForegroundColor Yellow
+docker-compose -f docker-compose.optimized.yml restart chatbot recommender frontend grafana alertmanager
+Write-Host "  Esperando 20 segundos..." -ForegroundColor Gray
+Start-Sleep -Seconds 20
 Write-Host "✓ AI y Frontend reiniciados" -ForegroundColor Green
+Write-Host ""
+
+# FASE 6: Exporters y ELK (opcional, pueden fallar si no están configurados)
+Write-Host "[7/7] FASE 6: Reiniciando exporters y ELK..." -ForegroundColor Yellow
+docker-compose -f docker-compose.optimized.yml restart mongodb-exporter postgres-exporter redis-exporter node-exporter elasticsearch logstash kibana 2>$null
+Write-Host "✓ Exporters y ELK reiniciados (si están disponibles)" -ForegroundColor Green
 Write-Host ""
 
 # Verificar estado
