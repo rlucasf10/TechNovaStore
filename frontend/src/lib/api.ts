@@ -40,7 +40,7 @@ const getCSRFToken = async (): Promise<{ token: string; sessionId: string }> => 
 
     // Use appropriate base URL for CSRF token endpoint
     const csrfBaseUrl = typeof window !== 'undefined'
-      ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
+      ? (process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000')
       : (process.env.INTERNAL_API_URL?.replace('/api', '') || 'http://api-gateway:3000')
 
     const response = await axios.get(`${csrfBaseUrl}/api/csrf-token`, {

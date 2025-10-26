@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { CookieConsent } from '@/components/ui/CookieConsent'
+import '@/middleware/errorHandler' // Import error handler to suppress browser extension errors
 
 const inter = Inter({ subsets: ['latin'] })
 
