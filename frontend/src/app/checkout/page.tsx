@@ -3,12 +3,8 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
-import { CheckoutSteps } from '@/components/checkout/CheckoutSteps'
-import { ShippingForm } from '@/components/checkout/ShippingForm'
-import { PaymentForm } from '@/components/checkout/PaymentForm'
-import { OrderSummary } from '@/components/checkout/OrderSummary'
-import { OrderConfirmation } from '@/components/checkout/OrderConfirmation'
-import { Button } from '@/components/ui/Button'
+import { CheckoutSteps, ShippingForm, PaymentForm, OrderSummary, OrderConfirmation } from '@/components/checkout'
+import { Button } from '@/components/ui'
 import { Address } from '@/types'
 
 export interface CheckoutData {

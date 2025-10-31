@@ -1,7 +1,7 @@
 'use client'
 
 import { Header } from '@/components/ui'
-import { ShoppingCart } from '@/components/cart/ShoppingCart'
+import { ShoppingCart } from '@/components/cart'
 
 export default function CarritoPage() {
   return (

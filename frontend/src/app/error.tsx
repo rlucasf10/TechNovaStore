@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui'
 
 // Forzar renderizado dinámico
 export const dynamic = 'force-dynamic'

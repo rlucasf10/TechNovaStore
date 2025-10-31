@@ -1,6 +1,6 @@
 'use client'
 
-import { GdprDashboard } from '@/components/dashboard/GdprDashboard'
+import { GdprDashboard } from '@/components/dashboard'
 import { ProtectedRoute } from '@/components/auth'
 
 // NOTA: metadata no funciona en client components

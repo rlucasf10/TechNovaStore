@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Pagination } from '@/components/ui/Pagination'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import { Pagination, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 
 /**
  * Página de demostración del componente Pagination
