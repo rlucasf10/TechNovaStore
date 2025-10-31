@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { Button, Input } from '@/components/ui'
 import { Address } from '@/types'
 import { CheckoutData } from '@/app/checkout/page'
 

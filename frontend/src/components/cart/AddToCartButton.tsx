@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui'
 import { Product } from '@/types'
 
 interface AddToCartButtonProps {

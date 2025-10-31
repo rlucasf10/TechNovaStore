@@ -25,7 +25,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { LoadingPage } from '@/components/ui/Loading';
+import { LoadingPage } from '@/components/ui';
 
 // ============================================================================
 // Tipos

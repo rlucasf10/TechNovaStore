@@ -7,7 +7,7 @@
 
 'use client';
 
-import { AdminRoute } from '@/components/auth/AdminRoute';
+import { AdminRoute } from '@/components/auth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 

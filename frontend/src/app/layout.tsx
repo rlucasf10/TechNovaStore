@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
-import { CookieConsent } from '@/components/ui/CookieConsent'
+import { CookieConsent } from '@/components/ui'
 import '@/middleware/errorHandler' // Import error handler to suppress browser extension errors
 
 const inter = Inter({ 

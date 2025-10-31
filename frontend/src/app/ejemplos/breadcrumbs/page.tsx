@@ -11,9 +11,12 @@ import {
   Breadcrumbs, 
   ChevronSeparator, 
   HomeIcon,
-  type BreadcrumbItem 
-} from '@/components/ui/Breadcrumbs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+  type BreadcrumbItem,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui'
 
 export default function BreadcrumbsExamplePage() {
   // Datos de ejemplo para diferentes casos de uso
