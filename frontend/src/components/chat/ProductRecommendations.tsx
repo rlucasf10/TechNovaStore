@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Product } from '@/types'
 
 interface ProductRecommendationsProps {
@@ -40,12 +41,13 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
           >
             <div className="flex items-center space-x-3">
               {/* Product Image */}
-              <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden relative">
                 {product.images && product.images.length > 0 ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
                       target.src = '/placeholder-product.png'

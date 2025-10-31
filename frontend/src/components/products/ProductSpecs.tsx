@@ -1,11 +1,11 @@
 'use client'
 
 interface ProductSpecsProps {
-  specifications: Record<string, any>
+  specifications: Record<string, unknown>
 }
 
 export function ProductSpecs({ specifications }: ProductSpecsProps) {
-  const formatSpecValue = (value: any): string => {
+  const formatSpecValue = (value: unknown): string => {
     if (typeof value === 'boolean') {
       return value ? 'Sí' : 'No'
     }

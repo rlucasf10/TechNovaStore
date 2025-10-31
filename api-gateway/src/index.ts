@@ -77,17 +77,7 @@ app.use(cors({
 // Request sanitization
 app.use(sanitizeRequest);
 
-// Metrics middleware
-app.use(metricsMiddleware);
-
-// Rate limiting and speed limiting
-app.use(apiRateLimit);
-app.use(speedLimiter);
-
-// XSS Protection
-app.use(xssProtection);
-
-// Body parsing middleware with security limits
+// Body parsing middleware with security limits - MUST BE EARLY
 // Body parser - Skip for /api/chat routes (handled by proxy)
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (req.path.startsWith('/api/chat')) {
@@ -111,6 +101,16 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     parameterLimit: securityConfig.validation.maxFields
   })(req, res, next);
 });
+
+// Metrics middleware
+app.use(metricsMiddleware);
+
+// Rate limiting and speed limiting
+app.use(apiRateLimit);
+app.use(speedLimiter);
+
+// XSS Protection
+app.use(xssProtection);
 
 // CSRF Protection (after body parsing) - Skip for /api/chat routes
 if (securityConfig.csrf.enabled) {

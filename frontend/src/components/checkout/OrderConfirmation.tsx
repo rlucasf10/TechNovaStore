@@ -76,13 +76,13 @@ export function OrderConfirmation({ orderId }: OrderConfirmationProps) {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/productos">
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="secondary" className="w-full sm:w-auto">
               Seguir Comprando
             </Button>
           </Link>
           
           <Link href="/cuenta/pedidos">
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="secondary" className="w-full sm:w-auto">
               Mis Pedidos
             </Button>
           </Link>

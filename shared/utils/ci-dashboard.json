@@ -98,25 +98,25 @@
   "artifacts": [
     {
       "name": "Metrics Data",
-      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.json",
+      "path": "C:\\Users\\rluca\\Desktop\\TechNovaStore\\shared\\utils\\ci-artifacts\\metrics.json",
       "type": "json",
       "description": "Complete metrics data for analysis"
     },
     {
       "name": "Alert Data",
-      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\alerts.json",
+      "path": "C:\\Users\\rluca\\Desktop\\TechNovaStore\\shared\\utils\\ci-artifacts\\alerts.json",
       "type": "json",
       "description": "Alert history and patterns"
     },
     {
       "name": "Prometheus Metrics",
-      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.prom",
+      "path": "C:\\Users\\rluca\\Desktop\\TechNovaStore\\shared\\utils\\ci-artifacts\\metrics.prom",
       "type": "prometheus",
       "description": "Metrics in Prometheus format"
     },
     {
       "name": "CSV Report",
-      "path": "C:\\Users\\rluca\\Desktop\\Ciberseguridad\\shared\\utils\\ci-artifacts\\metrics.csv",
+      "path": "C:\\Users\\rluca\\Desktop\\TechNovaStore\\shared\\utils\\ci-artifacts\\metrics.csv",
       "type": "csv",
       "description": "Metrics data in CSV format"
     }

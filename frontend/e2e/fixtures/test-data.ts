@@ -273,7 +273,7 @@ export const mockApiResponses = {
   },
   orders: {
     create: testOrder,
-    get: (id: string) => testOrder,
+    get: (_id: string) => testOrder,
     list: [testOrder]
   },
   chat: {

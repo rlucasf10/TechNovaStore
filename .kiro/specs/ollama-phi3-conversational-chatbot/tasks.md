@@ -9,41 +9,41 @@
   - Hacer script ejecutable: `chmod +x infrastructure/ollama/init-ollama.sh`
   - _Requisitos: 2.1, 2.2, 2.3, 2.4, 2.6_
 
-- [ ] 2. Crear OllamaAdapter para comunicación con Ollama
-  - [ ] 2.1 Implementar clase OllamaAdapter con interfaces TypeScript
+- [x] 2. Crear OllamaAdapter para comunicación con Ollama
+  - [x] 2.1 Implementar clase OllamaAdapter con interfaces TypeScript
     - Crear carpeta `ai-services/chatbot/src/adapters/` si no existe
     - Crear archivo `ai-services/chatbot/src/adapters/OllamaAdapter.ts`
     - Definir interfaces: OllamaConfig, OllamaMessage, OllamaRequest, OllamaResponse
     - Implementar constructor con configuración desde variables de entorno
     - _Requisitos: 2.5, 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 2.2 Implementar método generateResponse (sin streaming)
+  - [x] 2.2 Implementar método generateResponse (sin streaming)
     - Crear método para enviar request HTTP POST a Ollama
     - Implementar formateo de mensajes al formato de Ollama
     - Agregar manejo de timeout (30 segundos)
     - Implementar lógica de reintentos (2 intentos con backoff exponencial)
     - _Requisitos: 2.5, 7.4_
 
-  - [ ] 2.3 Implementar método generateStreamingResponse
+  - [x] 2.3 Implementar método generateStreamingResponse
     - Crear método para streaming de respuestas
     - Procesar respuesta NDJSON línea por línea
     - Implementar callback para emitir chunks
     - Manejar evento 'done' para finalizar stream
     - _Requisitos: 4.1, 4.2_
 
-  - [ ] 2.4 Implementar health check y verificación de modelo
+  - [x] 2.4 Implementar health check y verificación de modelo
     - Crear método checkHealth() que consulte endpoint /api/tags
     - Implementar cache de 30 segundos para health checks
     - Crear método isModelLoaded() para verificar modelo phi3:mini
     - _Requisitos: 5.3, 5.4, 8.5_
 
-  - [ ] 2.5 Implementar manejo de errores y tipos de error
+  - [x] 2.5 Implementar manejo de errores y tipos de error
     - Crear clase OllamaError con códigos de error
     - Implementar manejo de errores de conexión, timeout, modelo no cargado
     - Agregar logging detallado de errores
     - _Requisitos: 5.1, 8.4_
 
-- [ ] 3. Implementar system prompt especializado para e-commerce
+- [x] 3. Implementar system prompt especializado para e-commerce
   - Crear carpeta `ai-services/chatbot/src/prompts/` si no existe
   - Crear archivo `ai-services/chatbot/src/prompts/SystemPrompt.ts` con template de prompt
   - Definir reglas estrictas: no inventar datos, usar solo contexto, responder en español
@@ -52,61 +52,61 @@
   - Implementar función para reemplazar placeholders con datos reales
   - _Requisitos: 3.1, 3.2, 3.5, 3.6, 10.1_
 
-- [ ] 4. Implementar lógica RAG (Retrieval Augmented Generation)
-  - [ ] 4.1 Crear función de extracción de keywords del mensaje de usuario
+- [x] 4. Implementar lógica RAG (Retrieval Augmented Generation)
+  - [x] 4.1 Crear función de extracción de keywords del mensaje de usuario
     - Usar NLPProcessor existente o implementar extracción simple con natural
     - Identificar categorías de productos (laptop, móvil, tablet, etc.)
     - Identificar marcas mencionadas
     - Extraer especificaciones técnicas mencionadas
     - _Requisitos: 9.1, 10.2_
 
-  - [ ] 4.2 Implementar recuperación de productos desde ProductKnowledgeBase
+  - [x] 4.2 Implementar recuperación de productos desde ProductKnowledgeBase
     - Crear método en NLPEngine para consultar ProductKnowledgeBase
     - Implementar búsqueda por categoría, marca y keywords
     - Limitar resultados a 5 productos máximo
     - Priorizar productos en stock y ordenar por relevancia
     - _Requisitos: 9.1, 9.2, 10.2, 10.3_
 
-  - [ ] 4.3 Crear función formatProductContext para formatear productos
+  - [x] 4.3 Crear función formatProductContext para formatear productos
     - Implementar formateo estructurado: nombre, SKU, marca, precio, disponibilidad
     - Incluir descripción (máximo 200 caracteres)
     - Incluir especificaciones técnicas clave (máximo 5)
     - Manejar caso de 0 productos encontrados
     - _Requisitos: 9.2, 9.5, 10.3_
 
-  - [ ] 4.4 Integrar RAG en flujo de procesamiento de mensajes
+  - [x] 4.4 Integrar RAG en flujo de procesamiento de mensajes
     - Modificar NLPEngine.processUserInput para incluir paso RAG
     - Recuperar productos antes de llamar a Ollama
     - Inyectar contexto de productos en system prompt
     - Incluir productos recuperados en ChatResponse
     - _Requisitos: 1.1, 1.2, 9.1, 9.2_
 
-- [ ] 5. Implementar gestión de contexto conversacional
-  - [ ] 5.1 Extender interfaz ChatContext con historial conversacional
+- [x] 5. Implementar gestión de contexto conversacional
+  - [x] 5.1 Extender interfaz ChatContext con historial conversacional
     - Agregar campo conversationHistory: ConversationMessage[]
     - Agregar campos lastProductQuery y lastProducts
     - Actualizar tipo ConversationMessage con role, content, timestamp, products
     - _Requisitos: 6.1, 6.4_
 
-  - [ ] 5.2 Implementar almacenamiento de historial en sesión
+  - [x] 5.2 Implementar almacenamiento de historial en sesión
     - Modificar ChatbotService.createSession para inicializar historial vacío
     - Implementar método para agregar mensaje al historial
     - Limitar historial a últimos 10 intercambios (20 mensajes)
     - _Requisitos: 6.1, 6.3_
 
-  - [ ] 5.3 Crear función formatConversationHistory para Ollama
+  - [x] 5.3 Crear función formatConversationHistory para Ollama
     - Convertir ConversationMessage[] a OllamaMessage[]
     - Mapear roles user/assistant correctamente
     - _Requisitos: 6.2, 6.5_
 
-  - [ ] 5.4 Implementar gestión de límite de tokens
+  - [x] 5.4 Implementar gestión de límite de tokens
     - Crear función para estimar tokens (~4 caracteres = 1 token)
     - Implementar lógica para eliminar mensajes antiguos si excede 1000 tokens
     - Reservar 1000 tokens para respuesta del LLM
     - _Requisitos: 6.3_
 
-- [ ] 6. Crear SimpleFallbackRecognizer (sin Python/spaCy)
-  - [ ] 6.1 Crear clase SimpleFallbackRecognizer usando librería 'natural'
+- [x] 6. Crear SimpleFallbackRecognizer (sin Python/spaCy)
+  - [x] 6.1 Crear clase SimpleFallbackRecognizer usando librería 'natural'
     - Crear carpeta `ai-services/chatbot/src/fallback/` si no existe
     - Crear archivo `ai-services/chatbot/src/fallback/SimpleFallbackRecognizer.ts`
     - Importar natural para tokenización
@@ -114,20 +114,20 @@
     - Implementar constructor con patrones de intenciones básicas
     - _Requisitos: 5.1, 5.2_
 
-  - [ ] 6.2 Implementar reconocimiento de intenciones básico
+  - [x] 6.2 Implementar reconocimiento de intenciones básico
     - Crear método recognizeIntent que tokeniza texto
     - Implementar matching de keywords contra patrones
     - Calcular confidence basado en matches
     - Retornar intent con mayor confidence
     - _Requisitos: 5.1, 5.2_
 
-  - [ ] 6.3 Implementar extracción simple de entidades
+  - [x] 6.3 Implementar extracción simple de entidades
     - Detectar categorías de productos (laptop, móvil, tablet, etc.)
     - Detectar marcas comunes (apple, samsung, sony, etc.)
     - Extraer entidades básicas sin NLP complejo
     - _Requisitos: 5.1, 5.2_
 
-  - [ ] 6.4 Crear respuestas de fallback simples
+  - [x] 6.4 Crear respuestas de fallback simples
     - Implementar método generateFallbackResponse
     - Crear respuestas template para cada intent
     - Incluir mensaje indicando "Modo básico activo"
@@ -135,14 +135,14 @@
     - _Requisitos: 5.2, 5.3_
 
 - [ ] 7. Modificar NLPEngine para integrar Ollama
-  - [ ] 7.1 Agregar OllamaAdapter y SimpleFallbackRecognizer como dependencias
+  - [x] 7.1 Agregar OllamaAdapter y SimpleFallbackRecognizer como dependencias
     - Importar y crear instancia de OllamaAdapter en constructor
     - Importar y crear instancia de SimpleFallbackRecognizer
     - Leer configuración de variables de entorno
     - Eliminar dependencia de IntentRecognizer antiguo (usa spaCy)
     - _Requisitos: 2.5, 5.1, 5.2, 7.1_
 
-  - [ ] 7.2 Implementar método processWithOllama
+  - [x] 7.2 Implementar método processWithOllama
     - Ejecutar pipeline RAG: extraer keywords → recuperar productos → formatear contexto
     - Construir array de mensajes: system prompt + historial + mensaje usuario
     - Llamar a OllamaAdapter.generateResponse
@@ -150,7 +150,7 @@
     - Actualizar contexto conversacional
     - _Requisitos: 1.1, 1.2, 1.4, 1.5, 9.1, 9.2_
 
-  - [ ] 7.3 Implementar lógica de fallback automático
+  - [x] 7.3 Implementar lógica de fallback automático
     - Verificar health de Ollama antes de procesar
     - Usar try-catch para capturar errores de Ollama
     - Llamar a useSimpleFallback si Ollama falla
@@ -158,7 +158,7 @@
     - Registrar uso de fallback en logs
     - _Requisitos: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ] 7.4 Modificar processUserInput para usar Ollama o fallback
+  - [x] 7.4 Modificar processUserInput para usar Ollama o fallback
     - Verificar variable de entorno USE_OLLAMA
     - Llamar a processWithOllama si está habilitado y disponible
     - Usar SimpleFallbackRecognizer como fallback
@@ -171,6 +171,7 @@
     - Emitir evento 'bot_typing' al iniciar procesamiento
     - Validar mensaje y sessionId
     - _Requisitos: 4.1, 11.1_
+    - **NOTA**: Implementado pero no verificado - requiere más RAM (16GB recomendado)
 
   - [ ] 8.2 Implementar método processUserInputStreaming en NLPEngine
     - Crear método que acepta callback para chunks
@@ -178,6 +179,7 @@
     - Llamar a OllamaAdapter.generateStreamingResponse con callback
     - Emitir chunks via callback proporcionado
     - _Requisitos: 4.1, 4.2, 11.2_
+    - **NOTA**: Implementado pero no verificado - Ollama timeout por falta de RAM
 
   - [ ] 8.3 Emitir eventos de streaming al cliente
     - Emitir 'chat_stream_chunk' por cada chunk recibido
@@ -185,6 +187,7 @@
     - Emitir 'bot_typing' false al terminar
     - Manejar errores con 'chat_stream_error'
     - _Requisitos: 4.2, 4.3, 4.4_
+    - **NOTA**: Implementado pero no verificado - requiere sistema con más RAM
 
   - [ ] 8.4 Mantener compatibilidad con API REST sin streaming
     - Verificar que endpoint POST /api/chat siga funcionando

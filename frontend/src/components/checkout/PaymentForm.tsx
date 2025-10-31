@@ -280,7 +280,7 @@ export function PaymentForm({ initialData, onComplete, onBack }: PaymentFormProp
       <div className="flex space-x-4 pt-6 border-t">
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           onClick={onBack}
         >
           Volver

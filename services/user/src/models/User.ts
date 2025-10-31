@@ -27,25 +27,25 @@ export interface UserAttributes {
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'created_at' | 'updated_at' | 'last_login'> {}
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: number;
-  public email!: string;
-  public password_hash!: string;
-  public first_name!: string;
-  public last_name!: string;
-  public phone?: string;
-  public address?: {
+  declare id: number;
+  declare email: string;
+  declare password_hash: string;
+  declare first_name: string;
+  declare last_name: string;
+  declare phone?: string;
+  declare address?: {
     street: string;
     city: string;
     state: string;
     postal_code: string;
     country: string;
   };
-  public role!: 'customer' | 'admin';
-  public is_active!: boolean;
-  public email_verified!: boolean;
-  public last_login?: Date;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare role: 'customer' | 'admin';
+  declare is_active: boolean;
+  declare email_verified: boolean;
+  declare last_login?: Date;
+  declare created_at: Date;
+  declare updated_at: Date;
 
   // Instance methods
   public async validatePassword(password: string): Promise<boolean> {

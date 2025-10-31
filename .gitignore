@@ -228,3 +228,4 @@ docker-compose.local.yml
 
 # Ignore git bundle backups
 *.bundle
+frontend/nul

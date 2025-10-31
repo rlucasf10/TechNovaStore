@@ -1,3 +1,5 @@
+@import '../styles/variables.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +10,23 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Tema oscuro */
+  .dark body {
+    @apply bg-dark-bg-primary text-dark-text-primary;
+  }
+
+  /* Mejoras de accesibilidad */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-500;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -47,5 +65,28 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Animación shimmer para skeleton loaders */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(229, 231, 235, 1) 0%,
+      rgba(243, 244, 246, 1) 50%,
+      rgba(229, 231, 235, 1) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Animación shimmer para tema oscuro */
+  .dark .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(55, 65, 81, 1) 0%,
+      rgba(75, 85, 99, 1) 50%,
+      rgba(55, 65, 81, 1) 100%
+    );
+    background-size: 1000px 100%;
   }
 }

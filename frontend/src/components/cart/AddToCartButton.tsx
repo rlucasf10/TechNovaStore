@@ -8,7 +8,7 @@ import { Product } from '@/types'
 interface AddToCartButtonProps {
   product: Product
   quantity?: number
-  variant?: 'primary' | 'secondary' | 'outline'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   className?: string
   showQuantitySelector?: boolean
@@ -48,7 +48,7 @@ export function AddToCartButton({
   if (showSuccess) {
     return (
       <Button
-        variant="outline"
+        variant="secondary"
         size={size}
         className={`${className} text-green-600 border-green-600`}
         disabled

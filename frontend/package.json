@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:export": "NEXT_OUTPUT=export next build",
+    "build:pages": "next build",
+    "build:pages:win": "next build && xcopy /E /I .next\\static .next\\standalone\\.next\\static && xcopy /E /I public .next\\standalone\\public",
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
@@ -61,6 +62,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.16",
     "axe-core": "^4.11.0",
+    "cross-env": "10.1.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.5.6",
     "eslint-config-prettier": "^9.1.0",

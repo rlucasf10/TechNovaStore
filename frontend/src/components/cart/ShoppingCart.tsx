@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { formatPrice } from '@/lib/utils'
+import { CartItem } from '@/types'
 
 interface ShoppingCartProps {
   showCheckoutButton?: boolean
@@ -55,7 +56,7 @@ export function ShoppingCart({ showCheckoutButton = true }: ShoppingCartProps) {
 }
 
 interface CartItemRowProps {
-  item: { product: any; quantity: number }
+  item: CartItem
   onUpdateQuantity: (_productId: string, _quantity: number) => void
   onRemove: (_productId: string) => void
 }
@@ -106,7 +107,7 @@ function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
       {/* Quantity Controls */}
       <div className="flex items-center space-x-2">
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           onClick={() => onUpdateQuantity(product.id, Math.max(1, quantity - 1))}
           className="w-8 h-8 p-0"
@@ -125,7 +126,7 @@ function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
           aria-label={`Cantidad de ${product.name}`}
         />
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           onClick={() => onUpdateQuantity(product.id, Math.min(99, quantity + 1))}
           className="w-8 h-8 p-0"
@@ -214,7 +215,7 @@ function CartSummary({ total, showCheckoutButton }: CartSummaryProps) {
             </Button>
           </Link>
           <Link href="/productos" className="block mt-3">
-            <Button variant="outline" className="w-full">
+            <Button variant="secondary" className="w-full">
               Continuar Comprando
             </Button>
           </Link>

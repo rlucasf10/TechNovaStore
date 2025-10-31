@@ -63,7 +63,7 @@ export default function CheckoutPage() {
     )
   }
 
-  const handleStepComplete = (stepData: any) => {
+  const handleStepComplete = (stepData: Partial<typeof checkoutData>) => {
     setCheckoutData(prev => ({ ...prev, ...stepData }))
     
     if (currentStep < steps.length) {
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
                     {/* Action Buttons */}
                     <div className="flex space-x-4 pt-6 border-t">
                       <Button
-                        variant="outline"
+                        variant="secondary"
                         onClick={handleBackStep}
                         disabled={isProcessing}
                       >

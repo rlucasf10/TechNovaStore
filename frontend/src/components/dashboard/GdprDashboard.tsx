@@ -249,7 +249,7 @@ export function GdprDashboard({ className }: GdprDashboardProps) {
           <Button
             onClick={exportPersonalData}
             loading={exporting}
-            variant="outline"
+            variant="secondary"
           >
             {exporting ? 'Exportando...' : 'Exportar Mis Datos'}
           </Button>
@@ -268,7 +268,7 @@ export function GdprDashboard({ className }: GdprDashboardProps) {
           {!showDeleteConfirm ? (
             <Button
               onClick={() => setShowDeleteConfirm(true)}
-              variant="outline"
+              variant="secondary"
               className="text-red-600 border-red-300 hover:bg-red-50"
             >
               Solicitar Eliminación de Cuenta
@@ -307,7 +307,7 @@ export function GdprDashboard({ className }: GdprDashboardProps) {
                 </Button>
                 <Button
                   onClick={() => setShowDeleteConfirm(false)}
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                 >
                   Cancelar

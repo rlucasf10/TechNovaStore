@@ -19,18 +19,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000, // 1 minute
-            retry: (failureCount, error: any) => {
+            retry: (failureCount, error: unknown) => {
               // Don't retry on 4xx errors
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              const status = (error as { response?: { status?: number } })?.response?.status
+              if (status && status >= 400 && status < 500) {
                 return false
               }
               return failureCount < 3
             },
           },
           mutations: {
-            retry: (failureCount, error: any) => {
+            retry: (failureCount, error: unknown) => {
               // Don't retry on 4xx errors
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              const status = (error as { response?: { status?: number } })?.response?.status
+              if (status && status >= 400 && status < 500) {
                 return false
               }
               return failureCount < 2
