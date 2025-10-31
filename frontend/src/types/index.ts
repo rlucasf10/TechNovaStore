@@ -6,7 +6,7 @@ export interface Product {
   category: string
   subcategory: string
   brand: string
-  specifications: Record<string, any>
+  specifications: Record<string, unknown>
   images: string[]
   providers: Provider[]
   our_price: number
@@ -42,6 +42,7 @@ export interface User {
   last_name: string
   phone?: string
   address?: Address
+  role: 'customer' | 'admin'
   is_active: boolean
   created_at: string
   updated_at: string
@@ -173,3 +174,6 @@ export interface ChatbotResponse {
   intent?: string
   confidence?: number
 }
+
+// Re-exportar tipos de autenticación
+export * from './auth.types';

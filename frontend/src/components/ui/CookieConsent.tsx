@@ -129,14 +129,14 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
             </div>
             <div className="flex flex-col sm:flex-row gap-2 min-w-fit">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={() => setShowDetails(true)}
               >
                 Personalizar
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleAcceptNecessary}
               >
@@ -280,7 +280,7 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
 
             <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleAcceptNecessary}
               >

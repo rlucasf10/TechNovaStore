@@ -32,8 +32,9 @@ export function useNotifications(): UseNotificationsReturn {
       
       const response = await api.get('/notifications')
       setNotifications(response.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al cargar las notificaciones')
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar las notificaciones'
+      setError(errorMessage)
       setNotifications([])
     } finally {
       setLoading(false)

@@ -25,10 +25,11 @@ export function useUser(): UseUserReturn {
         return
       }
 
-      const response = await api.get('/user/profile')
+      const response = await api.get('/users/profile')
       setUser(response.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al cargar el perfil de usuario')
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar el perfil de usuario'
+      setError(errorMessage)
       setUser(null)
     } finally {
       setLoading(false)

@@ -21,8 +21,9 @@ export function useOrders(): UseOrdersReturn {
       
       const response = await api.get('/orders')
       setOrders(response.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al cargar los pedidos')
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar los pedidos'
+      setError(errorMessage)
       setOrders(null)
     } finally {
       setLoading(false)
