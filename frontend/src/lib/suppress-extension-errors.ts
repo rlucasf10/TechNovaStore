@@ -8,7 +8,7 @@ export function suppressExtensionErrors() {
 
   // Suppress the "message channel closed" error from browser extensions
   const originalError = console.error
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     const errorMessage = args[0]?.toString() || ''
     
     // Filter out known extension-related errors

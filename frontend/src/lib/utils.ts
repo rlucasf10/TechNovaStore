@@ -1,45 +1,114 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+/**
+ * Utilidades generales del proyecto
+ */
 
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+/**
+ * Combina clases de Tailwind CSS de forma inteligente
+ * Resuelve conflictos y elimina duplicados
+ */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('es-ES', {
+/**
+ * Formatea un precio en formato de moneda
+ */
+export function formatPrice(
+  price: number,
+  currency: string = 'EUR',
+  locale: string = 'es-ES'
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'EUR',
-  }).format(price)
+    currency,
+  }).format(price);
 }
 
-export function formatDate(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
-  return new Intl.DateTimeFormat('es-ES', {
+/**
+ * Formatea una fecha en formato legible
+ */
+export function formatDate(
+  date: Date | string,
+  options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(dateObj)
+  },
+  locale: string = 'es-ES'
+): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat(locale, options).format(dateObj);
 }
 
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
-    .replace(/[^a-z0-9 -]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-    .trim()
+/**
+ * Trunca un texto a una longitud máxima
+ */
+export function truncate(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
 }
 
-export function debounce<T extends (..._args: any[]) => any>(
+/**
+ * Genera un ID único
+ */
+export function generateId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+/**
+ * Debounce function
+ */
+export function debounce<T extends (...args: never[]) => unknown>(
   func: T,
   wait: number
-): (..._args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout>
-  return (..._args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(..._args), wait)
-  }
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
 }
+
+/**
+ * Throttle function
+ */
+export function throttle<T extends (...args: never[]) => unknown>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle: boolean;
+
+  return function executedFunction(...args: Parameters<T>) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+/**
+ * Verifica si estamos en el cliente (browser)
+ */
+export const isClient = typeof window !== 'undefined';
+
+/**
+ * Verifica si estamos en el servidor
+ */
+export const isServer = typeof window === 'undefined';
+
+/**
+ * Sleep function para delays
+ */
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
