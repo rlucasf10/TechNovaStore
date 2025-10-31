@@ -1,21 +1,31 @@
 # ============================================================================
-# TechNovaStore - Docker Compose Base Configuration
+# TechNovaStore - Docker Compose Production Configuration
 # ============================================================================
 # 
 # PROPÓSITO:
-#   Archivo base de configuración con variables de entorno para todos los
-#   entornos. Usa variables ${VAR} que deben definirse en archivo .env
+#   Archivo de configuración de producción con variables de entorno.
+#   Usa variables ${VAR} que deben definirse en archivo .env
 #
 # USO:
 #   docker-compose up -d
 #
 # CARACTERÍSTICAS:
-#   - Variables de entorno configurables
-#   - Credenciales desde .env
-#   - Sin límites de recursos
-#   - Puertos expuestos para desarrollo
+#   - NODE_ENV: production en todos los servicios
+#   - Variables de entorno configurables desde .env
+#   - Credenciales seguras desde .env
+#   - Sin límites de recursos (servidor dedicado)
+#   - Puertos expuestos para acceso externo
+#   - Volúmenes persistentes
+#   - Monitoreo completo (ELK + Prometheus + Grafana)
 #
-# ENTORNO: Base/Desarrollo
+# DIFERENCIAS CON docker-compose.prod.yml:
+#   - Sin alta disponibilidad (instancia única)
+#   - Sin load balancer Nginx
+#   - Sin backups automáticos
+#   - Sin SSL/HTTPS (usar reverse proxy externo)
+#   - Volúmenes locales simples
+#
+# ENTORNO: Producción (Single Instance)
 # ============================================================================
 
 services:
@@ -126,6 +136,7 @@ services:
 
   # API Gateway
   api-gateway:
+    image: technovastore-api-gateway:latest
     build:
       context: .
       dockerfile: ./api-gateway/Dockerfile
@@ -134,7 +145,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
       POSTGRESQL_URI: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
@@ -156,6 +167,7 @@ services:
 
   # Core Services
   product-service:
+    image: technovastore-product-service:latest
     build:
       context: .
       dockerfile: ./services/product/Dockerfile
@@ -164,7 +176,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
       REDIS_HOST: redis
@@ -177,6 +189,7 @@ services:
       - technovastore-network
 
   order-service:
+    image: technovastore-order-service:latest
     build:
       context: .
       dockerfile: ./services/order/Dockerfile
@@ -185,7 +198,7 @@ services:
     ports:
       - "3002:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       POSTGRES_HOST: postgresql
       POSTGRES_PORT: 5432
@@ -198,6 +211,7 @@ services:
       - technovastore-network
 
   user-service:
+    image: technovastore-user-service:latest
     build:
       context: .
       dockerfile: ./services/user/Dockerfile
@@ -206,7 +220,7 @@ services:
     ports:
       - "3003:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       POSTGRES_HOST: postgresql
       POSTGRES_PORT: 5432
@@ -220,6 +234,7 @@ services:
       - technovastore-network
 
   payment-service:
+    image: technovastore-payment-service:latest
     build:
       context: .
       dockerfile: ./services/payment/Dockerfile
@@ -228,7 +243,7 @@ services:
     ports:
       - "3004:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       POSTGRES_HOST: postgresql
       POSTGRES_PORT: 5432
@@ -241,6 +256,7 @@ services:
       - technovastore-network
 
   notification-service:
+    image: technovastore-notification-service:latest
     build:
       context: .
       dockerfile: ./services/notification/Dockerfile
@@ -249,7 +265,7 @@ services:
     ports:
       - "3005:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587
@@ -259,6 +275,7 @@ services:
       - technovastore-network
 
   ticket-service:
+    image: technovastore-ticket-service:latest
     build:
       context: .
       dockerfile: ./services/ticket/Dockerfile
@@ -267,7 +284,7 @@ services:
     ports:
       - "3012:3005"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       TICKET_SERVICE_PORT: 3005
       POSTGRES_HOST: postgresql
       POSTGRES_PORT: 5432
@@ -284,6 +301,7 @@ services:
 
   # Automation Services
   sync-engine:
+    image: technovastore-sync-engine:latest
     build:
       context: .
       dockerfile: ./automation/sync-engine/Dockerfile
@@ -292,7 +310,7 @@ services:
     ports:
       - "3006:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
       REDIS_URI: redis://:${REDIS_PASSWORD}@redis:6379
@@ -303,6 +321,7 @@ services:
       - technovastore-network
 
   auto-purchase:
+    image: technovastore-auto-purchase:latest
     build:
       context: .
       dockerfile: ./automation/auto-purchase/Dockerfile
@@ -311,7 +330,7 @@ services:
     ports:
       - "3007:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       POSTGRESQL_URI: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
     depends_on:
@@ -320,6 +339,7 @@ services:
       - technovastore-network
 
   shipment-tracker:
+    image: technovastore-shipment-tracker:latest
     build:
       context: .
       dockerfile: ./automation/shipment-tracker/Dockerfile
@@ -328,7 +348,7 @@ services:
     ports:
       - "3008:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       POSTGRESQL_URI: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
     depends_on:
@@ -338,6 +358,7 @@ services:
 
   # AI Services
   chatbot:
+    image: technovastore-chatbot:latest
     build:
       context: ./ai-services/chatbot
       dockerfile: Dockerfile
@@ -346,7 +367,7 @@ services:
     ports:
       - "3009:3001"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       CHATBOT_PORT: 3001
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
       FRONTEND_URL: http://localhost:3011
@@ -358,6 +379,7 @@ services:
       - technovastore-network
 
   recommender:
+    image: technovastore-recommender:latest
     build:
       context: .
       dockerfile: ./ai-services/recommender/Dockerfile
@@ -366,7 +388,7 @@ services:
     ports:
       - "3010:3000"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
       MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/technovastore?authSource=admin
@@ -380,6 +402,7 @@ services:
 
   # Frontend
   frontend:
+    image: technovastore-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -388,16 +411,24 @@ services:
     ports:
       - "3011:3000"
     environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000/api}
+      NEXT_PUBLIC_CHATBOT_URL: ${NEXT_PUBLIC_CHATBOT_URL:-http://localhost:3009}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-http://localhost:3009}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3011}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      NEXT_PUBLIC_GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: ${GOOGLE_ANALYTICS_ID:-}
+      NEXT_PUBLIC_SENTRY_DSN: ${SENTRY_DSN:-}
     depends_on:
       - api-gateway
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     networks:
       - technovastore-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Monitoring Stack
   prometheus:

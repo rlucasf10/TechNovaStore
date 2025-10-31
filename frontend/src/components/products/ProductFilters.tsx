@@ -171,7 +171,7 @@ export function ProductFilters({
           <h3 className="text-sm font-medium text-gray-900 mb-3">Rangos Rápidos</h3>
           <div className="grid grid-cols-2 gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => {
                 setPriceRange({ min: '0', max: '50' })
@@ -182,7 +182,7 @@ export function ProductFilters({
               &lt; 50€
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => {
                 setPriceRange({ min: '50', max: '100' })
@@ -193,7 +193,7 @@ export function ProductFilters({
               50€ - 100€
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => {
                 setPriceRange({ min: '100', max: '200' })
@@ -204,7 +204,7 @@ export function ProductFilters({
               100€ - 200€
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => {
                 setPriceRange({ min: '200', max: '0' })

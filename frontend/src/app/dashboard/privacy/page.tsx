@@ -1,26 +1,28 @@
-import { Metadata } from 'next'
-import { GdprDashboard } from '@/components/dashboard/GdprDashboard'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Configuración de Privacidad | TechNovaStore',
-  description: 'Gestiona tus preferencias de privacidad, exporta tus datos y controla tu información personal.',
-}
+import { GdprDashboard } from '@/components/dashboard/GdprDashboard'
+import { ProtectedRoute } from '@/components/auth'
+
+// NOTA: metadata no funciona en client components
+// Se movería a un layout.tsx si se necesita metadata
 
 export default function PrivacyDashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Configuración de Privacidad
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Gestiona tus preferencias de privacidad y datos personales según GDPR y LOPD
-          </p>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Configuración de Privacidad
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Gestiona tus preferencias de privacidad y datos personales según GDPR y LOPD
+            </p>
+          </div>
+          
+          <GdprDashboard />
         </div>
-        
-        <GdprDashboard />
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }

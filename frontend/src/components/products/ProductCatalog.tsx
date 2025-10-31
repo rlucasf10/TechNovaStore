@@ -168,7 +168,7 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
           ) : products.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 mb-4">No se encontraron productos</p>
-              <Button onClick={clearFilters} variant="outline">
+              <Button onClick={clearFilters} variant="secondary">
                 Limpiar filtros
               </Button>
             </div>
@@ -184,7 +184,7 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
               {pagination && pagination.pages > 1 && (
                 <div className="flex items-center justify-center space-x-2">
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
@@ -197,7 +197,7 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
                     return (
                       <Button
                         key={page}
-                        variant={currentPage === page ? 'primary' : 'outline'}
+                        variant={currentPage === page ? 'primary' : 'secondary'}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
                       >
@@ -207,7 +207,7 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
                   })}
 
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
                     disabled={currentPage === pagination.pages}

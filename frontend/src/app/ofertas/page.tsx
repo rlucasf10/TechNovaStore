@@ -12,7 +12,11 @@ export default function OfertasPage() {
   
   // Filtrar productos con descuento o precio especial
   const ofertas = products.filter(product => {
-    const hasDiscount = product.our_price < (product.competitor_price || product.our_price)
+    // Verificar si hay proveedores con precios más altos que nuestro precio
+    const minProviderPrice = product.providers.length > 0 
+      ? Math.min(...product.providers.map(p => p.price))
+      : product.our_price
+    const hasDiscount = product.our_price < minProviderPrice
     return hasDiscount
   })
 

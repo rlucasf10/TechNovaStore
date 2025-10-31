@@ -109,28 +109,28 @@ this.config = {
   // CPU thresholds
   scaleUpCpuThreshold: 70,
   scaleDownCpuThreshold: 30,
-  
+
   // Memory thresholds
   scaleUpMemoryThreshold: 80,
   scaleDownMemoryThreshold: 40,
-  
+
   // Response time thresholds (ms)
   scaleUpResponseTimeThreshold: 2000,
   scaleDownResponseTimeThreshold: 500,
-  
+
   // Replica limits
   minReplicas: {
     'api-gateway': 2,
     'product-service': 2,
     'order-service': 2,
-    'frontend': 2
+    frontend: 2,
   },
   maxReplicas: {
     'api-gateway': 10,
     'product-service': 8,
     'order-service': 6,
-    'frontend': 6
-  }
+    frontend: 6,
+  },
 };
 ```
 
@@ -262,7 +262,7 @@ await cacheManager.cacheSearchResults('laptop gaming', searchResults);
 // Batch operations
 await cacheManager.mset([
   ['product-1', data1],
-  ['product-2', data2]
+  ['product-2', data2],
 ]);
 ```
 
@@ -271,28 +271,31 @@ await cacheManager.mset([
 ### Common Issues
 
 1. **Redis Cluster Not Forming**
+
    ```bash
    # Check cluster status
    docker exec technovastore-redis-master-1 redis-cli -a $REDIS_PASSWORD cluster info
-   
+
    # Reset cluster if needed
    docker exec technovastore-redis-master-1 redis-cli -a $REDIS_PASSWORD cluster reset
    ```
 
 2. **Auto-scaling Not Working**
+
    ```bash
    # Check monitor logs
    tail -f logs/auto-scaling.log
-   
+
    # Verify Docker stats
    docker stats --no-stream
    ```
 
 3. **CDN Cache Issues**
+
    ```bash
    # Check NGINX cache
    docker exec technovastore-cdn-server nginx -t
-   
+
    # Clear cache directory
    docker exec technovastore-cdn-server rm -rf /var/cache/nginx/*
    ```

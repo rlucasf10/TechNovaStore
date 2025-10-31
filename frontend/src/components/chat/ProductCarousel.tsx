@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Product } from '@/types'
 
 interface ProductCarouselProps {
@@ -78,12 +79,13 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
         <div className="bg-white rounded-lg p-3 border border-gray-100">
           <div className="flex items-start space-x-3">
             {/* Product Image */}
-            <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+            <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden relative">
               {currentProduct.images && currentProduct.images.length > 0 ? (
-                <img
+                <Image
                   src={currentProduct.images[0]}
                   alt={currentProduct.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
                     target.src = '/placeholder-product.png'

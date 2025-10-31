@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Header } from '@/components/ui'
 import { Button, Input } from '@/components/ui'
 

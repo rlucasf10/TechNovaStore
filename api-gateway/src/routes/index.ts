@@ -152,8 +152,19 @@ export const setupRoutes = (app: Express) => {
   app.use('/api/auth/login', authSecurity, createProxyMiddleware({
     target: services.user,
     changeOrigin: true,
+    timeout: 30000, // 30 seconds timeout
+    proxyTimeout: 30000,
     pathRewrite: {
       '^/api/auth/login': '/auth/login',
+    },
+    onProxyReq: (proxyReq: any, req: any) => {
+      // Fix body forwarding when using body-parser
+      if (req.body && Object.keys(req.body).length > 0) {
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      }
     },
     onError: (err: any, req: any, res: any) => {
       logger.error('Auth login service proxy error:', err);
@@ -166,8 +177,19 @@ export const setupRoutes = (app: Express) => {
   app.use('/api/auth/register', registrationSecurity, createProxyMiddleware({
     target: services.user,
     changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000,
     pathRewrite: {
       '^/api/auth/register': '/auth/register',
+    },
+    onProxyReq: (proxyReq: any, req: any) => {
+      // Fix body forwarding when using body-parser
+      if (req.body && Object.keys(req.body).length > 0) {
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      }
     },
     onError: (err: any, req: any, res: any) => {
       logger.error('Auth register service proxy error:', err);
@@ -180,13 +202,44 @@ export const setupRoutes = (app: Express) => {
   app.use('/api/auth/reset-password', passwordResetSecurity, createProxyMiddleware({
     target: services.user,
     changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000,
     pathRewrite: {
       '^/api/auth/reset-password': '/auth/reset-password',
+    },
+    onProxyReq: (proxyReq: any, req: any) => {
+      // Fix body forwarding when using body-parser
+      if (req.body && Object.keys(req.body).length > 0) {
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      }
     },
     onError: (err: any, req: any, res: any) => {
       logger.error('Password reset service proxy error:', err);
       logSecurityEvent(req, 'SUSPICIOUS_REQUEST', 'HIGH', { error: err.message, endpoint: 'reset-password' });
       res.status(503).json({ error: 'Password reset service unavailable' });
+    },
+    onProxyRes: ensureCorsHeaders,
+  }));
+
+  // Protected auth endpoint - /me requires authentication
+  app.use('/api/auth/me', authMiddleware, createProxyMiddleware({
+    target: services.user,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api/auth/me': '/auth/me',
+    },
+    onError: (err: any, _req: any, res: any) => {
+      logger.error('Auth me service proxy error:', err);
+      res.status(503).json({ error: 'Authentication service unavailable' });
+    },
+    onProxyReq: (proxyReq: any, req: any) => {
+      if (req.user) {
+        proxyReq.setHeader('X-User-ID', req.user.id);
+        proxyReq.setHeader('X-User-Role', req.user.role);
+      }
     },
     onProxyRes: ensureCorsHeaders,
   }));

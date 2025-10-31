@@ -1,22 +1,24 @@
 // Error handler middleware for API calls
-export const handleApiError = (error: any) => {
+export const handleApiError = (error: unknown) => {
+  const err = error as { message?: string; response?: { status?: number; data?: { error?: string } }; code?: string }
+  
   // Suppress browser extension errors
-  if (error.message?.includes('message channel closed') || 
-      error.message?.includes('listener indicated an asynchronous response')) {
-    console.debug('Browser extension error suppressed:', error.message)
+  if (err.message?.includes('message channel closed') || 
+      err.message?.includes('listener indicated an asynchronous response')) {
+    // Browser extension error suppressed
     return null
   }
 
   // Handle CSRF token errors
-  if (error.response?.status === 403 && error.response?.data?.error?.includes('CSRF')) {
-    console.warn('CSRF token error, retrying...')
+  if (err.response?.status === 403 && err.response?.data?.error?.includes('CSRF')) {
+    // CSRF token error, retrying...
     // Could implement retry logic here
     return error
   }
 
   // Handle network errors
-  if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK') {
-    console.warn('Network error, service may be unavailable')
+  if (err.code === 'NETWORK_ERROR' || err.code === 'ERR_NETWORK') {
+    // Network error, service may be unavailable
     return error
   }
 
