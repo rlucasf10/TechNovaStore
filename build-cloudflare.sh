@@ -4,9 +4,9 @@ set -e
 echo "🔧 Ocultando package.json raíz temporalmente..."
 mv package.json package.json.tmp
 
-echo "🔧 Instalando dependencias del frontend..."
+echo "🔧 Instalando dependencias del frontend (incluyendo devDependencies)..."
 cd frontend
-npm install
+npm install --include=dev
 
 echo "🏗️ Construyendo aplicación Next.js..."
 npm run build:pages
