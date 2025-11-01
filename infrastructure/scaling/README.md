@@ -24,7 +24,6 @@ infrastructure/scaling/
 └── README.md                     # This file
 
 infrastructure/cdn/
-├── cloudflare-config.js          # CloudFlare CDN configuration
 ├── nginx-cdn.conf                # NGINX CDN configuration
 └── cdn-deployment.yml            # CDN deployment configuration
 
@@ -88,11 +87,6 @@ POSTGRES_PASSWORD=your-postgres-password
 
 # JWT Configuration
 JWT_SECRET=your-jwt-secret
-
-# CDN Configuration (optional)
-CLOUDFLARE_ZONE_ID=your-cloudflare-zone-id
-CLOUDFLARE_API_KEY=your-cloudflare-api-key
-CLOUDFLARE_EMAIL=your-cloudflare-email
 
 # S3 Configuration for CDN (optional)
 CDN_S3_BUCKET=your-s3-bucket
@@ -205,15 +199,6 @@ docker-compose up -d --scale api-gateway=5
 - **Security Headers**: XSS protection, CSRF prevention
 - **Rate Limiting**: Protection against abuse
 - **Health Checks**: Monitoring endpoint for load balancers
-
-### CloudFlare Integration
-
-The CloudFlare configuration provides:
-
-- Global CDN with edge caching
-- DDoS protection and security rules
-- Performance optimizations (Brotli, HTTP/3)
-- Cache purging and analytics
 
 ### Cache Invalidation
 
@@ -341,4 +326,3 @@ When contributing to the scalability infrastructure:
 - [Kubernetes HPA Guide](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 - [Redis Cluster Tutorial](https://redis.io/docs/manual/scaling/)
 - [NGINX Caching Guide](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache)
-- [CloudFlare API Documentation](https://developers.cloudflare.com/api/)
