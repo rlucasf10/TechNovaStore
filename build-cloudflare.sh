@@ -14,8 +14,4 @@ npm run build:pages
 echo "🧹 Limpiando archivos de cache grandes..."
 rm -rf .next/cache
 
-echo "🔄 Restaurando package.json raíz..."
-cd ..
-mv package.json.tmp package.json
-
 echo "✅ Build completado"
