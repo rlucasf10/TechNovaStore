@@ -8,10 +8,13 @@ echo "🔧 Instalando dependencias del frontend (incluyendo devDependencies)..."
 cd frontend
 npm install --include=dev
 
-echo "🏗️ Construyendo aplicación Next.js..."
+echo "🏗️ Construyendo aplicación Next.js para export estático..."
 npm run build:pages
 
-echo "🧹 Limpiando archivos de cache grandes..."
+echo "🧹 Limpiando archivos innecesarios..."
 rm -rf .next/cache
+
+echo "📦 Directorio de salida: frontend/out"
+ls -la out/ || echo "⚠️ Directorio out no encontrado"
 
 echo "✅ Build completado"
