@@ -16,8 +16,6 @@ RUN npm install --legacy-peer-deps
 
 # Copy source code (not node_modules)
 COPY automation/auto-purchase/src ./src
-COPY automation/auto-purchase/*.md ./
-COPY automation/auto-purchase/*.js ./ 2>/dev/null || true
 
 # Expose port
 EXPOSE 3000

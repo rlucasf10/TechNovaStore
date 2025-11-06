@@ -1,9 +1,12 @@
 {
   "name": "@technovastore/shared-models",
   "version": "1.0.0",
+  "description": "TechNovaStore - Modelos de datos compartidos para microservicios",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "author": "TechNovaStore Team",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"

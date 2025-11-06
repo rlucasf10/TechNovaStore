@@ -1,9 +1,12 @@
 {
   "name": "@technovastore/shared-utils",
   "version": "1.0.0",
+  "description": "TechNovaStore - Utilidades compartidas para microservicios",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "author": "TechNovaStore Team",
+  "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc --watch",

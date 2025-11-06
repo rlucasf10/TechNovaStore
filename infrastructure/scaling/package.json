@@ -1,5 +1,5 @@
 {
-  "name": "technovastore-scalability",
+  "name": "@technovastore/scalability-infrastructure",
   "version": "1.0.0",
   "description": "TechNovaStore scalability infrastructure services",
   "main": "auto-scaling-monitor.js",

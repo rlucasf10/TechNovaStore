@@ -112,11 +112,11 @@ app.use(speedLimiter);
 // XSS Protection
 app.use(xssProtection);
 
-// CSRF Protection (after body parsing) - Skip for /api/chat routes
+// CSRF Protection (after body parsing) - Skip for /api/chat and OAuth callback routes
 if (securityConfig.csrf.enabled) {
   app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    // Skip CSRF for chatbot routes
-    if (req.path.startsWith('/api/chat')) {
+    // Skip CSRF for chatbot routes and OAuth callbacks (external redirects can't send CSRF tokens)
+    if (req.path.startsWith('/api/chat') || req.path.startsWith('/api/auth/oauth/callback')) {
       return next();
     }
     return csrfProtection(req, res, next);

@@ -17,8 +17,6 @@ RUN npm install --legacy-peer-deps
 # Copy source code (not node_modules)
 COPY services/user/src ./src
 COPY services/user/scripts ./scripts
-COPY services/user/*.md ./
-COPY services/user/*.js ./
 
 # Expose port
 EXPOSE 3000

@@ -19,8 +19,9 @@ export const connectPostgreSQL = async (): Promise<Sequelize> => {
         await sequelize.authenticate();
         logger.info('Connected to PostgreSQL');
 
-        // Sync models (create tables if they don't exist, but don't alter existing ones)
-        await sequelize.sync({ force: false, alter: false });
+        // Sync models (create tables if they don't exist, alter in development)
+        const isDevelopment = process.env.NODE_ENV === 'development';
+        await sequelize.sync({ force: false, alter: isDevelopment });
         logger.info('Database synchronized');
 
         return sequelize;

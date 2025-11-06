@@ -16,8 +16,6 @@ RUN npm install --legacy-peer-deps
 
 # Copy source code (not node_modules)
 COPY services/payment/src ./src
-COPY services/payment/*.md ./
-COPY services/payment/*.js ./
 
 # Expose port
 EXPOSE 3000
