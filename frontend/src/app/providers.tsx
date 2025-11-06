@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { CartProvider } from '@/contexts/CartContext'
 import { ChatProvider } from '@/contexts/ChatContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { ChatWidget } from '@/components/chat'
+import { ToastContainer } from '@/components/ui'
 import { suppressExtensionErrors } from '@/lib/suppress-extension-errors'
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     suppressExtensionErrors()
   }, [])
+  
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -44,13 +46,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
+      <ThemeProvider>
         <ChatProvider>
           {children}
+          {/* ChatWidget flotante */}
           <ChatWidget />
+          {/* Sistema de notificaciones global */}
+          <ToastContainer />
+          {/* React Query Devtools (solo en desarrollo) */}
           <ReactQueryDevtools initialIsOpen={false} />
         </ChatProvider>
-      </CartProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

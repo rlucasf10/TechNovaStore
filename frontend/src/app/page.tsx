@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Header, Footer } from '@/components/ui'
+import { Header, Footer } from '@/components/layout'
 
 export default function HomePage() {
   return (

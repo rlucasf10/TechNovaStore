@@ -139,7 +139,9 @@
   - Manejar estados: loading, authenticated, unauthenticated
   - _Requisitos: 20.1_
 
-- [ ] 9. Crear componentes de autenticación
+- [x] 9. Crear componentes de autenticación
+
+
   - [x] 9.1 Crear layout compartido para páginas de autenticación
     - Crear componente AuthLayout con diseño centrado
     - Implementar AuthCard con logo, título y subtítulo
@@ -242,29 +244,55 @@
     - Limitar solicitudes de recuperación de contraseña
     - _Requisitos: 23.10_
 
-  - [ ] 9.10 Implementar autenticación OAuth
-    - [ ] 9.10.1 Crear configuración de proveedores OAuth
+  - [x] 9.10 Implementar autenticación OAuth
+
+
+
+
+    - [x] 9.10.1 Crear configuración de proveedores OAuth
+
+
+
+
+
+
+
       - Configurar Google OAuth (clientId, redirectUri, scope)
       - Configurar GitHub OAuth (clientId, redirectUri, scope)
       - Crear variables de entorno para credenciales
       - Implementar generación de state y PKCE
       - _Requisitos: 20.8, 24.1, 24.2_
 
-    - [ ] 9.10.2 Crear componente SocialLoginButtons
+    - [x] 9.10.2 Crear componente SocialLoginButtons
+
+
+
+
+
       - Implementar botón "Continuar con Google" con logo
       - Implementar botón "Continuar con GitHub" con logo
       - Agregar loading state durante OAuth
       - Implementar onClick que inicia flujo OAuth
       - _Requisitos: 24.1_
 
-    - [ ] 9.10.3 Implementar flujo de OAuth en Login y Registro
+    - [x] 9.10.3 Implementar flujo de OAuth en Login y Registro
+
+
+
+
+
       - Agregar SocialLoginButtons en página de Login
       - Agregar SocialLoginButtons en página de Registro
       - Implementar divider "o" entre métodos
       - Redirigir a URL de autorización del proveedor
       - _Requisitos: 24.1, 24.2_
 
-    - [ ] 9.10.4 Crear páginas de callback de OAuth
+    - [x] 9.10.4 Crear páginas de callback de OAuth
+
+
+
+
+
       - Crear página /auth/callback/google
       - Crear página /auth/callback/github
       - Extraer code y state de URL query params
@@ -276,22 +304,40 @@
       - Manejar caso de usuario canceló autorización
       - _Requisitos: 24.2, 24.3_
 
-    - [ ] 9.10.5 Implementar manejo de conflictos de email
+    - [x] 9.10.5 Implementar manejo de conflictos de email
+
+
+
+
+
       - Detectar cuando email de OAuth ya existe
       - Mostrar mensaje: "Este email ya está registrado. Inicia sesión para vincular."
       - Redirigir a login con mensaje informativo
       - Permitir vincular después de autenticarse
       - _Requisitos: 24.4_
 
-  - [ ] 9.11 Implementar establecimiento de contraseña para usuarios OAuth
-    - [ ] 9.11.1 Modificar flujo de "Olvidé mi contraseña"
+  - [x] 9.11 Implementar establecimiento de contraseña para usuarios OAuth
+
+
+
+
+    - [x] 9.11.1 Modificar flujo de "Olvidé mi contraseña"
+
+
+
+
       - Detectar si usuario no tiene contraseña (solo OAuth)
       - Mostrar mensaje: "Tu cuenta usa {Provider}. ¿Quieres establecer una contraseña?"
       - Botón "Establecer Contraseña"
       - Usar mismo flujo de recuperación (enviar email con token)
       - _Requisitos: 23.11, 24.6_
 
-    - [ ] 9.11.2 Crear modal de establecer contraseña en Dashboard
+    - [x] 9.11.2 Crear modal de establecer contraseña en Dashboard
+
+
+
+
+
       - Implementar modal SetPasswordModal
       - Input de nueva contraseña con PasswordStrengthIndicator
       - Input de confirmar contraseña
@@ -302,7 +348,12 @@
 
 ## Fase 4: Layout Principal y Navegación
 
-- [ ] 10. Crear Header component
+- [x] 10. Crear Header component
+
+
+
+
+
   - Implementar logo con link a home
   - Agregar barra de búsqueda global (placeholder, implementar después)
   - Crear navegación principal: Categorías, Ofertas, Soporte
@@ -311,21 +362,36 @@
   - Hacer responsive con hamburger menu en móvil
   - _Requisitos: 4.1, 17.1_
 
-- [ ] 11. Crear Footer component
+- [x] 11. Crear Footer component
+
+
+
+
+
   - Implementar columnas: Empresa, Ayuda, Legal, Redes Sociales
   - Agregar formulario de newsletter signup
   - Mostrar métodos de pago aceptados
   - Agregar copyright y enlaces legales
   - _Requisitos: 4.1_
 
-- [ ] 12. Crear Sidebar Navigation (móvil)
+- [x] 12. Crear Sidebar Navigation (móvil)
+
+
+
+
+
   - Implementar menú hamburger con animación slide-in
   - Agregar navegación por categorías
   - Incluir enlaces rápidos a cuenta y pedidos
   - Implementar overlay con cierre al hacer clic fuera
   - _Requisitos: 4.2, 4.4_
 
-- [ ] 13. Crear layout principal (RootLayout)
+- [x] 13. Crear layout principal (RootLayout)
+
+
+
+
+
   - Integrar Header, Footer y Sidebar
   - Configurar providers: React Query, Auth, Theme
   - Implementar sistema de notificaciones global
@@ -334,7 +400,12 @@
 
 ## Fase 5: Sistema de Notificaciones
 
-- [ ] 14. Crear sistema de notificaciones Toast
+- [x] 14. Crear sistema de notificaciones Toast
+
+
+
+
+
   - Crear componente Toast con variantes: success, error, warning, info
   - Implementar NotificationProvider con contexto
   - Crear hook useNotification para mostrar notificaciones
@@ -345,7 +416,12 @@
 
 ## Fase 6: Búsqueda Global
 
-- [ ] 15. Implementar búsqueda global rápida
+- [x] 15. Implementar búsqueda global rápida
+
+
+
+
+
   - Crear servicio SearchService con endpoint GET /api/products/search
   - Crear componente GlobalSearch con input y dropdown
   - Implementar autocompletado con debounce de 300ms
@@ -359,14 +435,23 @@
 
 ## Fase 7: Gestión de Productos
 
-- [ ] 16. Crear servicios de productos
+- [x] 16. Crear servicios de productos
+
+
+
+
+
   - Crear ProductService con métodos: getProducts, getProduct, searchProducts
   - Crear CategoryService con métodos: getCategories, getCategory
   - Implementar tipos TypeScript: Product, Category, ProductFilters
   - Configurar React Query hooks: useProducts, useProduct, useCategories
   - _Requisitos: 22.1_
 
-- [ ] 17. Crear componente ProductCard
+- [x] 17. Crear componente ProductCard
+
+
+
+
   - Implementar imagen con aspect ratio 1:1
   - Agregar badge de descuento si aplica
   - Mostrar nombre (2 líneas max con ellipsis)
@@ -377,8 +462,17 @@
   - Agregar animación de hover
   - _Requisitos: 7.1, 7.2_
 
-- [ ] 18. Crear página de Catálogo de Productos
-  - [ ] 18.1 Crear Sidebar de Filtros
+- [x] 18. Crear página de Catálogo de Productos
+
+
+
+
+  - [x] 18.1 Crear Sidebar de Filtros
+
+
+
+
+
     - Implementar filtros por categorías (checkboxes con contador)
     - Agregar filtros por marcas (checkboxes con búsqueda)
     - Implementar slider dual para rango de precio
@@ -387,28 +481,50 @@
     - Agregar botones "Aplicar Filtros" y "Limpiar Todo"
     - _Requisitos: 7.1, 7.2_
 
-  - [ ] 18.2 Crear Grid de Productos
+  - [x] 18.2 Crear Grid de Productos
+
+
+
+
+
     - Implementar grid responsivo (4-3-2-1 columnas)
     - Agregar ProductCard para cada producto
     - Implementar skeleton loading
     - Agregar paginación o scroll infinito
     - _Requisitos: 7.1, 7.2, 7.5_
 
-  - [ ] 18.3 Crear Toolbar de Catálogo
+  - [x] 18.3 Crear Toolbar de Catálogo
+
+
+
+
+
     - Mostrar contador de productos
     - Agregar selector de ordenamiento
     - Implementar toggle de vista (grid/list)
     - Agregar botón de filtros para móvil
     - _Requisitos: 7.1, 7.3_
 
-  - [ ] 18.4 Integrar filtros con URL query params
+  - [x] 18.4 Integrar filtros con URL query params
+
+
+
     - Sincronizar filtros con URL
     - Implementar navegación con historial del navegador
     - Permitir compartir URLs con filtros aplicados
     - _Requisitos: 7.3_
 
-- [ ] 19. Crear página de Detalle de Producto
-  - [ ] 19.1 Crear Galería de Imágenes
+- [x] 19. Crear página de Detalle de Producto
+
+
+
+
+  - [x] 19.1 Crear Galería de Imágenes
+
+
+
+
+
     - Implementar imagen principal grande con zoom
     - Agregar thumbnails con scroll horizontal
     - Implementar lightbox con navegación
@@ -416,7 +532,11 @@
     - Implementar lazy loading
     - _Requisitos: 8.1, 8.4_
 
-  - [ ] 19.2 Crear sección de información principal
+  - [x] 19.2 Crear sección de información principal
+
+
+
+
     - Mostrar nombre, marca, SKU
     - Agregar rating con reviews
     - Mostrar precio con descuento si aplica
@@ -425,7 +545,12 @@
     - Implementar botones "Agregar al Carrito" y "Comprar Ahora"
     - _Requisitos: 8.1, 8.5_
 
-  - [ ] 19.3 Crear Comparador de Precios
+  - [x] 19.3 Crear Comparador de Precios
+
+
+
+
+
     - Implementar tabla expandible/colapsable
     - Mostrar proveedores: Amazon, AliExpress, etc.
     - Incluir columnas: Proveedor, Precio, Envío, Total, Entrega
@@ -433,33 +558,59 @@
     - Agregar badge "Mejor oferta"
     - _Requisitos: 8.1, 8.2_
 
-  - [ ] 19.4 Crear Tabs de contenido
+  - [x] 19.4 Crear Tabs de contenido
+
+
+
+
+
+
+
     - Implementar tab de Descripción
     - Crear tab de Especificaciones Técnicas (tabla)
     - Agregar tab de Reviews
     - _Requisitos: 8.1_
 
-  - [ ] 19.5 Crear sección de Preguntas y Respuestas
+  - [x] 19.5 Crear sección de Preguntas y Respuestas
+
+
+
+
+
     - Integrar ChatWidget embebido (no flotante)
     - Pre-cargar contexto con producto actual
     - Agregar botón "Hacer una pregunta"
     - _Requisitos: 8.1, 8.3_
 
-  - [ ] 19.6 Agregar sección de Productos Relacionados
+  - [x] 19.6 Agregar sección de Productos Relacionados
+
+
+
+
     - Mostrar grid de 4 productos relacionados
     - Usar ProductCard component
     - _Requisitos: 8.1_
 
 ## Fase 8: Carrito de Compras
 
-- [ ] 20. Crear servicio de carrito
+- [x] 20. Crear servicio de carrito
+
+
+
+
+
   - Crear CartService con métodos: getCart, addItem, updateQuantity, removeItem, clearCart
   - Implementar tipos TypeScript: Cart, CartItem
   - Configurar React Query hooks: useCart, useAddToCart, useUpdateCart
   - Implementar persistencia en localStorage
   - _Requisitos: 9.1, 9.4_
 
-- [ ] 21. Crear componente CartItem
+- [x] 21. Crear componente CartItem
+
+
+
+
+
   - Mostrar imagen del producto (100x100px)
   - Agregar nombre con link a detalle
   - Mostrar SKU y marca
@@ -688,6 +839,34 @@
   - [ ] 35.6 Crear tarjeta de Acciones Rápidas
     - Agregar botones: "Rastrear pedido", "Contactar soporte", "Ver ofertas"
     - _Requisitos: 11.4_
+
+- [x] 35.7 Crear vista completa de Notificaciones
+  - [x] 35.7.1 Crear NotificationDropdown en Header
+    - Implementar dropdown que se abre al hacer clic en campanita (desktop)
+    - Mostrar últimas 5 notificaciones con iconos por tipo
+    - Agregar badge con contador de no leídas
+    - Implementar botón "Ver todas las notificaciones"
+    - Cerrar con ESC o click fuera
+    - _Requisitos: 11.3_
+
+  - [x] 35.7.2 Crear página /notificaciones
+    - Implementar vista completa del historial de notificaciones
+    - Agregar filtros: Todas, Sin leer, Por tipo (Pedido, Envío, Pago, Sistema, Promoción)
+    - Mostrar notificaciones con iconos, colores y tiempo relativo
+    - Implementar botón "Marcar todas como leídas"
+    - Agregar acciones individuales: Marcar como leída, Eliminar
+    - Hacer responsive (filtros en dropdown en móvil)
+    - Implementar estados vacíos con mensajes amigables
+    - _Requisitos: 11.3_
+
+  - [ ] 35.7.3 Implementar acciones de notificaciones (requiere backend)
+    - Conectar con endpoint PUT /api/notifications/:id/read para marcar como leída
+    - Conectar con endpoint DELETE /api/notifications/:id para eliminar
+    - Conectar con endpoint PUT /api/notifications/mark-all-read para marcar todas
+    - Actualizar estado local después de cada acción
+    - Mostrar toast de confirmación
+    - _Requisitos: 11.3_
+    - **NOTA**: Los métodos están marcados como TODO porque requieren endpoints del backend que aún no están implementados
 
 - [ ] 36. Crear vista de Mis Pedidos
   - Implementar filtros: Estado, Rango de fechas, Búsqueda

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { Header, Footer } from '@/components/ui';
+import { Header, Footer } from '@/components/layout';
 import { ProtectedRoute } from '@/components/auth';
 
 interface DashboardLayoutProps {

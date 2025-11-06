@@ -6,8 +6,10 @@
 
 // Exportar servicios
 export { authService } from './auth.service';
-// export { productService } from './product.service';
-// export { cartService } from './cart.service';
+export { searchService } from './search.service';
+export { productService } from './product.service';
+export { categoryService } from './category.service';
+export { cartService } from './cart.service';
 // export { orderService } from './order.service';
 // export { paymentService } from './payment.service';
 // export { userService } from './user.service';
@@ -16,4 +18,6 @@ export { authService } from './auth.service';
 // export { adminService } from './admin.service';
 
 // Exportar tipos de servicios
-// export type * from './types';
+export type { ProductFilters, SearchProductsParams } from './product.service';
+export type { CategoryTree } from './category.service';
+export type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest } from './cart.service';

@@ -184,4 +184,24 @@ export class ProductController {
       count: products.length,
     });
   });
+
+  static getRelatedProducts = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const limit = Math.min(parseInt(req.query.limit as string) || 4, 20);
+
+    const product = await ProductService.getProductById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        error: 'Product not found',
+      });
+    }
+
+    const relatedProducts = await ProductService.getRelatedProducts(id, product.category, limit);
+
+    return res.json({
+      success: true,
+      data: relatedProducts,
+    });
+  });
 }

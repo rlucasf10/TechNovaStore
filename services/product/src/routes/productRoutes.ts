@@ -36,6 +36,12 @@ productRoutes.get(
   ProductController.getProductBySku
 );
 
+productRoutes.get(
+  '/:id/related',
+  validateProductId,
+  ProductController.getRelatedProducts
+);
+
 // Admin routes (authentication and admin role required)
 productRoutes.post(
   '/',

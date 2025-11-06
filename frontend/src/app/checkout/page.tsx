@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCart } from '@/contexts/CartContext'
+import { useCartStore } from '@/store/cart.store'
 import { CheckoutSteps, ShippingForm, PaymentForm, OrderSummary, OrderConfirmation } from '@/components/checkout'
 import { Button } from '@/components/ui'
 import { Address } from '@/types'
@@ -29,7 +29,8 @@ const steps = [
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, clearCart } = useCart()
+  const items = useCartStore((state) => state.items)
+  const clearCart = useCartStore((state) => state.clearCart)
   const [currentStep, setCurrentStep] = useState(1)
   const [isProcessing, setIsProcessing] = useState(false)
   const [orderId, setOrderId] = useState<string | null>(null)

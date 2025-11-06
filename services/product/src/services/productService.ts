@@ -80,14 +80,16 @@ export class ProductService {
 
     // Execute query
     const skip = (page - 1) * limit;
-    const [products, total] = await Promise.all([
+    const [productsDoc, total] = await Promise.all([
       Product.find(filter)
         .sort(sort)
         .skip(skip)
-        .limit(limit)
-        .lean(),
+        .limit(limit),
       Product.countDocuments(filter),
     ]);
+
+    // Convert to JSON to apply transformations
+    const products = productsDoc.map(p => p.toJSON());
 
     const result: ProductResponse = {
       products: products as unknown as IProduct[],
@@ -123,17 +125,20 @@ export class ProductService {
       logger.warn('Cache retrieval failed:', error);
     }
 
-    const product = await Product.findById(id).lean();
+    const product = await Product.findById(id);
     
     if (product) {
+      // Convert to JSON to apply transformations
+      const productJSON = product.toJSON();
       try {
-        await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(product));
+        await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(productJSON));
       } catch (error) {
         logger.warn('Cache storage failed:', error);
       }
+      return productJSON as unknown as IProduct;
     }
 
-    return product as unknown as IProduct;
+    return null;
   }
 
   static async getProductBySku(sku: string): Promise<IProduct | null> {
@@ -149,17 +154,20 @@ export class ProductService {
       logger.warn('Cache retrieval failed:', error);
     }
 
-    const product = await Product.findOne({ sku }).lean();
+    const product = await Product.findOne({ sku });
     
     if (product) {
+      // Convert to JSON to apply transformations
+      const productJSON = product.toJSON();
       try {
-        await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(product));
+        await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(productJSON));
       } catch (error) {
         logger.warn('Cache storage failed:', error);
       }
+      return productJSON as unknown as IProduct;
     }
 
-    return product as unknown as IProduct;
+    return null;
   }
 
   static async createProduct(productData: Partial<IProduct>): Promise<IProduct> {
@@ -222,7 +230,7 @@ export class ProductService {
       logger.warn('Cache retrieval failed:', error);
     }
 
-    const products = await Product.find(
+    const productsDoc = await Product.find(
       { 
         $text: { $search: searchTerm },
         is_active: true 
@@ -230,8 +238,44 @@ export class ProductService {
       { score: { $meta: 'textScore' } }
     )
     .sort({ score: { $meta: 'textScore' } })
-    .limit(limit)
-    .lean();
+    .limit(limit);
+
+    // Convert to JSON to apply transformations
+    const products = productsDoc.map(p => p.toJSON());
+
+    try {
+      await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(products));
+    } catch (error) {
+      logger.warn('Cache storage failed:', error);
+    }
+
+    return products as unknown as IProduct[];
+  }
+
+  static async getRelatedProducts(productId: string, category: string, limit: number = 4): Promise<IProduct[]> {
+    const cacheKey = `${this.CACHE_PREFIX}related:${productId}:${limit}`;
+    
+    try {
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        logger.debug(`Related products for ${productId} retrieved from cache`);
+        return JSON.parse(cached);
+      }
+    } catch (error) {
+      logger.warn('Cache retrieval failed:', error);
+    }
+
+    // Buscar productos de la misma categoría, excluyendo el producto actual
+    const productsDoc = await Product.find({
+      _id: { $ne: productId },
+      category: category,
+      is_active: true
+    })
+    .sort({ created_at: -1 })
+    .limit(limit);
+
+    // Convert to JSON to apply transformations
+    const products = productsDoc.map(p => p.toJSON());
 
     try {
       await redisClient.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(products));

@@ -224,6 +224,32 @@ export const setupRoutes = (app: Express) => {
     onProxyRes: ensureCorsHeaders,
   }));
 
+  // OAuth callback endpoint (public, with extended timeout for external API calls)
+  app.use('/api/auth/oauth/callback', publicSecurity, createProxyMiddleware({
+    target: services.user,
+    changeOrigin: true,
+    timeout: 60000, // 60 seconds timeout for OAuth provider calls
+    proxyTimeout: 60000,
+    pathRewrite: {
+      '^/api/auth/oauth/callback': '/auth/oauth/callback',
+    },
+    onProxyReq: (proxyReq: any, req: any) => {
+      // Fix body forwarding when using body-parser
+      if (req.body && Object.keys(req.body).length > 0) {
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      }
+    },
+    onError: (err: any, req: any, res: any) => {
+      logger.error('OAuth callback service proxy error:', err);
+      logSecurityEvent(req, 'SUSPICIOUS_REQUEST', 'MEDIUM', { error: err.message, endpoint: 'oauth-callback' });
+      res.status(503).json({ error: 'OAuth service unavailable' });
+    },
+    onProxyRes: ensureCorsHeaders,
+  }));
+
   // Protected auth endpoint - /me requires authentication
   app.use('/api/auth/me', authMiddleware, createProxyMiddleware({
     target: services.user,

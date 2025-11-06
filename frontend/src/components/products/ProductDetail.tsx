@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { Product } from '@/types'
-import { Button } from '@/components/ui'
-import { PriceComparator, ProductGallery, ProductSpecs } from './index'
+import { Button, Rating, Badge, Tabs } from '@/components/ui'
+import { PriceComparator, ProductGallery, ProductReviews, ProductQA, RelatedProducts } from './index'
+import { useCartStore } from '@/store/cart.store'
+import { useToast } from '@/hooks/useToast'
 
 interface ProductDetailProps {
   product: Product
@@ -12,6 +14,8 @@ interface ProductDetailProps {
 export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedQuantity, setSelectedQuantity] = useState(1)
   const [showComparator, setShowComparator] = useState(false)
+  const addItem = useCartStore((state) => state.addItem)
+  const toast = useToast()
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -34,12 +38,73 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const savings = calculateSavings()
   const totalPrice = product.our_price * selectedQuantity
 
+  // Calcular porcentaje de descuento
+  const discountPercentage = product.discount_percentage || 
+    (product.original_price && product.original_price > product.our_price
+      ? Math.round(((product.original_price - product.our_price) / product.original_price) * 100)
+      : 0)
+
+  // Precio original (antes de descuento)
+  const originalPrice = product.original_price || 
+    (discountPercentage > 0 ? product.our_price / (1 - discountPercentage / 100) : null)
+
   const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
+    try {
+      // Convertir Product a CartItem format
+      addItem({
+        id: `cart-${product.id}-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        price: product.our_price,
+        image: product.images?.[0] || '/placeholder-product.svg',
+        sku: product.sku,
+        brand: product.brand,
+        maxQuantity: 99,
+      }, selectedQuantity)
+      
+      toast.success(
+        `${selectedQuantity} ${selectedQuantity === 1 ? 'unidad agregada' : 'unidades agregadas'} al carrito`,
+        'Producto agregado'
+      )
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error)
+      toast.error(
+        'No se pudo agregar el producto al carrito',
+        'Error'
+      )
+    }
   }
 
   const handleBuyNow = () => {
-    // TODO: Implement buy now functionality
+    try {
+      // Convertir Product a CartItem format
+      addItem({
+        id: `cart-${product.id}-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        price: product.our_price,
+        image: product.images?.[0] || '/placeholder-product.svg',
+        sku: product.sku,
+        brand: product.brand,
+        maxQuantity: 99,
+      }, selectedQuantity)
+      
+      // Redirigir al checkout
+      window.location.href = '/checkout'
+    } catch (error) {
+      console.error('Error al comprar:', error)
+      toast.error(
+        'No se pudo procesar la compra',
+        'Error'
+      )
+    }
+  }
+
+  const handleQuantityChange = (change: number) => {
+    const newQuantity = selectedQuantity + change
+    if (newQuantity >= 1 && newQuantity <= 99) {
+      setSelectedQuantity(newQuantity)
+    }
   }
 
   return (
@@ -50,137 +115,270 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <ProductGallery images={product.images} productName={product.name} />
         </div>
 
-        {/* Product Info */}
+        {/* Product Info - Sección de información principal */}
         <div className="space-y-6">
           {/* Breadcrumb */}
-          <nav className="text-sm text-gray-500">
-            <span>Inicio</span>
-            <span className="mx-2">/</span>
-            <span>{product.category}</span>
-            {product.subcategory && (
-              <>
+          <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
+            <ol className="flex items-center space-x-2">
+              <li>
+                <a href="/" className="hover:text-primary-600 transition-colors">
+                  Inicio
+                </a>
+              </li>
+              <li>
                 <span className="mx-2">/</span>
-                <span>{product.subcategory}</span>
-              </>
-            )}
+              </li>
+              <li>
+                <a href={`/productos?category=${encodeURIComponent(product.category)}`} className="hover:text-primary-600 transition-colors">
+                  {product.category}
+                </a>
+              </li>
+              {product.subcategory && (
+                <>
+                  <li>
+                    <span className="mx-2">/</span>
+                  </li>
+                  <li className="text-gray-900 font-medium">
+                    {product.subcategory}
+                  </li>
+                </>
+              )}
+            </ol>
           </nav>
 
-          {/* Product Title */}
+          {/* Nombre, Marca y SKU */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
               {product.name}
             </h1>
-            {product.brand && (
-              <p className="text-lg text-gray-600">por {product.brand}</p>
-            )}
-            <p className="text-sm text-gray-500 mt-1">SKU: {product.sku}</p>
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              {product.brand && (
+                <div className="flex items-center">
+                  <span className="text-gray-500">Marca:</span>
+                  <span className="ml-1 font-medium text-gray-900">{product.brand}</span>
+                </div>
+              )}
+              <div className="flex items-center">
+                <span className="text-gray-500">SKU:</span>
+                <span className="ml-1 font-mono text-gray-900">{product.sku}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Price Section */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <span className="text-3xl font-bold text-gray-900">
-                  {formatPrice(product.our_price)}
-                </span>
+          {/* Rating con Reviews */}
+          {product.rating !== undefined && product.rating > 0 && (
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+              <Rating 
+                value={product.rating} 
+                size="lg" 
+                readOnly 
+                showValue
+              />
+              {product.review_count !== undefined && product.review_count > 0 && (
+                <a 
+                  href="#reviews" 
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                >
+                  ({product.review_count} {product.review_count === 1 ? 'reseña' : 'reseñas'})
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* Precio con Descuento */}
+          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                {/* Precio original tachado si hay descuento */}
+                {originalPrice && discountPercentage > 0 && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg text-gray-500 line-through">
+                      {formatPrice(originalPrice)}
+                    </span>
+                    <Badge variant="error" size="md" className="font-bold">
+                      -{discountPercentage}% OFF
+                    </Badge>
+                  </div>
+                )}
+                
+                {/* Precio final */}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-gray-900">
+                    {formatPrice(product.our_price)}
+                  </span>
+                </div>
+
+                {/* Ahorro vs compra directa */}
                 {savings && (
-                  <div className="text-sm text-green-600 font-medium mt-1">
-                    Ahorras {formatPrice(savings)} vs. compra directa
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-green-600 font-medium">
+                      Ahorras {formatPrice(savings)} vs. compra directa
+                    </span>
                   </div>
                 )}
               </div>
+
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowComparator(!showComparator)}
+                className="flex-shrink-0"
               >
+                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
                 {showComparator ? 'Ocultar' : 'Comparar'} precios
               </Button>
             </div>
 
-            {/* Availability */}
-            <div className="flex items-center mb-4">
+            {/* Disponibilidad en Stock */}
+            <div className="pt-4 border-t border-gray-200">
               {product.is_active && bestProvider ? (
-                <div className="flex items-center text-green-600">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  <span className="font-medium">En stock</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" aria-hidden="true"></div>
+                    <span className="text-lg font-semibold text-green-600">En stock</span>
+                  </div>
                   {bestProvider.delivery_time && (
-                    <span className="text-gray-600 ml-2">
-                      • Entrega en {bestProvider.delivery_time} días
-                    </span>
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Entrega en {bestProvider.delivery_time} días</span>
+                    </div>
                   )}
                 </div>
               ) : (
-                <div className="flex items-center text-red-600">
-                  <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                  <span className="font-medium">No disponible</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full" aria-hidden="true"></div>
+                  <span className="text-lg font-semibold text-red-600">No disponible</span>
                 </div>
               )}
             </div>
 
-            {/* Quantity Selector */}
+            {/* Selector de Cantidad */}
             {product.is_active && bestProvider && (
-              <div className="flex items-center space-x-4 mb-6">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="pt-4 border-t border-gray-200">
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
                   Cantidad:
                 </label>
-                <select
-                  value={selectedQuantity}
-                  onChange={(e) => setSelectedQuantity(parseInt(e.target.value))}
-                  className="rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-                >
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
-                    <option key={num} value={num}>{num}</option>
-                  ))}
-                </select>
-                {selectedQuantity > 1 && (
-                  <span className="text-sm text-gray-600">
-                    Total: {formatPrice(totalPrice)}
-                  </span>
-                )}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={selectedQuantity <= 1}
+                      className="px-4 py-3 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Disminuir cantidad"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                      </svg>
+                    </button>
+                    <input
+                      id="quantity"
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={selectedQuantity}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (!isNaN(value) && value >= 1 && value <= 99) {
+                          setSelectedQuantity(value)
+                        }
+                      }}
+                      className="w-16 text-center border-0 focus:ring-0 font-semibold text-gray-900"
+                      aria-label="Cantidad"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(1)}
+                      disabled={selectedQuantity >= 99}
+                      className="px-4 py-3 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Aumentar cantidad"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                  {selectedQuantity > 1 && (
+                    <div className="text-sm">
+                      <span className="text-gray-500">Total:</span>
+                      <span className="ml-2 text-lg font-bold text-gray-900">
+                        {formatPrice(totalPrice)}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            {product.is_active && bestProvider ? (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  onClick={handleAddToCart}
-                  variant="secondary"
-                  className="flex-1"
-                >
+            {/* Botones "Agregar al Carrito" y "Comprar Ahora" */}
+            <div className="pt-4">
+              {product.is_active && bestProvider ? (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handleAddToCart}
+                    variant="secondary"
+                    size="lg"
+                    className="flex-1"
+                    iconLeft={
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    }
+                  >
+                    Agregar al Carrito
+                  </Button>
+                  <Button
+                    onClick={handleBuyNow}
+                    variant="primary"
+                    size="lg"
+                    className="flex-1"
+                    iconLeft={
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    }
+                  >
+                    Comprar Ahora
+                  </Button>
+                </div>
+              ) : (
+                <Button disabled size="lg" className="w-full">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                   </svg>
-                  Añadir al carrito
+                  Producto no disponible
                 </Button>
-                <Button
-                  onClick={handleBuyNow}
-                  className="flex-1"
-                >
-                  Comprar ahora
-                </Button>
-              </div>
-            ) : (
-              <Button disabled className="w-full">
-                Producto no disponible
-              </Button>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Provider Info */}
           {bestProvider && (
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="font-medium text-blue-900 mb-2">
-                Información del proveedor
-              </h3>
-              <div className="text-sm text-blue-800 space-y-1">
-                <p>Proveedor: {bestProvider.name}</p>
-                <p>Precio base: {formatPrice(bestProvider.price)}</p>
-                {bestProvider.shipping_cost > 0 && (
-                  <p>Envío: {formatPrice(bestProvider.shipping_cost)}</p>
-                )}
-                <p>Tiempo de entrega: {bestProvider.delivery_time} días</p>
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-blue-900 mb-2">
+                    Información del proveedor
+                  </h3>
+                  <div className="text-sm text-blue-800 space-y-1">
+                    <p><span className="font-medium">Proveedor:</span> {bestProvider.name}</p>
+                    <p><span className="font-medium">Precio base:</span> {formatPrice(bestProvider.price)}</p>
+                    {bestProvider.shipping_cost > 0 && (
+                      <p><span className="font-medium">Envío:</span> {formatPrice(bestProvider.shipping_cost)}</p>
+                    )}
+                    <p><span className="font-medium">Tiempo de entrega:</span> {bestProvider.delivery_time} días hábiles</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -197,26 +395,162 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       )}
 
-      {/* Product Description and Specs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Description */}
-        <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Descripción del producto
-          </h2>
-          <div className="prose prose-sm max-w-none text-gray-700">
-            {product.description ? (
-              <p>{product.description}</p>
-            ) : (
-              <p>Descripción no disponible para este producto.</p>
-            )}
-          </div>
-        </div>
+      {/* Tabs de Contenido: Descripción, Especificaciones, Reviews */}
+      <div className="mb-12">
+        <Tabs
+          tabs={[
+            {
+              id: 'description',
+              label: 'Descripción',
+              icon: (
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+              ),
+              content: (
+                <div className="prose prose-sm max-w-none text-gray-700">
+                  {product.description ? (
+                    <div>
+                      <p className="text-base leading-relaxed">{product.description}</p>
+                      
+                      {/* Características destacadas si existen */}
+                      {product.features && product.features.length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                            Características destacadas
+                          </h3>
+                          <ul className="space-y-2">
+                            {product.features.map((feature, index) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-gray-700">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-gray-500">Descripción no disponible para este producto.</p>
+                    </div>
+                  )}
+                </div>
+              )
+            },
+            {
+              id: 'specifications',
+              label: 'Especificaciones Técnicas',
+              icon: (
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              ),
+              content: (
+                <div>
+                  {product.specifications && Object.keys(product.specifications).length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {Object.entries(product.specifications).map(([key, value], index) => (
+                            <tr key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-1/3">
+                                {key}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {String(value)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <p className="text-gray-500">No hay especificaciones técnicas disponibles para este producto.</p>
+                    </div>
+                  )}
+                </div>
+              )
+            },
+            {
+              id: 'reviews',
+              label: `Reviews (${product.review_count || 0})`,
+              icon: (
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              ),
+              content: (
+                <ProductReviews
+                  productId={product.id}
+                  averageRating={product.rating || 0}
+                  totalReviews={product.review_count || 0}
+                  reviews={[
+                    // Datos de ejemplo - en producción vendrían del backend
+                    {
+                      id: '1',
+                      userId: 'user1',
+                      userName: 'Carlos Martínez',
+                      rating: 5,
+                      title: 'Excelente producto',
+                      comment: 'Superó mis expectativas. La calidad es excepcional y llegó antes de lo esperado. Totalmente recomendado.',
+                      date: new Date('2024-10-15'),
+                      verified: true,
+                      helpful: 12
+                    },
+                    {
+                      id: '2',
+                      userId: 'user2',
+                      userName: 'Ana García',
+                      rating: 4,
+                      title: 'Muy bueno',
+                      comment: 'Buen producto en general. La única pega es que el embalaje podría ser mejor, pero el producto en sí es de calidad.',
+                      date: new Date('2024-10-10'),
+                      verified: true,
+                      helpful: 8
+                    },
+                    {
+                      id: '3',
+                      userId: 'user3',
+                      userName: 'Miguel López',
+                      rating: 5,
+                      title: 'Perfecto para mis necesidades',
+                      comment: 'Exactamente lo que buscaba. Funciona perfectamente y el precio es muy competitivo.',
+                      date: new Date('2024-10-05'),
+                      verified: false,
+                      helpful: 5
+                    }
+                  ]}
+                />
+              )
+            }
+          ]}
+          defaultActiveTab="description"
+          variant="underline"
+        />
+      </div>
 
-        {/* Specifications */}
-        <div>
-          <ProductSpecs specifications={product.specifications} />
-        </div>
+      {/* Sección de Preguntas y Respuestas */}
+      <div className="mb-12">
+        <ProductQA product={product} />
+      </div>
+
+      {/* Sección de Productos Relacionados */}
+      <div className="mb-12">
+        <RelatedProducts 
+          productId={product.id || (product as any)._id}
+          limit={4}
+          onAddToCart={handleAddToCart}
+        />
       </div>
     </div>
   )

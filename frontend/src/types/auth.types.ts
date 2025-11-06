@@ -77,6 +77,7 @@ export interface OAuthCallbackData {
   provider: OAuthProvider;
   code: string;
   state: string;
+  codeVerifier?: string; // PKCE code verifier (opcional, se obtiene de sessionStorage)
 }
 
 export interface OAuthState {
@@ -156,6 +157,7 @@ export type AuthErrorCode =
   | 'rate-limit-exceeded'
   | 'oauth-cancelled'
   | 'oauth-failed'
+  | 'oauth-user-no-password'
   | 'method-already-linked'
   | 'cannot-unlink-only-method'
   | 'unauthorized';
@@ -164,6 +166,7 @@ export interface AuthError {
   code: AuthErrorCode;
   message: string;
   field?: string;
+  provider?: string; // Proveedor OAuth (para oauth-user-no-password)
 }
 
 // ============================================================================

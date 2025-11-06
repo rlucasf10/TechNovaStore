@@ -47,6 +47,8 @@ export default function ForgotPasswordPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>('');
+  const [isOAuthUser, setIsOAuthUser] = useState(false);
+  const [oauthProvider, setOAuthProvider] = useState<string>('');
 
   // Rate limiting
   const rateLimit = useForgotPasswordRateLimit({
@@ -87,6 +89,8 @@ export default function ForgotPasswordPage() {
     try {
       setIsLoading(true);
       setAuthError(null);
+      setIsOAuthUser(false);
+      setOAuthProvider('');
 
       // Enviar solicitud de recuperación
       await authService.forgotPassword({ email: data.email });
@@ -100,8 +104,16 @@ export default function ForgotPasswordPage() {
       // NOTA: No llamar rateLimit.recordAttempt() aquí porque authService ya lo hace
       // Esto evita contar doble los intentos fallidos
       
-      // Mostrar error (excepto si es rate limiting, que se maneja automáticamente)
-      if (authError.code !== 'rate-limit-exceeded') {
+      // Detectar si el usuario solo tiene OAuth (sin contraseña)
+      if (authError.code === 'oauth-user-no-password') {
+        // El backend debe devolver información sobre el proveedor OAuth
+        // en el campo 'details' o 'provider' del error
+        const provider = authError.provider || 'Google/GitHub';
+        setIsOAuthUser(true);
+        setOAuthProvider(provider);
+        setSubmittedEmail(data.email); // Guardar email para usar en "Establecer Contraseña"
+        setAuthError(null); // No mostrar error genérico
+      } else if (authError.code !== 'rate-limit-exceeded') {
         // Para otros errores, mostrar mensaje genérico por seguridad
         // (no revelar si el email existe o no)
         setAuthError('Ocurrió un error. Por favor, intenta de nuevo.');
@@ -110,6 +122,204 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  // ============================================================================
+  // Render - Vista de Usuario OAuth sin Contraseña
+  // ============================================================================
+
+  if (isOAuthUser) {
+    return (
+      <AuthLayout
+        title="Establecer contraseña"
+        subtitle={`Tu cuenta usa ${oauthProvider} para iniciar sesión`}
+        showBackToHome={false}
+      >
+        <div className="space-y-6">
+          {/* Icono informativo */}
+          <div className="flex justify-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Mensaje informativo */}
+          <div className="text-center space-y-3">
+            <p className="text-gray-700">
+              Tu cuenta está vinculada con{' '}
+              <span className="font-semibold text-gray-900">{oauthProvider}</span>
+              {' '}y no tiene una contraseña establecida.
+            </p>
+            <p className="text-sm text-gray-600">
+              ¿Quieres establecer una contraseña para poder iniciar sesión también con email y contraseña?
+            </p>
+          </div>
+
+          {/* Información adicional */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <svg
+                className="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Beneficios de establecer una contraseña:</p>
+                <ul className="list-disc list-inside space-y-1 text-blue-700">
+                  <li>Podrás iniciar sesión con email y contraseña</li>
+                  <li>Tendrás múltiples opciones de acceso a tu cuenta</li>
+                  <li>Mayor seguridad con autenticación de dos factores</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Botón para establecer contraseña */}
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={async () => {
+                // Usar el mismo flujo de recuperación para establecer contraseña
+                try {
+                  setIsLoading(true);
+                  setAuthError(null);
+                  
+                  // Enviar solicitud de recuperación (el backend enviará un email con token)
+                  await authService.forgotPassword({ email: submittedEmail });
+                  
+                  // Mostrar mensaje de éxito
+                  setIsOAuthUser(false);
+                  setIsSuccess(true);
+                } catch (error) {
+                  const authError = error as AuthError;
+                  if (authError.code !== 'rate-limit-exceeded') {
+                    setAuthError('Ocurrió un error. Por favor, intenta de nuevo.');
+                  }
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              disabled={isLoading}
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Enviando instrucciones...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                  Establecer Contraseña
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Mensaje de error si ocurre */}
+          {authError && (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+              <div className="flex items-center">
+                <svg
+                  className="h-5 w-5 text-red-400 mr-3 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm font-medium text-red-800">{authError}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Botón para volver al login */}
+          <div className="pt-4 border-t border-gray-200">
+            <Link
+              href="/login"
+              className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Volver al inicio de sesión
+            </Link>
+          </div>
+
+          {/* Información adicional */}
+          <div className="text-center pt-2">
+            <p className="text-xs text-gray-500">
+              También puedes seguir usando {oauthProvider} para iniciar sesión
+            </p>
+          </div>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   // ============================================================================
   // Render - Vista de Éxito

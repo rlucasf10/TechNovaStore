@@ -1,6 +1,6 @@
 'use client'
 
-import { Header } from '@/components/ui'
+import { Header } from '@/components/layout'
 import { ShoppingCart } from '@/components/cart'
 
 export default function CarritoPage() {

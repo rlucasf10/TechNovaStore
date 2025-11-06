@@ -1,6 +1,6 @@
 'use client'
 
-import { Header } from '@/components/ui'
+import { Header, Footer } from '@/components/layout'
 import { ProductCard } from '@/components/products'
 import { useProducts } from '@/hooks/useProducts'
 
@@ -21,7 +21,7 @@ export default function OfertasPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
       {/* Hero Section */}
@@ -39,7 +39,7 @@ export default function OfertasPage() {
       </section>
 
       {/* Ofertas Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
@@ -79,6 +79,7 @@ export default function OfertasPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }

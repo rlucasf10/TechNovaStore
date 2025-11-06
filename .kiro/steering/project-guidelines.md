@@ -20,6 +20,23 @@ Reglas y convenciones generales para el desarrollo de todo el proyecto TechNovaS
 - No dejes archivos de prueba temporales en el repositorio
 - Solo mantén archivos de prueba que sean parte de la suite de testing oficial del proyecto
 
+### Páginas de Prueba en Next.js
+
+- Cuando crees páginas de prueba para componentes (ej: `/test-product-card`, `/test-component`), estas son SOLO para desarrollo
+- Estas páginas DEBEN eliminarse antes de producción
+- Agregar un comentario claro en la parte superior indicando que es una página de prueba temporal
+- Ejemplo de estructura:
+  ```typescript
+  /**
+   * Página de prueba para el componente X
+   * Ruta: /test-x
+   * 
+   * Esta página es solo para desarrollo y testing.
+   * NO debe estar en producción.
+   */
+  ```
+- Mantener un registro de páginas de prueba creadas para eliminarlas antes del deploy
+
 ## Revisión de Tareas Antes de Implementar
 
 **IMPORTANTE**: SIEMPRE revisar la lista de tareas antes de implementar cualquier funcionalidad.
@@ -31,6 +48,36 @@ Reglas y convenciones generales para el desarrollo de todo el proyecto TechNovaS
 - Si corresponde a una tarea, verificar que la implementación sea exactamente como se describe en la tarea
 - NO implementar funcionalidades que no estén en las tareas o que no correspondan a la tarea actual
 - Si hay dudas sobre qué implementar, preguntar al usuario qué tarea específica quiere ejecutar
+
+## Implementación en la Web Real
+
+**CRÍTICO**: Las funcionalidades DEBEN implementarse en la web real, no solo en páginas de prueba.
+
+### Reglas de Implementación Real
+
+- **SIEMPRE implementar en la aplicación real primero** (ej: `/productos`, `/carrito`, etc.)
+- Las páginas de prueba (ej: `/test-*`) son SOLO para verificación adicional
+- **NO es suficiente** crear solo páginas de prueba - el usuario quiere ver los cambios en la web real
+- Después de implementar, reconstruir el contenedor Docker para aplicar cambios
+- Verificar que los cambios sean visibles en la URL real de la aplicación
+
+### Flujo Correcto
+
+1. ✅ Implementar funcionalidad en componentes reales
+2. ✅ Integrar en páginas reales de la aplicación
+3. ✅ Guardar archivos (hot-reload automático en 2-5 segundos)
+4. ✅ Refrescar navegador y verificar (ej: http://localhost:3011/productos)
+5. ⚠️ Opcionalmente crear página de prueba para testing adicional
+
+**Nota**: En desarrollo, Next.js tiene hot-reload. Solo reconstruir contenedor si cambias `package.json` o configuración de Docker.
+
+### Flujo INCORRECTO ❌
+
+1. ❌ Crear solo página de prueba
+2. ❌ No integrar en la aplicación real
+3. ❌ Asumir que el trabajo está completo
+
+**Ejemplo**: Si implementas un nuevo toolbar para el catálogo, debe verse en `/productos`, no solo en `/test-toolbar`
 
 ## Entorno de Desarrollo
 

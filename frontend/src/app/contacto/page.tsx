@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Header } from '@/components/ui'
+import { Header } from '@/components/layout'
 import { Button, Input } from '@/components/ui'
 
 export default function ContactoPage() {

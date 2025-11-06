@@ -126,6 +126,20 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
+// Transform _id to id when converting to JSON
+ProductSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc: any, ret: any) {
+    // Si no existe un campo 'id', usar _id como id
+    if (!ret.id) {
+      ret.id = ret._id.toString();
+    }
+    delete ret._id;
+    return ret;
+  }
+});
+
 // Calculate our_price based on best provider price and markup
 ProductSchema.methods.calculateOurPrice = function() {
   if (this.providers.length === 0) return 0;

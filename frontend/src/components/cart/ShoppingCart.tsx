@@ -3,17 +3,21 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCart } from '@/contexts/CartContext'
+import { useCartStore } from '@/store/cart.store'
 import { Button, Input } from '@/components/ui'
 import { formatPrice } from '@/lib/utils'
-import { CartItem } from '@/types'
 
 interface ShoppingCartProps {
   showCheckoutButton?: boolean
 }
 
 export function ShoppingCart({ showCheckoutButton = true }: ShoppingCartProps) {
-  const { items, total, updateQuantity, removeItem } = useCart()
+  const items = useCartStore((state) => state.items)
+  const updateQuantity = useCartStore((state) => state.updateQuantity)
+  const removeItem = useCartStore((state) => state.removeItem)
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice)
+  
+  const total = getTotalPrice()
 
   if (items.length === 0) {
     return (
@@ -38,7 +42,7 @@ export function ShoppingCart({ showCheckoutButton = true }: ShoppingCartProps) {
       <div className="space-y-4">
         {items.map((item) => (
           <CartItemRow
-            key={item.product.id}
+            key={item.id}
             item={item}
             onUpdateQuantity={updateQuantity}
             onRemove={removeItem}
@@ -55,28 +59,36 @@ export function ShoppingCart({ showCheckoutButton = true }: ShoppingCartProps) {
 }
 
 interface CartItemRowProps {
-  item: CartItem
+  item: {
+    id: string
+    productId: string
+    name: string
+    price: number
+    quantity: number
+    image: string
+    sku: string
+    brand?: string
+  }
   onUpdateQuantity: (_productId: string, _quantity: number) => void
   onRemove: (_productId: string) => void
 }
 
 function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
-  const { product, quantity } = item
-  const itemTotal = product.our_price * quantity
+  const itemTotal = item.price * item.quantity
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = parseInt(e.target.value) || 1
-    onUpdateQuantity(product.id, newQuantity)
+    onUpdateQuantity(item.productId, newQuantity)
   }
 
   return (
     <div className="flex items-center space-x-4 p-4 bg-white rounded-lg border">
       {/* Product Image */}
       <div className="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
-        {product.images && product.images.length > 0 ? (
+        {item.image ? (
           <Image
-            src={product.images[0]}
-            alt={product.name}
+            src={item.image}
+            alt={item.name}
             width={80}
             height={80}
             className="w-full h-full object-cover"
@@ -93,13 +105,14 @@ function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
       {/* Product Info */}
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-medium text-gray-900 truncate">
-          <Link href={`/productos/${product.id}`} className="hover:text-primary-600">
-            {product.name}
+          <Link href={`/productos/${item.productId}`} className="hover:text-primary-600">
+            {item.name}
           </Link>
         </h3>
-        <p className="text-sm text-gray-500 mt-1">SKU: {product.sku}</p>
+        <p className="text-sm text-gray-500 mt-1">SKU: {item.sku}</p>
+        {item.brand && <p className="text-sm text-gray-500">Marca: {item.brand}</p>}
         <p className="text-sm font-medium text-gray-900 mt-1">
-          {formatPrice(product.our_price)}
+          {formatPrice(item.price)}
         </p>
       </div>
 
@@ -108,26 +121,26 @@ function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => onUpdateQuantity(product.id, Math.max(1, quantity - 1))}
+          onClick={() => onUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
           className="w-8 h-8 p-0"
         >
           -
         </Button>
         <Input
-          id={`quantity-${product.id}`}
-          name={`quantity-${product.id}`}
+          id={`quantity-${item.productId}`}
+          name={`quantity-${item.productId}`}
           type="number"
           min="1"
           max="99"
-          value={quantity}
+          value={item.quantity}
           onChange={handleQuantityChange}
           className="w-16 text-center"
-          aria-label={`Cantidad de ${product.name}`}
+          aria-label={`Cantidad de ${item.name}`}
         />
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => onUpdateQuantity(product.id, Math.min(99, quantity + 1))}
+          onClick={() => onUpdateQuantity(item.productId, Math.min(99, item.quantity + 1))}
           className="w-8 h-8 p-0"
         >
           +
@@ -145,7 +158,7 @@ function CartItemRow({ item, onUpdateQuantity, onRemove }: CartItemRowProps) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => onRemove(product.id)}
+        onClick={() => onRemove(item.productId)}
         className="text-red-600 hover:text-red-700 hover:bg-red-50"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

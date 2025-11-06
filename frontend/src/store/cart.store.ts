@@ -38,6 +38,9 @@ interface CartState {
   getItem: (productId: string) => CartItem | undefined;
 }
 
+// Clave de almacenamiento
+const STORAGE_KEY = 'cart-storage';
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -105,7 +108,29 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'cart-storage',
+      name: STORAGE_KEY,
+      version: 2, // Incrementar versión para forzar migración
+      // Migrar datos antiguos con placeholder-product.jpg
+      migrate: (persistedState: any, version: number) => {
+        // Si viene de versión anterior o no tiene versión
+        if (version < 2) {
+          if (persistedState && persistedState.state && persistedState.state.items) {
+            return {
+              ...persistedState,
+              state: {
+                ...persistedState.state,
+                items: persistedState.state.items.map((item: any) => ({
+                  ...item,
+                  image: item.image === '/placeholder-product.jpg' 
+                    ? '/placeholder-product.svg' 
+                    : item.image
+                }))
+              }
+            };
+          }
+        }
+        return persistedState;
+      },
     }
   )
 );

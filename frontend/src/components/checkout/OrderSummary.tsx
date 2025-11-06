@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { CartItem } from '@/types'
+import { CartItem } from '@/store/cart.store'
 import { formatPrice } from '@/lib/utils'
 
 interface OrderSummaryProps {
@@ -8,7 +8,7 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ items }: OrderSummaryProps) {
-  const subtotal = items.reduce((sum, item) => sum + (item.product.our_price * item.quantity), 0)
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const shippingCost = subtotal > 50 ? 0 : 5.99 // Free shipping over €50
   const tax = subtotal * 0.21 // 21% IVA in Spain
   const total = subtotal + shippingCost + tax
@@ -20,12 +20,12 @@ export function OrderSummary({ items }: OrderSummaryProps) {
       {/* Items */}
       <div className="space-y-4 mb-6">
         {items.map((item) => (
-          <div key={item.product.id} className="flex items-center space-x-3">
+          <div key={item.id} className="flex items-center space-x-3">
             <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
-              {item.product.images && item.product.images.length > 0 ? (
+              {item.image ? (
                 <Image
-                  src={item.product.images[0]}
-                  alt={item.product.name}
+                  src={item.image}
+                  alt={item.name}
                   width={48}
                   height={48}
                   className="w-full h-full object-cover"
@@ -41,7 +41,7 @@ export function OrderSummary({ items }: OrderSummaryProps) {
             
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {item.product.name}
+                {item.name}
               </p>
               <p className="text-xs text-gray-500">
                 Cantidad: {item.quantity}
@@ -49,7 +49,7 @@ export function OrderSummary({ items }: OrderSummaryProps) {
             </div>
             
             <div className="text-sm font-medium text-gray-900">
-              {formatPrice(item.product.our_price * item.quantity)}
+              {formatPrice(item.price * item.quantity)}
             </div>
           </div>
         ))}

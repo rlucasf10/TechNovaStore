@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { AuthService, LoginCredentials, RegisterData } from '../services/authService';
+import { OAuthService } from '../services/oauthService';
+import { OAuthProvider } from '../config/oauth';
 import { asyncHandler } from '../../../../shared/middleware/errorHandler';
-// import { logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 
 export class AuthController {
   static register = asyncHandler(async (req: Request, res: Response) => {
@@ -219,5 +221,148 @@ export class AuthController {
         error: error.message,
       });
     }
+  });
+
+  /**
+   * Callback de OAuth 2.0
+   * Procesa el código de autorización y crea/actualiza el usuario
+   */
+  static oauthCallback = asyncHandler(async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array(),
+      });
+    }
+
+    try {
+      const { provider, code, codeVerifier } = req.body;
+
+      logger.info(`OAuth callback received for ${provider}`);
+
+      // 1. Intercambiar código por access token
+      const accessToken = await OAuthService.exchangeCodeForToken(
+        provider as OAuthProvider,
+        code,
+        codeVerifier
+      );
+
+      // 2. Obtener información del usuario del proveedor
+      const userInfo = await OAuthService.getUserInfo(
+        provider as OAuthProvider,
+        accessToken
+      );
+
+      // 3. Crear o actualizar usuario en nuestra base de datos
+      const user = await OAuthService.createOrUpdateOAuthUser(
+        provider as OAuthProvider,
+        userInfo
+      );
+
+      // 4. Generar nuestros propios tokens JWT
+      const tokens = await AuthService.generateTokensForUser(user);
+
+      logger.info(`OAuth login successful for user: ${user.email}`, { 
+        userId: user.id, 
+        provider 
+      });
+
+      return res.json({
+        success: true,
+        message: 'OAuth authentication successful',
+        data: {
+          user: user.toJSON(),
+          tokens,
+        },
+      });
+    } catch (error: any) {
+      logger.error('OAuth callback error:', error);
+      
+      if (error.message.includes('No email found')) {
+        return res.status(400).json({
+          error: 'No email found in OAuth account. Please ensure your account has a verified email.',
+        });
+      }
+
+      return res.status(400).json({
+        error: error.message || 'OAuth authentication failed',
+      });
+    }
+  });
+
+  /**
+   * Obtener métodos de autenticación del usuario
+   */
+  static getAuthMethods = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.headers['x-user-id'] as string;
+    
+    if (!userId) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+      });
+    }
+
+    const user = await AuthService.getUserById(parseInt(userId));
+    
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        authMethods: user.auth_methods || [],
+      },
+    });
+  });
+
+  /**
+   * Desvincular método de autenticación OAuth
+   */
+  static unlinkAuthMethod = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.headers['x-user-id'] as string;
+    const { type } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+      });
+    }
+
+    const user = await AuthService.getUserById(parseInt(userId));
+    
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+      });
+    }
+
+    // Verificar que no sea el único método
+    if (user.auth_methods.length <= 1) {
+      return res.status(400).json({
+        error: 'Cannot unlink your only authentication method',
+      });
+    }
+
+    // Remover método
+    await user.removeAuthMethod(type);
+
+    // Si es Google o GitHub, limpiar el ID del proveedor
+    if (type === 'google') {
+      user.google_id = undefined;
+    } else if (type === 'github') {
+      user.github_id = undefined;
+    }
+    await user.save();
+
+    logger.info(`Auth method ${type} unlinked for user: ${user.email}`, { userId: user.id });
+
+    return res.json({
+      success: true,
+      message: 'Authentication method unlinked successfully',
+    });
   });
 }

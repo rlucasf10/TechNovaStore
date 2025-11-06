@@ -33,9 +33,16 @@ export function useNotifications(): UseNotificationsReturn {
       const response = await api.get('/notifications')
       setNotifications(response.data.data)
     } catch (err: unknown) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar las notificaciones'
-      setError(errorMessage)
-      setNotifications([])
+      // Silenciar error 404 (servicio no implementado aún)
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 404) {
+        setNotifications([])
+        setError(null) // No mostrar error si el servicio no existe
+      } else {
+        const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar las notificaciones'
+        setError(errorMessage)
+        setNotifications([])
+      }
     } finally {
       setLoading(false)
     }

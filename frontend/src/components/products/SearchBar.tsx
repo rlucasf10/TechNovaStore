@@ -20,7 +20,10 @@ export function SearchBar({ onSearch, initialValue = '', placeholder = 'Buscar p
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { data: suggestions = [], isLoading } = useProductSearch(query)
+  const { data: suggestions = [], isLoading } = useProductSearch({
+    query,
+    limit: 5
+  })
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -164,7 +167,7 @@ export function SearchBar({ onSearch, initialValue = '', placeholder = 'Buscar p
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
                     <Image
-                      src={product.images?.[0] || '/placeholder-product.jpg'}
+                      src={product.images?.[0] || '/placeholder-product.svg'}
                       alt={product.name}
                       width={40}
                       height={40}

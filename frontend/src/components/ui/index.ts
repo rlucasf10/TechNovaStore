@@ -61,8 +61,8 @@ export { Tabs } from './Tabs'
 export type { TabsProps, TabItem } from './Tabs'
 
 export { Loading, LoadingPage, LoadingOverlay } from './Loading'
-export { Header } from './Header'
-export { Footer } from './Footer'
+// Re-export Footer from layout components for backward compatibility
+export { Footer } from '../layout/Footer'
 export { CookieConsent } from './CookieConsent'
 
 export { Skeleton, SkeletonText } from './Skeleton'
@@ -79,3 +79,5 @@ export type { DashboardSkeletonProps, DashboardCardSkeletonProps } from './Dashb
 
 export { ErrorMessage, FormFieldError, AlertBox } from './ErrorMessage'
 export type { ErrorMessageProps, FormFieldErrorProps, AlertBoxProps } from './ErrorMessage'
+
+export { ToastContainer } from './Toast'

@@ -14,6 +14,15 @@ export interface Product {
   is_active: boolean
   created_at: string
   updated_at: string
+  // Campos de rating y reviews
+  rating?: number
+  review_count?: number
+  // Campo para precio original (antes de descuento)
+  original_price?: number
+  // Porcentaje de descuento
+  discount_percentage?: number
+  // Características destacadas del producto
+  features?: string[]
 }
 
 export interface Provider {
@@ -33,6 +42,40 @@ export interface Category {
   description: string
   image: string
   is_active: boolean
+}
+
+/**
+ * Filtros para búsqueda de productos
+ */
+export interface ProductFilters {
+  // Paginación
+  page?: number;
+  limit?: number;
+  
+  // Filtros básicos
+  category?: string | string[];
+  brand?: string | string[];
+  search?: string;
+  
+  // Filtros de precio
+  minPrice?: number;
+  maxPrice?: number;
+  
+  // Filtros de disponibilidad
+  inStock?: boolean;
+  
+  // Filtros de especificaciones técnicas
+  specs?: Record<string, string | string[]>;
+  
+  // Ordenamiento
+  sortBy?: 'price_asc' | 'price_desc' | 'name' | 'rating' | 'newest' | 'popularity';
+}
+
+/**
+ * Categoría con subcategorías anidadas (árbol)
+ */
+export interface CategoryTree extends Category {
+  children?: CategoryTree[];
 }
 
 export interface User {
@@ -101,9 +144,38 @@ export type PaymentStatus =
   | 'failed'
   | 'refunded'
 
+// Tipos del carrito (legacy - mantener para compatibilidad con CartContext)
 export interface CartItem {
   product: Product
   quantity: number
+}
+
+// Tipos del carrito (nuevo servicio)
+export interface CartItemNew {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  sku: string;
+  brand?: string;
+  maxQuantity?: number;
+  inStock: boolean;
+  addedAt: Date;
+}
+
+export interface Cart {
+  id: string;
+  userId?: string;
+  items: CartItemNew[];
+  subtotal: number;
+  shipping: number;
+  taxes: number;
+  discount: number;
+  total: number;
+  itemCount: number;
+  updatedAt: Date;
 }
 
 export interface ApiResponse<T> {
@@ -173,6 +245,25 @@ export interface ChatbotResponse {
   quick_replies?: string[]
   intent?: string
   confidence?: number
+}
+
+// Tipos de búsqueda
+export interface SearchResult {
+  type: 'product' | 'category' | 'brand';
+  id: string;
+  name: string;
+  image?: string;
+  price?: number;
+  category?: string;
+  slug?: string;
+  productCount?: number; // Para categorías y marcas
+}
+
+export interface SearchResponse {
+  products: SearchResult[];
+  categories: SearchResult[];
+  brands: SearchResult[];
+  total: number;
 }
 
 // Re-exportar tipos de autenticación

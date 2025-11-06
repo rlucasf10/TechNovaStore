@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useCart } from '@/contexts/CartContext'
+import { useCartStore } from '@/store/cart.store'
 import { Button } from '@/components/ui'
 import { Product } from '@/types'
 
@@ -22,18 +22,30 @@ export function AddToCartButton({
   className,
   showQuantitySelector = false
 }: AddToCartButtonProps) {
-  const { addItem, getItemQuantity } = useCart()
+  const addItem = useCartStore((state) => state.addItem)
+  const getItem = useCartStore((state) => state.getItem)
   const [selectedQuantity, setSelectedQuantity] = useState(quantity)
   const [isAdding, setIsAdding] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  const currentQuantity = getItemQuantity(product.id)
+  const currentItem = getItem(product.id)
+  const currentQuantity = currentItem?.quantity || 0
 
   const handleAddToCart = async () => {
     setIsAdding(true)
     
     try {
-      addItem(product, selectedQuantity)
+      // Convertir Product a CartItem format
+      addItem({
+        id: `cart-${product.id}-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        price: product.our_price,
+        image: product.images?.[0] || '/placeholder-product.svg',
+        sku: product.sku,
+        brand: product.brand,
+        maxQuantity: 99,
+      }, selectedQuantity)
       
       // Show success feedback
       setShowSuccess(true)

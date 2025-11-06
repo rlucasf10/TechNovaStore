@@ -269,6 +269,17 @@ export class AuthService {
     return RefreshToken.cleanupExpiredTokens();
   }
 
+  /**
+   * Generar tokens para un usuario (público para OAuth)
+   */
+  static async generateTokensForUser(
+    user: User,
+    deviceInfo?: string,
+    ipAddress?: string
+  ): Promise<AuthTokens> {
+    return this.generateTokens(user, deviceInfo, ipAddress);
+  }
+
   private static async generateTokens(
     user: User,
     deviceInfo?: string,

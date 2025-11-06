@@ -7,6 +7,8 @@ export { default as AuthLayout } from './AuthLayout';
 export { default as AuthCard } from './AuthCard';
 export { default as AuthDivider } from './AuthDivider';
 export { default as PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+export { default as SocialLoginButtons } from './SocialLoginButtons';
+export { default as SetPasswordModal } from './SetPasswordModal';
 export { ProtectedRoute } from './ProtectedRoute';
 export { AdminRoute } from './AdminRoute';
 export { RateLimitMessage } from './RateLimitMessage';

@@ -103,3 +103,20 @@ export const validatePasswordReset = [
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'),
 ];
+
+export const validateOAuthCallback = [
+  body('provider')
+    .notEmpty()
+    .withMessage('Provider is required')
+    .isIn(['google', 'github'])
+    .withMessage('Invalid OAuth provider'),
+  
+  body('code')
+    .notEmpty()
+    .withMessage('Authorization code is required'),
+  
+  body('codeVerifier')
+    .optional()
+    .isString()
+    .withMessage('Code verifier must be a string'),
+];

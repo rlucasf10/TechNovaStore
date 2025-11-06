@@ -40,6 +40,7 @@ export const authErrorMessages: Record<AuthErrorCode, string> = {
   // Errores de OAuth
   'oauth-cancelled': 'Autenticación cancelada. Intenta de nuevo si deseas continuar',
   'oauth-failed': 'Error al autenticar con el proveedor. Intenta de nuevo',
+  'oauth-user-no-password': 'Tu cuenta usa OAuth para iniciar sesión. Establece una contraseña para usar este método',
   
   // Errores de gestión de métodos de autenticación
   'method-already-linked': 'Este método de autenticación ya está vinculado a tu cuenta',

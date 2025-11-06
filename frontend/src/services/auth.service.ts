@@ -19,7 +19,6 @@ import {
   ChangePasswordData,
   OAuthProvider,
   OAuthCallbackData,
-  OAuthState,
   LinkAuthMethodData,
   UnlinkAuthMethodData,
   AuthResponse,
@@ -54,23 +53,13 @@ const AUTH_ENDPOINTS = {
   unlinkMethod: `${API_BASE}/auth/unlink-method`,
 };
 
-// Configuración de OAuth providers
-const OAUTH_CONFIGS = {
-  google: {
-    name: 'google' as OAuthProvider,
-    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
-    redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback/google`,
-    scope: ['openid', 'email', 'profile'],
-    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-  },
-  github: {
-    name: 'github' as OAuthProvider,
-    clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || '',
-    redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback/github`,
-    scope: ['user:email', 'read:user'],
-    authUrl: 'https://github.com/login/oauth/authorize',
-  },
-};
+// Importar configuración de OAuth desde el módulo dedicado
+import {
+  buildAuthorizationUrl,
+  validateOAuthState,
+  getStoredCodeVerifier,
+  isOAuthProviderConfigured,
+} from '@/lib/oauth.config';
 
 // Configuración de rate limiting
 const RATE_LIMIT_CONFIG: Record<string, RateLimitConfig> = {
@@ -150,7 +139,7 @@ const getCSRFToken = async (): Promise<{ token: string; sessionId: string }> => 
 const authAxios = axios.create({
   baseURL: API_BASE,
   withCredentials: true, // Importante: permite enviar cookies httpOnly
-  timeout: 30000, // 30 segundos de timeout
+  timeout: 60000, // 60 segundos de timeout (OAuth puede tardar)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -450,10 +439,17 @@ function handleAuthError(error: unknown): AuthError {
     const errorCode = data?.code || data?.error;
     if (errorCode && isValidErrorCode(errorCode)) {
       const finalMessage = normalizeErrorMessage(data?.message) || getErrorMessage(errorCode);
-      return {
+      const authError: AuthError = {
         code: errorCode,
         message: finalMessage,
       };
+      
+      // Si es un error de usuario OAuth sin contraseña, extraer el proveedor
+      if (errorCode === 'oauth-user-no-password' && (data as any)?.provider) {
+        authError.provider = (data as any).provider;
+      }
+      
+      return authError;
     }
 
     return {
@@ -481,6 +477,7 @@ const ERROR_MESSAGES: Record<AuthErrorCode, string> = {
   'rate-limit-exceeded': 'Demasiados intentos. Intenta de nuevo más tarde',
   'oauth-cancelled': 'Autenticación cancelada',
   'oauth-failed': 'Error al autenticar con el proveedor',
+  'oauth-user-no-password': 'Tu cuenta usa OAuth y no tiene contraseña establecida',
   'method-already-linked': 'Este método ya está vinculado a tu cuenta',
   'cannot-unlink-only-method': 'No puedes desvincular tu único método de autenticación',
   'unauthorized': 'No tienes permisos para realizar esta acción',
@@ -508,23 +505,8 @@ function normalizeErrorMessage(message: string | string[] | undefined): string {
 // Utilidades de OAuth
 // ============================================================================
 
-// NOTA: Utilidades de PKCE (Proof Key for Code Exchange) se implementarán cuando sea necesario
-// function generateRandomString(length: number): string {
-//   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//   let result = '';
-//   for (let i = 0; i < length; i++) {
-//     result += chars.charAt(Math.floor(Math.random() * chars.length));
-//   }
-//   return result;
-// }
-
-// async function generateCodeChallenge(codeVerifier: string): Promise<string> {
-//   const encoder = new TextEncoder();
-//   const data = encoder.encode(codeVerifier);
-//   const hash = await crypto.subtle.digest('SHA-256', data);
-//   const base64 = btoa(String.fromCharCode(...new Uint8Array(hash)));
-//   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-// }
+// Las utilidades de OAuth (state, PKCE) se han movido a @/lib/oauth.config
+// para mejor organización y reutilización
 
 // ============================================================================
 // Clase AuthService
@@ -728,78 +710,83 @@ class AuthService {
 
   /**
    * Iniciar flujo de OAuth 2.0
+   * Construye la URL de autorización con state y PKCE, y redirige al proveedor
    */
-  oauthLogin(provider: OAuthProvider, redirectTo?: string): void {
-    const config = OAUTH_CONFIGS[provider];
-    if (!config.clientId) {
-      throw new Error(`OAuth provider ${provider} not configured`);
+  async oauthLogin(provider: OAuthProvider, redirectTo?: string): Promise<void> {
+    // Verificar que el proveedor esté configurado
+    if (!isOAuthProviderConfigured(provider)) {
+      throw new Error(
+        `OAuth provider ${provider} not configured. ` +
+        `Please set NEXT_PUBLIC_${provider.toUpperCase()}_CLIENT_ID in .env.local`
+      );
     }
 
-    // Generar state para prevenir CSRF
-    const state: OAuthState = {
-      provider,
-      redirectTo,
-      timestamp: Date.now(),
-    };
-    const stateString = btoa(JSON.stringify(state));
+    try {
+      // Construir URL de autorización con state y PKCE
+      const authUrl = await buildAuthorizationUrl({
+        provider,
+        redirectTo,
+        usePKCE: true, // Habilitar PKCE para mayor seguridad
+      });
 
-    // Guardar state en sessionStorage
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('oauth_state', stateString);
-    }
-
-    // NOTA: PKCE se implementará en una versión futura si es requerido por los proveedores
-    // const codeVerifier = generateRandomString(128);
-    // if (typeof window !== 'undefined') {
-    //   sessionStorage.setItem('oauth_code_verifier', codeVerifier);
-    // }
-
-    // Construir URL de autorización
-    const params = new URLSearchParams({
-      client_id: config.clientId,
-      redirect_uri: config.redirectUri,
-      response_type: 'code',
-      scope: config.scope.join(' '),
-      state: stateString,
-    });
-
-    // Redirigir a la página de autorización del proveedor
-    const authUrl = `${config.authUrl}?${params.toString()}`;
-    if (typeof window !== 'undefined') {
-      window.location.href = authUrl;
+      // Redirigir a la página de autorización del proveedor
+      if (typeof window !== 'undefined') {
+        window.location.href = authUrl;
+      }
+    } catch (error) {
+      console.error('Error initiating OAuth login:', error);
+      throw {
+        code: 'oauth-failed',
+        message: 'Error al iniciar autenticación con ' + provider,
+      } as AuthError;
     }
   }
 
   /**
    * Procesar callback de OAuth
+   * Valida el state, obtiene el code verifier (PKCE) y envía al backend
    */
   async oauthCallback(data: OAuthCallbackData): Promise<User> {
     try {
-      // Validar state
-      if (typeof window !== 'undefined') {
-        const storedState = sessionStorage.getItem('oauth_state');
-        if (!storedState || storedState !== data.state) {
-          throw {
-            code: 'oauth-failed',
-            message: 'Estado de OAuth inválido',
-          } as AuthError;
-        }
-
-        // Limpiar state
-        sessionStorage.removeItem('oauth_state');
+      // Validar state (CSRF protection)
+      const stateData = validateOAuthState(data.state);
+      if (!stateData) {
+        throw {
+          code: 'oauth-failed',
+          message: 'Estado de OAuth inválido o expirado',
+        } as AuthError;
       }
 
-      // Enviar código al backend
+      // Verificar que el provider coincida
+      if (stateData.provider !== data.provider) {
+        throw {
+          code: 'oauth-failed',
+          message: 'Proveedor de OAuth no coincide',
+        } as AuthError;
+      }
+
+      // Obtener code verifier (PKCE)
+      const codeVerifier = getStoredCodeVerifier();
+
+      // Enviar código al backend junto con el code verifier
       const response = await authAxios.post<{ success: boolean; message: string; data: AuthResponse }>(
         AUTH_ENDPOINTS.oauthCallback,
         {
           provider: data.provider,
           code: data.code,
+          codeVerifier, // Incluir code verifier para PKCE
         }
       );
 
       if (!response.data.data || !response.data.data.user) {
         throw new Error('No user data received');
+      }
+
+      // Guardar el access token en localStorage
+      const accessToken = response.data.data.tokens?.accessToken || response.data.data.token;
+      if (accessToken && typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', accessToken);
+        console.log('✅ Access token saved to localStorage (OAuth)');
       }
 
       return response.data.data.user;
