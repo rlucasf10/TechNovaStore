@@ -72,7 +72,7 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
     },
     {
       "name": "📧 Notification Service",
-      "path": "./services/notification"
+      "path": "./domains/customer/notification-service"
     },
     {
       "name": "🎨 Frontend",
@@ -103,7 +103,7 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
       "domains/customer/user-service",
       "services/order",
       "services/payment",
-      "services/notification",
+      "domains/customer/notification-service",
       "frontend",
       "automation/sync-engine",
       "automation/auto-purchase",
@@ -539,7 +539,7 @@ DEBUG_MONGODB=true
     "dev:user": "cd domains/customer/user-service && npm run dev",
     "dev:order": "cd services/order && npm run dev",
     "dev:payment": "cd services/payment && npm run dev",
-    "dev:notification": "cd services/notification && npm run dev",
+    "dev:notification": "cd domains/customer/notification-service && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:automation": "concurrently \"npm run dev:sync\" \"npm run dev:purchase\" \"npm run dev:tracker\"",
     "dev:sync": "cd automation/sync-engine && npm run dev",

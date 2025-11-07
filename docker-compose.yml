@@ -259,7 +259,7 @@ services:
     image: technovastore-notification-service:latest
     build:
       context: .
-      dockerfile: ./services/notification/Dockerfile
+      dockerfile: ./domains/customer/notification-service/Dockerfile
     container_name: technovastore-notification-service
     restart: unless-stopped
     ports:

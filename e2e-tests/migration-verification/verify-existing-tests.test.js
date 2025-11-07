@@ -21,7 +21,7 @@ const SERVICES_WITH_TESTS = [
   'domains/customer/user-service',
   'services/order',
   'services/payment',
-  'services/notification',
+  'domains/customer/notification-service',
   'services/ticket',
   'ai-services/chatbot',
   'domains/catalog/recommender-service',

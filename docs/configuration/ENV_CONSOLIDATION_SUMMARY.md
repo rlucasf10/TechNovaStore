@@ -80,7 +80,7 @@
 4. **`ai-services/recommender/.env.example`**
    - Variables movidas a `.env.shared.example`
 
-5. **`services/notification/.env.example`**
+5. **`domains/customer/notification-service/.env.example`**
    - Variables movidas a `.env.shared.example`
 
 6. **`services/ticket/.env.example`**

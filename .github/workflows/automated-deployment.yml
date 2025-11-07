@@ -235,8 +235,8 @@ jobs:
             dockerfile: ./services/payment/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: notification-service
-            context: ./services/notification
-            dockerfile: ./services/notification/Dockerfile
+            context: ./domains/customer/notification-service
+            dockerfile: ./domains/customer/notification-service/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: ticket-service
             context: ./services/ticket

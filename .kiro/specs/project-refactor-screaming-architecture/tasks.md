@@ -440,7 +440,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 18.2 Mover notification-service a domains/customer/
+- [x] 18.2 Mover notification-service a domains/customer/
   - Mover services/notification/ a domains/customer/notification-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose

@@ -95,7 +95,7 @@ TechNovaStore/
 ❌ frontend/.env.local.example           # CONSOLIDAR - Mover a .env.shared.example
 ❌ ai-services/chatbot/.env.example      # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ ai-services/recommender/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
-❌ services/notification/.env.example    # CONSOLIDAR - Mover variables únicas a .env.shared
+❌ domains/customer/notification-service/.env.example    # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ services/ticket/.env.example          # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ domains/customer/user-service/.env.example            # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ automation/shipment-tracker/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
@@ -512,7 +512,7 @@ rm .env.example
 rm frontend/.env.local  # Si existe en el repo
 rm ai-services/chatbot/.env.example
 rm ai-services/recommender/.env.example
-rm services/notification/.env.example
+rm domains/customer/notification-service/.env.example
 rm services/ticket/.env.example
 rm domains/customer/user-service/.env.example
 rm automation/shipment-tracker/.env.example

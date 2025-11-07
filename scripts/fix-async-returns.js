@@ -80,7 +80,7 @@ class AsyncReturnFixer {
       'domains/customer/user-service/src/controllers',
       'services/order/src/controllers',
       'domains/catalog/product-service/src/controllers',
-      'services/notification/src',
+      'domains/customer/notification-service/src',
       'ai-services/chatbot/src'
     ];
 

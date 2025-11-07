@@ -457,7 +457,7 @@ service-name/
 | Servicio | Ubicación Actual | Ubicación Nueva | Responsabilidad |
 |----------|------------------|-----------------|-----------------|
 | user-service | `domains/customer/user-service/` | `domains/customer/user-service/` | Autenticación, perfiles, OAuth |
-| notification-service | `services/notification/` | `domains/customer/notification-service/` | Envío de emails, SMS, push notifications |
+| notification-service | `domains/customer/notification-service/` | `domains/customer/notification-service/` | Envío de emails, SMS, push notifications |
 
 **Dependencias**:
 - PostgreSQL (usuarios)

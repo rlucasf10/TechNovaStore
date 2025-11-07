@@ -19,7 +19,7 @@
   "scripts": {
     "install:all": "npm install",
     "build": "npm run build --workspaces --if-present",
-    "build:services": "npm run build -w api-gateway -w domains/catalog/product-service -w domains/customer/user-service -w services/order -w services/payment -w services/notification -w services/ticket",
+    "build:services": "npm run build -w api-gateway -w domains/catalog/product-service -w domains/customer/user-service -w services/order -w services/payment -w domains/customer/notification-service -w services/ticket",
     "build:automation": "npm run build -w domains/catalog/sync-engine -w automation/auto-purchase -w automation/shipment-tracker",
     "build:ai": "npm run build -w ai-services/chatbot -w domains/catalog/recommender-service",
     "build:frontend": "npm run build -w frontend",

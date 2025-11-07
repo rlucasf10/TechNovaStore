@@ -130,7 +130,7 @@ Los scripts actualmente usan las siguientes rutas, que son correctas para la est
 - `services/order`
 - `domains/customer/user-service`
 - `services/payment`
-- `services/notification`
+- `domains/customer/notification-service`
 - `services/ticket`
 - `automation/sync-engine`
 - `automation/auto-purchase`

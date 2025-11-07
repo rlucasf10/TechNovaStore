@@ -297,7 +297,7 @@ services:
   notification-service:
     image: technovastore-notification-service:latest
     build:
-      context: ./services/notification
+      context: ./domains/customer/notification-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-notification-service-prod
     restart: unless-stopped

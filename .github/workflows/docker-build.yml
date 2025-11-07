@@ -35,8 +35,8 @@ jobs:
             context: ./services/payment
             dockerfile: ./services/payment/Dockerfile
           - service: notification-service
-            context: ./services/notification
-            dockerfile: ./services/notification/Dockerfile
+            context: ./domains/customer/notification-service
+            dockerfile: ./domains/customer/notification-service/Dockerfile
           - service: ticket-service
             context: ./services/ticket
             dockerfile: ./services/ticket/Dockerfile

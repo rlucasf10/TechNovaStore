@@ -109,7 +109,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 - ✅ `.env.example`
 - ✅ `.env.logging.example`
 - ✅ `api-gateway/.env.security.example`
-- ✅ `services/notification/.env.example`
+- ✅ `domains/customer/notification-service/.env.example`
 - ✅ `services/ticket/.env.example`
 - ✅ `ai-services/chatbot/.env.example`
 - ✅ `ai-services/recommender/.env.example`

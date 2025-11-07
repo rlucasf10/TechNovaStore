@@ -102,7 +102,7 @@ cd domains/catalog/product-service && npm install && cd ../../..
 cd domains/customer/user-service && npm install && cd ../../..
 cd services/order && npm install && cd ../..
 cd services/payment && npm install && cd ../..
-cd services/notification && npm install && cd ../..
+cd domains/customer/notification-service && npm install && cd ../../..
 cd frontend && npm install && cd ..
 
 # Instalar dependencias de automatización

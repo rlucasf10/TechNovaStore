@@ -27,7 +27,7 @@ install:
 	cd services/order && npm install
 	cd domains/customer/user-service && npm install
 	cd services/payment && npm install
-	cd services/notification && npm install
+	cd domains/customer/notification-service && npm install
 	cd domains/catalog/sync-engine && npm install
 	cd automation/auto-purchase && npm install
 	cd automation/shipment-tracker && npm install

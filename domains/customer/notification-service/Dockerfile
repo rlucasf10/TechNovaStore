@@ -5,17 +5,17 @@ FROM service-base:latest
 RUN rm -f /workspace/package.json /workspace/package-lock.json
 
 # Set working directory
-WORKDIR /workspace/services/notification
+WORKDIR /workspace/domains/customer/notification-service
 
 # Copy package files
-COPY services/notification/package*.json ./
-COPY services/notification/tsconfig.json ./
+COPY domains/customer/notification-service/package*.json ./
+COPY domains/customer/notification-service/tsconfig.json ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code (not node_modules)
-COPY services/notification/src ./src
+COPY domains/customer/notification-service/src ./src
 
 # Expose port
 EXPOSE 3000

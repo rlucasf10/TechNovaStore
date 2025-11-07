@@ -181,7 +181,7 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 
 | Servicio | Ruta | Estado | Observaciones |
 |----------|------|--------|---------------|
-| notification | `services/notification` | ✅ Completo | Sin tests |
+| notification | `domains/customer/notification-service` | ✅ Completo | Con tests básicos |
 | order | `services/order` | ✅ Completo | Sin tests |
 | payment | `services/payment` | ✅ Completo | Sin tests |
 | product | `services/product` | ✅ Completo | Sin tests |
@@ -411,7 +411,7 @@ Scripts en raíz:
 
 **Servicios**:
 - `user-service` (domains/customer/user-service)
-- `notification-service` (services/notification)
+- `notification-service` (domains/customer/notification-service)
 
 **Responsabilidad**: Gestión de usuarios y notificaciones.
 
