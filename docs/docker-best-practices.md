@@ -30,7 +30,7 @@ docker build -f docker/base/Dockerfile.service-base -t service-base .
 
 ```bash
 docker build -f services/order/Dockerfile -t order-service .
-docker build -f services/user/Dockerfile -t user-service .
+docker build -f domains/customer/user-service/Dockerfile -t user-service .
 ```
 
 ### 3. Usar script automatizado

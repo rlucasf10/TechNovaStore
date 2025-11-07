@@ -20,7 +20,7 @@ Add the global test setup to your Jest configuration:
 ```javascript
 // jest.config.js
 module.exports = {
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/jest-setup.ts'],
   detectOpenHandles: process.env.CI === 'true',
   forceExit: false, // Let our cleanup system handle exit
   testTimeout: 15000,

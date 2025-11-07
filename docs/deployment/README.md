@@ -125,8 +125,8 @@ npm run dev:all
 
 # O iniciar servicios individualmente
 cd api-gateway && npm run dev
-cd services/product && npm run dev
-cd services/user && npm run dev
+cd domains/catalog/product-service && npm run dev
+cd domains/customer/user-service && npm run dev
 cd frontend && npm run dev
 ```
 

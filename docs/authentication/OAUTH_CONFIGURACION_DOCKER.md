@@ -139,7 +139,7 @@ docker-compose -f docker-compose.optimized.yml restart frontend
 - Reiniciar servicios después de cambiar variables
 
 ### ❌ INCORRECTO
-- ~~Crear archivo `services/user/.env`~~ (no se usa en Docker)
+- ~~Crear archivo `domains/customer/user-service/.env`~~ (no se usa en Docker)
 - ~~Variables de entorno en archivos `.env` individuales~~ (Docker Compose las ignora)
 - Client Secrets en el frontend
 

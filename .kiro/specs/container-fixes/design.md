@@ -123,7 +123,7 @@ export interface AuthenticatedRequest extends Request {
 
 **Solución:**
 ```json
-// services/user/package.json
+// domains/customer/user-service/package.json
 {
   "dependencies": {
     "express-validator": "^7.0.0"
@@ -135,8 +135,8 @@ export interface AuthenticatedRequest extends Request {
 ```
 
 **Archivos afectados:**
-- `services/user/package.json`
-- `services/user/src/controllers/authController.ts` (línea 2)
+- `domains/customer/user-service/package.json`
+- `domains/customer/user-service/src/controllers/authController.ts` (línea 2)
 
 **Pasos:**
 1. Agregar dependencia a package.json

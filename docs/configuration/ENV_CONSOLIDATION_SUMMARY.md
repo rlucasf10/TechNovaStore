@@ -86,7 +86,7 @@
 6. **`services/ticket/.env.example`**
    - Variables movidas a `.env.shared.example`
 
-7. **`services/user/.env.example`**
+7. **`domains/customer/user-service/.env.example`**
    - Variables movidas a `.env.shared.example`
 
 8. **`automation/shipment-tracker/.env.example`**

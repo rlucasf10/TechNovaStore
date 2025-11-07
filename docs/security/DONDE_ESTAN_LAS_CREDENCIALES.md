@@ -38,7 +38,7 @@ user-service:
 ## ❌ ARCHIVOS QUE NO SE USAN (en Docker)
 
 - ~~`frontend/.env.local`~~ - NO se usa en Docker, solo en desarrollo local sin Docker
-- ~~`services/user/.env`~~ - NO se usa en Docker, eliminado
+- ~~`domains/customer/user-service/.env`~~ - NO se usa en Docker, eliminado
 
 ---
 
@@ -61,6 +61,6 @@ docker-compose -f docker-compose.optimized.yml up -d --force-recreate user-servi
 | `docker-compose.optimized.yml` (frontend) | ✅ | ❌ | ❌ |
 | `docker-compose.optimized.yml` (user-service) | ❌ | ✅ | ✅ |
 | `frontend/.env.local` | ❌ NO SE USA | ❌ | ❌ |
-| `services/user/.env` | ❌ ELIMINADO | ❌ | ❌ |
+| `domains/customer/user-service/.env` | ❌ ELIMINADO | ❌ | ❌ |
 
 **TODO está en `docker-compose.optimized.yml`** ✅

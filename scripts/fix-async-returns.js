@@ -77,9 +77,9 @@ class AsyncReturnFixer {
 
     // Target directories
     const targetDirs = [
-      'services/user/src/controllers',
+      'domains/customer/user-service/src/controllers',
       'services/order/src/controllers',
-      'services/product/src/controllers',
+      'domains/catalog/product-service/src/controllers',
       'services/notification/src',
       'ai-services/chatbot/src'
     ];

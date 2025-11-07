@@ -196,8 +196,8 @@ technovastore/
   "typescript.preferences.importModuleSpecifier": "relative",
   "eslint.workingDirectories": [
     "api-gateway",
-    "services/product",
-    "services/user",
+    "domains/catalog/product-service",
+    "domains/customer/user-service",
     "services/order",
     "frontend"
   ]
@@ -745,7 +745,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/jest-setup.ts'],
 };
 ```
 

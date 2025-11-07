@@ -2,7 +2,7 @@
 
 - [-] 1. Fix User Service - Missing express-validator Dependency
   - [x] 1.1 Add express-validator dependency to User Service
-    - Navigate to `services/user/` directory
+    - Navigate to `domains/customer/user-service/` directory
     - Add `express-validator` to package.json dependencies
     - Add `@types/express-validator` to devDependencies
     - Run npm install or rebuild container

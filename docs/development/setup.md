@@ -60,7 +60,7 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
     },
     {
       "name": "👤 User Service",
-      "path": "./services/user"
+      "path": "./domains/customer/user-service"
     },
     {
       "name": "🛒 Order Service",
@@ -100,7 +100,7 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
     "eslint.workingDirectories": [
       "api-gateway",
       "services/product",
-      "services/user",
+      "domains/customer/user-service",
       "services/order",
       "services/payment",
       "services/notification",
@@ -181,8 +181,8 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
       "name": "👤 Debug User Service",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/services/user/src/index.ts",
-      "outFiles": ["${workspaceFolder}/services/user/dist/**/*.js"],
+      "program": "${workspaceFolder}/domains/customer/user-service/src/index.ts",
+      "outFiles": ["${workspaceFolder}/domains/customer/user-service/dist/**/*.js"],
       "runtimeArgs": ["-r", "ts-node/register"],
       "env": {
         "NODE_ENV": "development",
@@ -535,8 +535,8 @@ DEBUG_MONGODB=true
     "dev:db": "docker-compose up -d mongodb postgresql redis",
     "dev:services": "concurrently \"npm run dev:api\" \"npm run dev:product\" \"npm run dev:user\" \"npm run dev:order\"",
     "dev:api": "cd api-gateway && npm run dev",
-    "dev:product": "cd services/product && npm run dev",
-    "dev:user": "cd services/user && npm run dev",
+    "dev:product": "cd domains/catalog/product-service && npm run dev",
+    "dev:user": "cd domains/customer/user-service && npm run dev",
     "dev:order": "cd services/order && npm run dev",
     "dev:payment": "cd services/payment && npm run dev",
     "dev:notification": "cd services/notification && npm run dev",
@@ -550,8 +550,8 @@ DEBUG_MONGODB=true
     "build:shared": "cd shared && npm run build",
     "build:services": "concurrently \"npm run build:api\" \"npm run build:product\" \"npm run build:user\" \"npm run build:order\"",
     "build:api": "cd api-gateway && npm run build",
-    "build:product": "cd services/product && npm run build",
-    "build:user": "cd services/user && npm run build",
+    "build:product": "cd domains/catalog/product-service && npm run build",
+    "build:user": "cd domains/customer/user-service && npm run build",
     "build:order": "cd services/order && npm run build",
     "build:frontend": "cd frontend && npm run build",
     
@@ -565,17 +565,17 @@ DEBUG_MONGODB=true
     
     "lint": "npm run lint:api && npm run lint:services && npm run lint:frontend",
     "lint:api": "cd api-gateway && npm run lint",
-    "lint:services": "concurrently \"cd services/product && npm run lint\" \"cd services/user && npm run lint\"",
+    "lint:services": "concurrently \"cd domains/catalog/product-service && npm run lint\" \"cd domains/customer/user-service && npm run lint\"",
     "lint:frontend": "cd frontend && npm run lint",
     "lint:fix": "npm run lint -- --fix",
     
     "type-check": "npm run type-check:api && npm run type-check:services",
     "type-check:api": "cd api-gateway && npm run type-check",
-    "type-check:services": "concurrently \"cd services/product && npm run type-check\" \"cd services/user && npm run type-check\"",
+    "type-check:services": "concurrently \"cd domains/catalog/product-service && npm run type-check\" \"cd domains/customer/user-service && npm run type-check\"",
     
     "migrate": "npm run migrate:postgres",
-    "migrate:postgres": "cd services/user && npm run migrate",
-    "migrate:rollback": "cd services/user && npm run migrate:rollback",
+    "migrate:postgres": "cd domains/customer/user-service && npm run migrate",
+    "migrate:rollback": "cd domains/customer/user-service && npm run migrate:rollback",
     "seed": "npm run seed:dev",
     "seed:dev": "node scripts/seed-dev-data.js",
     
@@ -591,7 +591,7 @@ DEBUG_MONGODB=true
     
     "setup": "npm run install:all && npm run migrate && npm run seed",
     "install:all": "npm install && npm run install:services && npm run install:frontend",
-    "install:services": "concurrently \"cd api-gateway && npm install\" \"cd services/product && npm install\" \"cd services/user && npm install\"",
+    "install:services": "concurrently \"cd api-gateway && npm install\" \"cd domains/catalog/product-service && npm install\" \"cd domains/customer/user-service && npm install\"",
     "install:frontend": "cd frontend && npm install",
     
     "health": "node scripts/health-check.js",
@@ -750,7 +750,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/jest-setup.ts'],
   testTimeout: 10000,
   verbose: true,
   forceExit: true,

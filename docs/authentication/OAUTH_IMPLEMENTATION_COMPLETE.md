@@ -53,13 +53,13 @@ user-service:
 
 ### ✅ Backend (Recién implementado)
 
-1. **`services/user/src/models/User.ts`** - Modelo actualizado con campos OAuth
-2. **`services/user/src/config/oauth.ts`** - Configuración OAuth del backend
-3. **`services/user/src/services/oauthService.ts`** - Servicio de OAuth (NUEVO)
-4. **`services/user/src/services/authService.ts`** - Servicio actualizado
-5. **`services/user/src/controllers/authController.ts`** - Controlador actualizado
-6. **`services/user/src/routes/authRoutes.ts`** - Rutas actualizadas
-7. **`services/user/.env.example`** - Ejemplo de variables de entorno (NUEVO)
+1. **`domains/customer/user-service/src/models/User.ts`** - Modelo actualizado con campos OAuth
+2. **`domains/customer/user-service/src/config/oauth.ts`** - Configuración OAuth del backend
+3. **`domains/customer/user-service/src/services/oauthService.ts`** - Servicio de OAuth (NUEVO)
+4. **`domains/customer/user-service/src/services/authService.ts`** - Servicio actualizado
+5. **`domains/customer/user-service/src/controllers/authController.ts`** - Controlador actualizado
+6. **`domains/customer/user-service/src/routes/authRoutes.ts`** - Rutas actualizadas
+7. **`domains/customer/user-service/.env.example`** - Ejemplo de variables de entorno (NUEVO)
 
 ---
 
@@ -133,7 +133,7 @@ CREATE INDEX idx_users_github_id ON users(github_id);
      "codeVerifier": "zzz"
    }
    ↓
-6. Backend (services/user):
+6. Backend (domains/customer/user-service):
    - Intercambia code por access_token usando CLIENT_SECRET
    - Obtiene info del usuario de Google
    - Crea/actualiza usuario en BD
@@ -165,7 +165,7 @@ npm test -- oauth.config.test.ts
 ### Verificar Backend
 
 ```bash
-cd services/user
+cd domains/customer/user-service
 
 # Verificar que compila sin errores
 npm run build
@@ -217,7 +217,7 @@ DELETE /api/auth/unlink-method
 1. **Configurar credenciales**:
    - Obtener Google Client Secret
    - Obtener GitHub Client ID y Secret
-   - Actualizar `services/user/.env`
+   - Actualizar `domains/customer/user-service/.env`
 
 2. **Ejecutar migración de BD**:
    ```bash
@@ -270,7 +270,7 @@ DELETE /api/auth/unlink-method
 La implementación de OAuth 2.0 está **100% completa** en el código. Solo falta:
 
 1. Obtener las credenciales de Google y GitHub
-2. Configurar `services/user/.env`
+2. Configurar `domains/customer/user-service/.env`
 3. Ejecutar la migración de base de datos
 4. Reiniciar los servicios
 

@@ -261,7 +261,7 @@ Todas las carpetas requeridas ya existían:
 
 ### Carpetas
 - **lowercase con guiones**: `components/`, `hooks/`, `lib/`
-- **kebab-case para subcarpetas**: `api-gateway/`, `user-service/`
+- **kebab-case para subcarpetas**: `api-gateway/`, `domains/customer/user-service/`
 
 ### Archivos
 - **PascalCase para componentes**: `Button.tsx`, `ProductCard.tsx`

@@ -40,9 +40,9 @@ module.exports = {
     '!**/*.test.ts',
     '!**/*.spec.ts',
     '!**/test/**',
-    '!**/tests/**'
+    '!**/e2e-tests/**'
   ],
   
   // Environment variables for CI
-  setupFiles: ['<rootDir>/tests/ci-env.ts']
+  setupFiles: ['<rootDir>/e2e-tests/ci-environment.ts']
 };

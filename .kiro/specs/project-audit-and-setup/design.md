@@ -217,9 +217,9 @@ interface VerificationStatus {
 1. **Tests Unitarios por Servicio:**
    ```bash
    # Ejecutar tests de cada microservicio
-   cd services/product && npm test
+   cd domains/catalog/product-service && npm test
    cd services/order && npm test
-   cd services/user && npm test
+   cd domains/customer/user-service && npm test
    ```
 
 2. **Tests de Integración:**

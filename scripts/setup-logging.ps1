@@ -61,7 +61,7 @@ try {
 
 # Install dependencies for all services
 Write-Host "📦 Installing dependencies for services..." -ForegroundColor Yellow
-$services = @("api-gateway", "services/product", "services/order", "services/user", "automation/auto-purchase")
+$services = @("api-gateway", "domains/catalog/product-service", "services/order", "domains/customer/user-service", "automation/auto-purchase")
 
 foreach ($service in $services) {
     if (Test-Path $service) {

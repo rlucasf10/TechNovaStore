@@ -6,7 +6,7 @@
  * 
  * Ejemplos:
  * node scripts/update-audit-logs.js "dependency" "Actualización de Express a v4.19.0"
- * node scripts/update-audit-logs.js "docker" "Optimización de Dockerfile para user-service"
+ * node scripts/update-audit-logs.js "docker" "Optimización de Dockerfile para domains/customer/user-service"
  * node scripts/update-audit-logs.js "cleanup" "Eliminación de archivos temporales"
  */
 

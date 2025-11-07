@@ -219,16 +219,16 @@ jobs:
             dockerfile: ./api-gateway/Dockerfile
             condition: ${{ needs.detect-changes.outputs.api-gateway-changed == 'true' || needs.detect-changes.outputs.infrastructure-changed == 'true' }}
           - service: product-service
-            context: ./services/product
-            dockerfile: ./services/product/Dockerfile
+            context: ./domains/catalog/product-service
+            dockerfile: ./domains/catalog/product-service/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: order-service
             context: ./services/order
             dockerfile: ./services/order/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: user-service
-            context: ./services/user
-            dockerfile: ./services/user/Dockerfile
+            context: ./domains/customer/user-service
+            dockerfile: ./domains/customer/user-service/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: payment-service
             context: ./services/payment
@@ -243,8 +243,8 @@ jobs:
             dockerfile: ./services/ticket/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: sync-engine
-            context: ./automation/sync-engine
-            dockerfile: ./automation/sync-engine/Dockerfile
+            context: ./domains/catalog/sync-engine
+            dockerfile: ./domains/catalog/sync-engine/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: auto-purchase
             context: ./automation/auto-purchase
@@ -259,8 +259,8 @@ jobs:
             dockerfile: ./ai-services/chatbot/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: recommender
-            context: ./ai-services/recommender
-            dockerfile: ./ai-services/recommender/Dockerfile
+            context: ./domains/catalog/recommender-service
+            dockerfile: ./domains/catalog/recommender-service/Dockerfile
             condition: ${{ needs.detect-changes.outputs.services-changed == 'true' }}
           - service: frontend
             context: ./frontend

@@ -338,7 +338,9 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Actualizar .gitignore si es necesario
   - _Requirements: 2.3, 4.4_
 
-- [ ] 15. Validar eliminación de duplicaciones
+- [x] 15. Validar eliminación de duplicaciones
+
+
 - [x] 15.1 Verificar que no hay duplicaciones
 
 
@@ -365,7 +367,8 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Verificar que todos los tests pasan
   - _Requirements: 9.4_
 
-- [-] 15.4 Crear checkpoint de Git
+- [x] 15.4 Crear checkpoint de Git
+
 
   - Commit: "Phase 2: Remove duplications and consolidate configs"
   - Crear tag: `phase-2-complete`
@@ -375,8 +378,15 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
 
 ## Phase 3: Reorganización a Dominios
 
-- [ ] 16. Crear estructura de dominios
-- [ ] 16.1 Crear carpetas de dominios
+- [x] 16. Crear estructura de dominios
+
+
+
+
+
+
+- [x] 16.1 Crear carpetas de dominios
+
   - Crear carpeta domains/
   - Crear domains/catalog/
   - Crear domains/commerce/
@@ -385,32 +395,38 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Crear domains/platform/
   - _Requirements: 3.1, 3.7_
 
-- [ ] 16.2 Crear estructura interna de cada dominio
+
+- [x] 16.2 Crear estructura interna de cada dominio
+
   - Crear README.md en cada dominio explicando su propósito
   - Preparar estructura para recibir servicios
   - _Requirements: 3.1_
 
-- [ ] 17. Migrar dominio catalog
-- [ ] 17.1 Mover product-service a domains/catalog/
+- [x] 17. Migrar dominio catalog
+- [x] 17.1 Mover product-service a domains/catalog/
+
+
+
+
   - Mover carpeta services/product/ a domains/catalog/product-service/
   - Actualizar imports en el servicio
   - Actualizar paths en docker-compose
   - Actualizar Dockerfile si es necesario
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 17.2 Mover sync-engine a domains/catalog/
+- [x] 17.2 Mover sync-engine a domains/catalog/
   - Mover automation/sync-engine/ a domains/catalog/sync-engine/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 17.3 Mover recommender a domains/catalog/
+- [x] 17.3 Mover recommender a domains/catalog/
   - Mover ai-services/recommender/ a domains/catalog/recommender-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 17.4 Validar dominio catalog
+- [x] 17.4 Validar dominio catalog
   - Compilar servicios del dominio
   - Iniciar contenedores Docker del dominio
   - Verificar health checks
@@ -418,7 +434,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - _Requirements: 6.1, 6.2, 9.4_
 
 - [ ] 18. Migrar dominio customer
-- [ ] 18.1 Mover user-service a domains/customer/
+- [x] 18.1 Mover user-service a domains/customer/
   - Mover services/user/ a domains/customer/user-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose

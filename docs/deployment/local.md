@@ -98,8 +98,8 @@ npm install
 
 # Instalar dependencias de cada servicio
 cd api-gateway && npm install && cd ..
-cd services/product && npm install && cd ../..
-cd services/user && npm install && cd ../..
+cd domains/catalog/product-service && npm install && cd ../../..
+cd domains/customer/user-service && npm install && cd ../../..
 cd services/order && npm install && cd ../..
 cd services/payment && npm install && cd ../..
 cd services/notification && npm install && cd ../..
@@ -185,7 +185,7 @@ cd services/product
 npm run dev
 
 # Terminal 4: User Service
-cd services/user
+cd domains/customer/user-service
 npm run dev
 
 # Terminal 5: Order Service
@@ -280,8 +280,8 @@ Una vez iniciado correctamente, tendrás acceso a:
 {
   "folders": [
     { "path": "./api-gateway" },
-    { "path": "./services/product" },
-    { "path": "./services/user" },
+    { "path": "./domains/catalog/product-service" },
+    { "path": "./domains/customer/user-service" },
     { "path": "./services/order" },
     { "path": "./frontend" }
   ],
@@ -437,7 +437,7 @@ docker-compose up -d
   "scripts": {
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:services\" \"npm run dev:frontend\"",
     "dev:api": "cd api-gateway && npm run dev",
-    "dev:services": "concurrently \"cd services/product && npm run dev\" \"cd services/user && npm run dev\"",
+    "dev:services": "concurrently \"cd domains/catalog/product-service && npm run dev\" \"cd domains/customer/user-service && npm run dev\"",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "npm run build:api && npm run build:services && npm run build:frontend",
     "test": "npm run test:api && npm run test:services",

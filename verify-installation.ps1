@@ -83,13 +83,13 @@ Write-Host ""
 $services = @(
     @{Step=1; Total=12; Name="Shared Config"; Path="shared/config"},
     @{Step=2; Total=12; Name="API Gateway"; Path="api-gateway"},
-    @{Step=3; Total=12; Name="Product Service"; Path="services/product"},
-    @{Step=4; Total=12; Name="User Service"; Path="services/user"},
+    @{Step=3; Total=12; Name="Product Service"; Path="domains/catalog/product-service"},
+    @{Step=4; Total=12; Name="User Service"; Path="domains/customer/user-service"},
     @{Step=5; Total=12; Name="Order Service"; Path="services/order"},
     @{Step=6; Total=12; Name="Payment Service"; Path="services/payment"},
     @{Step=7; Total=12; Name="Notification Service"; Path="services/notification"},
     @{Step=8; Total=12; Name="Ticket Service"; Path="services/ticket"},
-    @{Step=9; Total=12; Name="Sync Engine"; Path="automation/sync-engine"},
+    @{Step=9; Total=12; Name="Sync Engine"; Path="domains/catalog/sync-engine"},
     @{Step=10; Total=12; Name="Auto Purchase"; Path="automation/auto-purchase"},
     @{Step=11; Total=12; Name="Shipment Tracker"; Path="automation/shipment-tracker"},
     @{Step=12; Total=12; Name="Frontend"; Path="frontend"}

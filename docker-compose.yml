@@ -170,7 +170,7 @@ services:
     image: technovastore-product-service:latest
     build:
       context: .
-      dockerfile: ./services/product/Dockerfile
+      dockerfile: ./domains/catalog/product-service/Dockerfile
     container_name: technovastore-product-service
     restart: unless-stopped
     ports:
@@ -214,7 +214,7 @@ services:
     image: technovastore-user-service:latest
     build:
       context: .
-      dockerfile: ./services/user/Dockerfile
+      dockerfile: ./domains/customer/user-service/Dockerfile
     container_name: technovastore-user-service
     restart: unless-stopped
     ports:
@@ -304,7 +304,7 @@ services:
     image: technovastore-sync-engine:latest
     build:
       context: .
-      dockerfile: ./automation/sync-engine/Dockerfile
+      dockerfile: ./domains/catalog/sync-engine/Dockerfile
     container_name: technovastore-sync-engine
     restart: unless-stopped
     ports:
@@ -382,7 +382,7 @@ services:
     image: technovastore-recommender:latest
     build:
       context: .
-      dockerfile: ./ai-services/recommender/Dockerfile
+      dockerfile: ./domains/catalog/recommender-service/Dockerfile
     container_name: technovastore-recommender
     restart: unless-stopped
     ports:

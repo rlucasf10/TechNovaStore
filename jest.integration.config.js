@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests/integration'],
+  roots: ['<rootDir>/e2e-tests/integration-tests'],
   testMatch: ['**/*.integration.(test|spec).+(ts|tsx|js)'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
@@ -22,9 +22,9 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'html'],
   
   // Integration test setup
-  globalSetup: '<rootDir>/tests/integration/globalSetup.ts',
-  globalTeardown: '<rootDir>/tests/integration/globalTeardown.ts',
-  setupFilesAfterEnv: ['<rootDir>/tests/integration/setup.ts'],
+  globalSetup: '<rootDir>/e2e-tests/integration-tests/jest-global-setup.ts',
+  globalTeardown: '<rootDir>/e2e-tests/integration-tests/jest-global-teardown.ts',
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/integration-tests/jest-setup.ts'],
   
   // Resource cleanup configuration for integration tests
   detectOpenHandles: true, // Always detect handles in integration tests
@@ -53,5 +53,5 @@ module.exports = {
   }),
   
   // Environment variables for integration tests
-  setupFiles: ['<rootDir>/tests/integration/env.ts']
+  setupFiles: ['<rootDir>/e2e-tests/integration-tests/environment.ts']
 };

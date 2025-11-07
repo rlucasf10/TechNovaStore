@@ -651,7 +651,7 @@ await fetch('http://localhost:3000/api/uploads/avatar', {
 });
 
 // Backend sube a Cloudinary con tu API key (segura)
-// backend-services/user/src/controllers/uploadController.ts
+// domains/customer/user-service/src/controllers/uploadController.ts
 const result = await cloudinary.uploader.upload(file.path, {
   folder: `users/${req.user.id}/avatars`,
   public_id: `avatar_${Date.now()}`,
@@ -777,7 +777,7 @@ Cuando decidas migrar de localStorage a httpOnly cookies, sigue estos pasos:
 ### Paso 1: Actualizar Backend (User Service)
 
 ```typescript
-// services/user/src/controllers/authController.ts
+// domains/customer/user-service/src/controllers/authController.ts
 
 export const login = async (req: Request, res: Response) => {
   // ... validación y autenticación ...

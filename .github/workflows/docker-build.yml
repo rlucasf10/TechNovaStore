@@ -23,14 +23,14 @@ jobs:
             context: ./api-gateway
             dockerfile: ./api-gateway/Dockerfile
           - service: product-service
-            context: ./services/product
-            dockerfile: ./services/product/Dockerfile
+            context: ./domains/catalog/product-service
+            dockerfile: ./domains/catalog/product-service/Dockerfile
           - service: order-service
             context: ./services/order
             dockerfile: ./services/order/Dockerfile
           - service: user-service
-            context: ./services/user
-            dockerfile: ./services/user/Dockerfile
+            context: ./domains/customer/user-service
+            dockerfile: ./domains/customer/user-service/Dockerfile
           - service: payment-service
             context: ./services/payment
             dockerfile: ./services/payment/Dockerfile
@@ -41,8 +41,8 @@ jobs:
             context: ./services/ticket
             dockerfile: ./services/ticket/Dockerfile
           - service: sync-engine
-            context: ./automation/sync-engine
-            dockerfile: ./automation/sync-engine/Dockerfile
+            context: ./domains/catalog/sync-engine
+            dockerfile: ./domains/catalog/sync-engine/Dockerfile
           - service: auto-purchase
             context: ./automation/auto-purchase
             dockerfile: ./automation/auto-purchase/Dockerfile
@@ -53,8 +53,8 @@ jobs:
             context: ./ai-services/chatbot
             dockerfile: ./ai-services/chatbot/Dockerfile
           - service: recommender
-            context: ./ai-services/recommender
-            dockerfile: ./ai-services/recommender/Dockerfile
+            context: ./domains/catalog/recommender-service
+            dockerfile: ./domains/catalog/recommender-service/Dockerfile
           - service: frontend
             context: ./frontend
             dockerfile: ./frontend/Dockerfile

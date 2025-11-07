@@ -41,7 +41,7 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 - `frontend/.env.local` - Configuración local del frontend
 - `services/notification/.env.example`
 - `services/ticket/.env.example`
-- `services/user/.env.example`
+- `domains/customer/user-service/.env.example`
 
 **Análisis**: Cada servicio tiene su propio .env.example, lo cual es correcto para microservicios independientes.
 
@@ -186,7 +186,7 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 | payment | `services/payment` | ✅ Completo | Sin tests |
 | product | `services/product` | ✅ Completo | Sin tests |
 | ticket | `services/ticket` | ✅ Completo | Sin tests |
-| user | `services/user` | ✅ Completo | Sin tests |
+| user | `domains/customer/user-service` | ✅ Completo | Con tests |
 
 **Observación crítica**: Ningún servicio backend tiene carpeta de tests. Esto es un problema de calidad.
 
@@ -410,7 +410,7 @@ Scripts en raíz:
 #### Dominio: customer (Gestión de Clientes)
 
 **Servicios**:
-- `user-service` (services/user)
+- `user-service` (domains/customer/user-service)
 - `notification-service` (services/notification)
 
 **Responsabilidad**: Gestión de usuarios y notificaciones.

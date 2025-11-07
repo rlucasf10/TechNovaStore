@@ -23,16 +23,16 @@ install:
 	@echo "Installing dependencies for all services..."
 	cd frontend && npm install
 	cd api-gateway && npm install
-	cd services/product && npm install
+	cd domains/catalog/product-service && npm install
 	cd services/order && npm install
-	cd services/user && npm install
+	cd domains/customer/user-service && npm install
 	cd services/payment && npm install
 	cd services/notification && npm install
-	cd automation/sync-engine && npm install
+	cd domains/catalog/sync-engine && npm install
 	cd automation/auto-purchase && npm install
 	cd automation/shipment-tracker && npm install
 	cd ai-services/chatbot && npm install
-	cd ai-services/recommender && npm install
+	cd domains/catalog/recommender-service && npm install
 
 # Build all services
 build:

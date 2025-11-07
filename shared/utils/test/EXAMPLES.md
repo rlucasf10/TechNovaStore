@@ -254,7 +254,7 @@ describe('E2E Order Processing', () => {
 
 ```typescript
 import { setupIntegrationTest } from '../shared/utils/test/testSetup';
-import { createUserService } from '../services/user/app';
+import { createUserService } from '../domains/customer/user-service/app';
 import { createOrderService } from '../services/order/app';
 import { createPaymentService } from '../services/payment/app';
 

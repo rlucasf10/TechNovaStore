@@ -209,7 +209,7 @@ services:
   product-service:
     image: technovastore-product-service:latest
     build:
-      context: ./services/product
+      context: ./domains/catalog/product-service
       dockerfile: Dockerfile.prod
     restart: unless-stopped
     environment:
@@ -252,7 +252,7 @@ services:
   user-service:
     image: technovastore-user-service:latest
     build:
-      context: ./services/user
+      context: ./domains/customer/user-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-user-service-prod
     restart: unless-stopped
@@ -349,7 +349,7 @@ services:
   sync-engine:
     image: technovastore-sync-engine:latest
     build:
-      context: ./automation/sync-engine
+      context: ./domains/catalog/sync-engine
       dockerfile: Dockerfile.prod
     container_name: technovastore-sync-engine-prod
     restart: unless-stopped
@@ -439,7 +439,7 @@ services:
   recommender:
     image: technovastore-recommender:latest
     build:
-      context: ./ai-services/recommender
+      context: ./domains/catalog/recommender-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-recommender-prod
     restart: unless-stopped

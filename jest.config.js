@@ -7,7 +7,7 @@ module.exports = {
     '**/*.(test|spec).+(ts|tsx|js)',
   ],
   testPathIgnorePatterns: [
-    '<rootDir>/tests/integration/',
+    '<rootDir>/e2e-tests/integration-tests/',
     '<rootDir>/node_modules/',
     '<rootDir>/frontend/e2e/',
     '<rootDir>/frontend/playwright-report/',
@@ -34,9 +34,9 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'html'],
   
   // Global setup and teardown
-  globalSetup: '<rootDir>/tests/globalSetup.ts',
-  globalTeardown: '<rootDir>/tests/globalTeardown.ts',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  globalSetup: '<rootDir>/e2e-tests/jest-global-setup.ts',
+  globalTeardown: '<rootDir>/e2e-tests/jest-global-teardown.ts',
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/jest-setup.ts'],
   
   // Resource cleanup configuration
   detectOpenHandles: process.env.CI === 'true',

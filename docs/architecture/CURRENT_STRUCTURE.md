@@ -156,28 +156,34 @@ TechNovaStore/
 │   ├── models/
 │   ├── types/
 │   └── utils/
-├── tests/
-│   ├── integration/
-│   │   ├── env.ts
-│   │   ├── globalSetup.ts
-│   │   ├── globalTeardown.ts
-│   │   └── setup.ts
-│   ├── load/
+├── e2e-tests/
+│   ├── integration-tests/
+│   │   ├── environment.ts
+│   │   ├── jest-global-setup.ts
+│   │   ├── jest-global-teardown.ts
+│   │   └── jest-setup.ts
+│   ├── performance-tests/
 │   │   ├── reports/
 │   │   ├── benchmark.yml
-│   │   ├── config.js
+│   │   ├── artillery-config.js
 │   │   ├── critical-apis.yml
 │   │   ├── load-test.yml
 │   │   ├── performance-monitor.js
 │   │   ├── README.md
-│   │   ├── run-load-tests.js
+│   │   ├── run-performance-tests.js
 │   │   ├── stress-test.yml
-│   │   └── verify-setup.js
-│   ├── ci-env.ts
-│   ├── globalSetup.ts
-│   ├── globalTeardown.ts
+│   │   └── verify-artillery-setup.js
+│   ├── migration-verification/
+│   │   ├── README.md
+│   │   ├── run-all-verifications.js
+│   │   ├── verify-docker-services.test.js
+│   │   ├── verify-existing-tests.test.js
+│   │   └── verify-typescript-compilation.test.js
+│   ├── ci-environment.ts
+│   ├── jest-global-setup.ts
+│   ├── jest-global-teardown.ts
 │   ├── README.md
-│   └── setup.ts
+│   └── jest-setup.ts
 ├── .aiexclude
 ├── .dockerignore
 ├── .env.docker

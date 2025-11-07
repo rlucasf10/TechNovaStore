@@ -132,7 +132,7 @@ module.exports = {
   // ... other config
   
   // Setup file that includes handle detection
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/e2e-tests/jest-setup.ts'],
   
   // Enable Jest's built-in handle detection in CI
   detectOpenHandles: process.env.CI === 'true',

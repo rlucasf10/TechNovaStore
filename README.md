@@ -998,7 +998,7 @@ npm run test:coverage
 npm run test:watch
 
 # Tests de un servicio específico
-npm test -w services/product
+npm test -w domains/catalog/product-service
 ```
 
 **Cobertura Actual:**
@@ -1297,7 +1297,7 @@ docker run --rm -v /backups:/backups postgres:15 \
 | **MONITORING.md** | Sistema de monitoreo | `/` |
 | **LOGGING.md** | Sistema de logging | `/` |
 | **SECURITY.md** | Seguridad del API Gateway | `/api-gateway/` |
-| **AUTHENTICATION_SYSTEM.md** | Sistema de autenticación | `/services/user/` |
+| **AUTHENTICATION_SYSTEM.md** | Sistema de autenticación | `/domains/customer/user-service/` |
 | **ENHANCED_FEATURES.md** | Features del sistema de tickets | `/services/ticket/` |
 
 

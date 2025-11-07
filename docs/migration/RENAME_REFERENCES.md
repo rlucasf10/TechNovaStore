@@ -128,7 +128,7 @@ Los scripts actualmente usan las siguientes rutas, que son correctas para la est
 
 - `services/product`
 - `services/order`
-- `services/user`
+- `domains/customer/user-service`
 - `services/payment`
 - `services/notification`
 - `services/ticket`
