@@ -410,4 +410,118 @@ export class OrderController {
       data: paymentStatus,
     });
   });
+
+  // Auto-purchase endpoints
+  static getOrdersForAutoPurchase = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const orders = await OrderService.getOrdersForAutoPurchase();
+
+    return res.json({
+      success: true,
+      data: orders,
+      count: orders.length,
+    });
+  });
+
+  static markOrderForProcessing = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+
+    const order = await OrderService.markOrderForProcessing(parseInt(id));
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Order marked for processing',
+      data: order,
+    });
+  });
+
+  static updateProviderInfo = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const { provider_order_id, provider_name, tracking_number, estimated_delivery, actual_cost } = req.body;
+
+    const order = await OrderService.updateProviderInfo(parseInt(id), {
+      provider_order_id,
+      provider_name,
+      tracking_number,
+      estimated_delivery: estimated_delivery ? new Date(estimated_delivery) : undefined,
+      actual_cost,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Provider info updated successfully',
+      data: order,
+    });
+  });
+
+  static reportAutoPurchaseSuccess = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const { provider_order_id, provider_name, total_cost, estimated_delivery } = req.body;
+
+    if (!provider_order_id || !provider_name || total_cost === undefined) {
+      return res.status(400).json({
+        error: 'Missing required fields: provider_order_id, provider_name, total_cost',
+      });
+    }
+
+    const order = await OrderService.reportAutoPurchaseSuccess(
+      parseInt(id),
+      provider_order_id,
+      provider_name,
+      total_cost,
+      estimated_delivery ? new Date(estimated_delivery) : undefined
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Auto-purchase success reported',
+      data: order,
+    });
+  });
+
+  static reportAutoPurchaseFailure = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const { error_message, provider_attempts } = req.body;
+
+    if (!error_message || !Array.isArray(provider_attempts)) {
+      return res.status(400).json({
+        error: 'Missing required fields: error_message, provider_attempts (array)',
+      });
+    }
+
+    const order = await OrderService.reportAutoPurchaseFailure(
+      parseInt(id),
+      error_message,
+      provider_attempts
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Auto-purchase failure reported',
+      data: order,
+    });
+  });
 }

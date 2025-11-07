@@ -1,38 +1,25 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "types": ["jest", "node"],
     "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "removeComments": false,
-    "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@technovastore/shared-types": ["../../shared/types/src"],
       "@technovastore/shared-models": ["../../shared/models/src"]
     }
   },
-  "include": [
-    "src/**/*",
-    "../../shared/types/src/**/*",
-    "../../shared/models/src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "../../shared/**/__tests__/**",
+    "../../shared/**/test/**",
+    "../../shared/**/*.test.ts",
+    "../../shared/**/*.spec.ts",
+    "../../shared/utils/src/test/**"
   ]
 }

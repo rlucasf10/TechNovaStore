@@ -37,8 +37,14 @@ export interface OrderAttributes {
   payment_method: string;
   payment_status: PaymentStatus;
   provider_order_id?: string;
+  provider_name?: string;
   tracking_number?: string;
   estimated_delivery?: Date;
+  actual_cost?: number;
+  auto_purchase_enabled?: boolean;
+  auto_purchase_attempts?: number;
+  auto_purchase_last_error?: string;
+  auto_purchase_provider_attempts?: string[];
   notes?: string;
   created_at: Date;
   updated_at: Date;
@@ -57,8 +63,14 @@ export class Order extends Model<OrderAttributes, OrderCreationAttributes> imple
   public payment_method!: string;
   public payment_status!: PaymentStatus;
   public provider_order_id?: string;
+  public provider_name?: string;
   public tracking_number?: string;
   public estimated_delivery?: Date;
+  public actual_cost?: number;
+  public auto_purchase_enabled?: boolean;
+  public auto_purchase_attempts?: number;
+  public auto_purchase_last_error?: string;
+  public auto_purchase_provider_attempts?: string[];
   public notes?: string;
   public created_at!: Date;
   public updated_at!: Date;
@@ -156,6 +168,10 @@ Order.init(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    provider_name: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
     tracking_number: {
       type: DataTypes.STRING(100),
       allowNull: true,
@@ -163,6 +179,29 @@ Order.init(
     estimated_delivery: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    actual_cost: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+    auto_purchase_enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    auto_purchase_attempts: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    auto_purchase_last_error: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    auto_purchase_provider_attempts: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: [],
     },
     notes: {
       type: DataTypes.TEXT,

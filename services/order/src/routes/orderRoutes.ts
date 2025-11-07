@@ -34,3 +34,10 @@ orderRoutes.get('/', requireRole(['admin']), validateOrderQuery, OrderController
 orderRoutes.put('/:id/status', requireRole(['admin']), validateUpdateOrderStatus, OrderController.updateOrderStatus);
 orderRoutes.put('/:id/tracking', requireRole(['admin']), validateUpdateTrackingInfo, OrderController.updateTrackingInfo);
 orderRoutes.post('/:id/refund', requireRole(['admin']), validateProcessRefund, OrderController.processRefund);
+
+// Auto-purchase routes (internal service access)
+orderRoutes.get('/auto-purchase/pending', OrderController.getOrdersForAutoPurchase);
+orderRoutes.post('/:id/mark-processing', validateOrderId, OrderController.markOrderForProcessing);
+orderRoutes.put('/:id/provider-info', validateOrderId, OrderController.updateProviderInfo);
+orderRoutes.post('/:id/auto-purchase/success', validateOrderId, OrderController.reportAutoPurchaseSuccess);
+orderRoutes.post('/:id/auto-purchase/failure', validateOrderId, OrderController.reportAutoPurchaseFailure);

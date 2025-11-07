@@ -10,6 +10,9 @@ WORKDIR /workspace/ai-services/recommender
 # Copy package files
 COPY ai-services/recommender/package*.json ./
 
+# Copy tsconfig
+COPY ai-services/recommender/tsconfig.json ./
+
 # Install dependencies
 RUN npm install --legacy-peer-deps
 

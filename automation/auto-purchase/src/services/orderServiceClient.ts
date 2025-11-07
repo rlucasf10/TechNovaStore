@@ -36,6 +36,9 @@ export class OrderServiceClient {
       timeout: config.timeout,
       headers: {
         'Content-Type': 'application/json',
+        // Headers para autenticación de servicio interno
+        'x-user-id': 'auto-purchase-service',
+        'x-user-role': 'admin',
         ...(config.apiKey && { 'Authorization': `Bearer ${config.apiKey}` })
       }
     });

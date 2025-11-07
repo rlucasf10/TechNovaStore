@@ -10,6 +10,9 @@ WORKDIR /workspace/automation/sync-engine
 # Copy package files
 COPY automation/sync-engine/package*.json ./
 
+# Copy tsconfig
+COPY automation/sync-engine/tsconfig.json ./
+
 # Install dependencies
 RUN npm install --legacy-peer-deps
 

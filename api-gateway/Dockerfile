@@ -10,6 +10,7 @@ WORKDIR /workspace
 # Copy workspace package files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY tsconfig.base.json ./
 
 # Copy shared packages
 COPY shared/ ./shared/

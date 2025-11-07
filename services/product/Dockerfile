@@ -10,6 +10,9 @@ WORKDIR /workspace/services/product
 # Copy package files
 COPY services/product/package*.json ./
 
+# Copy tsconfig
+COPY services/product/tsconfig.json ./
+
 # Install dependencies
 RUN npm install --legacy-peer-deps
 

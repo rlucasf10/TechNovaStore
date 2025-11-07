@@ -301,12 +301,13 @@ export class OrderService {
   }
 
   static async getOrdersForAutoPurchase(): Promise<Order[]> {
-    // Get orders that are confirmed but not yet processed for auto-purchase
+    // Get orders that are confirmed, payment completed, and enabled for auto-purchase
     return Order.findAll({
       where: {
         status: 'confirmed',
         payment_status: 'completed',
         provider_order_id: null,
+        auto_purchase_enabled: true,
       } as any,
       include: [
         {
@@ -315,6 +316,7 @@ export class OrderService {
         },
       ],
       order: [['created_at', 'ASC']], // Process older orders first
+      limit: 50, // Limit to prevent overload
     });
   }
 
@@ -427,5 +429,132 @@ export class OrderService {
         },
       ],
     });
+  }
+
+  /**
+   * Report successful auto-purchase
+   */
+  static async reportAutoPurchaseSuccess(
+    orderId: number,
+    providerOrderId: string,
+    providerName: string,
+    totalCost: number,
+    estimatedDelivery?: Date
+  ): Promise<Order | null> {
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: OrderItem,
+          as: 'items',
+        },
+      ],
+    });
+    
+    if (!order) {
+      return null;
+    }
+
+    // Update order with provider information
+    order.provider_order_id = providerOrderId;
+    order.provider_name = providerName;
+    order.actual_cost = totalCost;
+    if (estimatedDelivery) {
+      order.estimated_delivery = estimatedDelivery;
+    }
+
+    // Transition to processing status
+    if (order.canTransitionTo('processing')) {
+      await order.updateStatus('processing');
+    }
+
+    await order.save();
+
+    logger.info(`Auto-purchase success reported: ${order.order_number}`, {
+      orderId: order.id,
+      providerOrderId,
+      providerName,
+      totalCost,
+    });
+
+    // Emit event
+    orderEventService.emitOrderStatusChanged(order, 'confirmed');
+
+    return order;
+  }
+
+  /**
+   * Report failed auto-purchase
+   */
+  static async reportAutoPurchaseFailure(
+    orderId: number,
+    errorMessage: string,
+    providerAttempts: string[]
+  ): Promise<Order | null> {
+    const order = await Order.findByPk(orderId);
+    
+    if (!order) {
+      return null;
+    }
+
+    // Update failure information
+    order.auto_purchase_attempts = (order.auto_purchase_attempts || 0) + 1;
+    order.auto_purchase_last_error = errorMessage;
+    order.auto_purchase_provider_attempts = providerAttempts;
+
+    // Disable auto-purchase after 3 failed attempts
+    if (order.auto_purchase_attempts >= 3) {
+      order.auto_purchase_enabled = false;
+      logger.warn(`Auto-purchase disabled after 3 failed attempts: ${order.order_number}`, {
+        orderId: order.id,
+        attempts: order.auto_purchase_attempts,
+      });
+    }
+
+    await order.save();
+
+    logger.error(`Auto-purchase failure reported: ${order.order_number}`, {
+      orderId: order.id,
+      errorMessage,
+      providerAttempts,
+      totalAttempts: order.auto_purchase_attempts,
+    });
+
+    return order;
+  }
+
+  /**
+   * Update order with provider info (for auto-purchase)
+   */
+  static async updateProviderInfo(
+    orderId: number,
+    data: {
+      provider_order_id?: string;
+      provider_name?: string;
+      tracking_number?: string;
+      estimated_delivery?: Date;
+      actual_cost?: number;
+    }
+  ): Promise<Order | null> {
+    const order = await Order.findByPk(orderId);
+    
+    if (!order) {
+      return null;
+    }
+
+    // Update fields if provided
+    if (data.provider_order_id) order.provider_order_id = data.provider_order_id;
+    if (data.provider_name) order.provider_name = data.provider_name;
+    if (data.tracking_number) order.tracking_number = data.tracking_number;
+    if (data.estimated_delivery) order.estimated_delivery = data.estimated_delivery;
+    if (data.actual_cost !== undefined) order.actual_cost = data.actual_cost;
+
+    await order.save();
+
+    logger.info(`Provider info updated: ${order.order_number}`, {
+      orderId: order.id,
+      data,
+    });
+
+    return order;
   }
 }

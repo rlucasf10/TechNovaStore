@@ -16,14 +16,19 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 install spacy
 RUN python -m spacy download es_core_news_sm
 
-# Set working directory
-WORKDIR /app
+# Set working directory to workspace root
+WORKDIR /workspace
 
-# Copy package files
-COPY package*.json ./
+# Copy tsconfig.base.json to workspace root
+COPY tsconfig.base.json ./
 
-# Copy source code
-COPY . .
+# Set working directory to chatbot
+WORKDIR /workspace/ai-services/chatbot
+
+# Copy chatbot files
+COPY ai-services/chatbot/package*.json ./
+COPY ai-services/chatbot/tsconfig.json ./
+COPY ai-services/chatbot/src ./src
 
 # Install Node.js dependencies
 RUN npm install

@@ -8,6 +8,7 @@ WORKDIR /workspace
 # Copy root workspace files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY tsconfig.base.json ./
 
 # Copy ALL shared packages (source and config)
 COPY shared/ ./shared/

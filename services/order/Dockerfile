@@ -9,6 +9,7 @@ WORKDIR /workspace/services/order
 
 # Copy package files
 COPY services/order/package*.json ./
+COPY services/order/tsconfig.json ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps

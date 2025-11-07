@@ -263,14 +263,23 @@ docker-compose --version # >= 2.20.0
 git clone https://github.com/tu-usuario/technovastore.git
 cd technovastore
 
-# 2️⃣ Instalar todas las dependencias (Windows)
+# 2️⃣ Configurar variables de entorno
+# Copiar templates de configuración
+cp .env.docker.example .env.docker
+cp .env.shared.example .env.shared
+
+# Editar con tus valores (opcional para desarrollo)
+# nano .env.docker
+# nano .env.shared
+
+# 3️⃣ Instalar todas las dependencias (Windows)
 .\install-all.ps1
 
-# 2️⃣ Instalar todas las dependencias (Linux/Mac)
+# 3️⃣ Instalar todas las dependencias (Linux/Mac)
 chmod +x install-deps.sh
 ./install-deps.sh
 
-# 3️⃣ Iniciar todos los servicios (Perfil completo)
+# 4️⃣ Iniciar todos los servicios (Perfil completo)
 docker-compose -f docker-compose.optimized.yml --profile all up -d
 
 # O iniciar solo servicios core (más ligero)
@@ -421,6 +430,120 @@ docker-compose -f docker-compose.optimized.yml up -d --scale product-service=3
 
 ---
 
+## ⚙️ Configuración de Variables de Entorno
+
+TechNovaStore utiliza una **jerarquía de archivos .env** para configuración flexible y mantenible.
+
+### 📁 Estructura de Archivos
+
+```
+TechNovaStore/
+├── .env.docker              # ✅ Desarrollo con Docker (activo)
+├── .env.docker.example      # 📋 Template para desarrollo
+├── .env.shared.example      # 📋 Variables compartidas entre servicios
+├── .env.prod.example        # 📋 Template para producción
+├── .env.staging.example     # 📋 Template para staging
+├── .env.logging.example     # 📋 Configuración de logging
+└── api-gateway/
+    └── .env.security.example # 📋 Configuración de seguridad avanzada
+```
+
+### 🔄 Jerarquía de Configuración
+
+```
+┌─────────────────────────────────────────┐
+│  .env.docker / .env.prod / .env.staging │  ← Nivel 1: Variables por entorno
+│  (NODE_ENV, URLs, credenciales)         │
+└─────────────────────────────────────────┘
+              ↓ complementa
+┌─────────────────────────────────────────┐
+│  .env.shared                            │  ← Nivel 2: Variables compartidas
+│  (bases de datos, SMTP, APIs externas)  │
+└─────────────────────────────────────────┘
+```
+
+### 🚀 Configuración Inicial
+
+```bash
+# 1. Copiar templates
+cp .env.docker.example .env.docker
+cp .env.shared.example .env.shared
+
+# 2. Editar con tus valores
+nano .env.docker    # Configuración de entorno
+nano .env.shared    # Configuración compartida
+
+# 3. Iniciar servicios
+docker-compose -f docker-compose.optimized.yml up -d
+```
+
+### 📝 Variables Principales
+
+#### `.env.docker` (Desarrollo)
+```bash
+# Entorno
+NODE_ENV=development
+LOG_LEVEL=debug
+
+# Credenciales de Bases de Datos
+MONGO_USERNAME=admin
+MONGO_PASSWORD=your_secure_password
+POSTGRES_PASSWORD=your_secure_password
+REDIS_PASSWORD=your_secure_password
+
+# JWT Secret
+JWT_SECRET=your_super_secure_jwt_secret_key
+
+# URLs Públicas (Frontend)
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_APP_URL=http://localhost:3011
+NEXT_PUBLIC_CHATBOT_URL=http://localhost:3009
+
+# OAuth (opcional)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=
+NEXT_PUBLIC_GITHUB_CLIENT_ID=
+```
+
+#### `.env.shared` (Compartido)
+```bash
+# Bases de Datos
+MONGODB_URI=mongodb://localhost:27017/technovastore
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# URLs de Servicios Internos
+CHATBOT_SERVICE_URL=http://chatbot:3001
+USER_SERVICE_URL=http://user-service:3002
+PRODUCT_SERVICE_URL=http://product-service:3003
+
+# SMTP
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=noreply@technovastore.com
+
+# APIs Externas
+AMAZON_API_KEY=your-amazon-api-key
+ALIEXPRESS_API_KEY=your-aliexpress-api-key
+```
+
+### 🔒 Seguridad
+
+- ✅ Archivos `.env` están en `.gitignore` (no se suben al repositorio)
+- ✅ Solo archivos `.example` se incluyen en el repositorio
+- ✅ Nunca commitear archivos con credenciales reales
+- ✅ Usar secrets managers en producción (AWS Secrets Manager, Azure Key Vault)
+
+### 📚 Documentación Completa
+
+Para más detalles sobre todas las variables disponibles:
+- Ver: `ENV_CONSOLIDATION_STRATEGY.md` - Estrategia completa de configuración
+- Ver: `.env.docker.example` - Todas las variables de desarrollo
+- Ver: `.env.shared.example` - Todas las variables compartidas
+- Ver: `.env.prod.example` - Configuración de producción
+
+---
 
 ## 🎯 Servicios Disponibles
 

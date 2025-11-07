@@ -1,14 +1,13 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
+  ...require('../../jest.config.base.js'),
+  
+  // Shared utils specific configuration
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/test/jestSetup.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
-    '!src/**/examples/**'
+    '!src/**/examples/**', // Exclude example files
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/test/jestSetup.ts'],
-  testTimeout: 10000
 };
