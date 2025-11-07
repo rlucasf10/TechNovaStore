@@ -446,7 +446,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 18.3 Validar dominio customer
+- [x] 18.3 Validar dominio customer
   - Compilar servicios del dominio
   - Iniciar contenedores Docker
   - Verificar health checks
