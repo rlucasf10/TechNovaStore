@@ -433,7 +433,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Ejecutar tests de los servicios
   - _Requirements: 6.1, 6.2, 9.4_
 
-- [ ] 18. Migrar dominio customer
+- [x] 18. Migrar dominio customer
 - [x] 18.1 Mover user-service a domains/customer/
   - Mover services/user/ a domains/customer/user-service/
   - Actualizar imports y referencias
