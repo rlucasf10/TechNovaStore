@@ -1298,17 +1298,17 @@ docker run --rm -v /backups:/backups postgres:15 \
 | **LOGGING.md** | Sistema de logging | `/` |
 | **SECURITY.md** | Seguridad del API Gateway | `/api-gateway/` |
 | **AUTHENTICATION_SYSTEM.md** | Sistema de autenticación | `/domains/customer/user-service/` |
-| **ENHANCED_FEATURES.md** | Features del sistema de tickets | `/services/ticket/` |
+| **ENHANCED_FEATURES.md** | Features del sistema de tickets | `/domains/support/ticket-service/` |
 
 
 ### 📚 READMEs de Servicios
 
 - **Frontend:** `/frontend/README.md`
 - **API Gateway:** `/api-gateway/README.security.md`
-- **Chatbot:** `/ai-services/chatbot/README.md`
-- **Recommender:** `/ai-services/recommender/README.md`
-- **Auto Purchase:** `/automation/auto-purchase/README.md`
-- **Shipment Tracker:** `/automation/shipment-tracker/README.md`
+- **Chatbot:** `/domains/support/chatbot-service/README.md`
+- **Recommender:** `/domains/catalog/recommender-service/README.md`
+- **Auto Purchase:** `/domains/commerce/auto-purchase-service/README.md`
+- **Shipment Tracker:** `/domains/support/shipment-tracker/README.md`
 - **Ollama:** `/infrastructure/ollama/README.md`
 - **Scaling:** `/infrastructure/scaling/README.md`
 

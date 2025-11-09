@@ -3,6 +3,8 @@
 ## Fase 1: Configuración Inicial y Fundamentos
 
 - [x] 1. Configurar proyecto Next.js con TypeScript
+
+
   - Crear proyecto Next.js 15 con App Router
   - Configurar TypeScript con strict mode
   - Configurar Tailwind CSS con custom theme
@@ -11,6 +13,7 @@
   - _Requisitos: 1.1, 1.2, 1.3_
 
 - [x] 2. Configurar herramientas de desarrollo
+
   - Instalar y configurar React Query
   - Instalar y configurar Zustand para estado global
   - Instalar Socket.IO client
@@ -20,6 +23,7 @@
   - _Requisitos: 1.4, 1.5_
 
 - [x] 3. Configurar sistema de diseño base
+
   - Definir variables CSS para colores (tema claro y oscuro)
   - Definir variables CSS para tipografía
   - Definir variables CSS para espaciado
@@ -28,6 +32,7 @@
   - _Requisitos: 21.1, 21.2, 21.3, 21.4_
 
 - [x] 4. Crear estructura de carpetas
+
   - Crear carpeta src/app con rutas principales
   - Crear carpeta src/components con subcarpetas (ui, layout, product, cart, chat, admin)
   - Crear carpeta src/hooks para custom hooks
@@ -40,7 +45,9 @@
 ## Fase 2: Componentes de UI Base
 
 - [x] 5. Crear componentes de UI fundamentales
+
   - [x] 5.1 Crear componente Button
+
     - Implementar variantes: primary, secondary, ghost, danger
     - Implementar tamaños: sm, md, lg
     - Implementar estados: default, hover, active, disabled, loading
@@ -48,6 +55,7 @@
     - _Requisitos: 21.1_
 
   - [x] 5.2 Crear componente Input
+
     - Implementar variantes: text, email, password, number
     - Implementar estados: default, focus, error, disabled
     - Agregar soporte para labels flotantes
@@ -55,12 +63,14 @@
     - _Requisitos: 21.1_
 
   - [x] 5.3 Crear componente Card
+
     - Implementar con bordes redondeados y sombras
     - Agregar variantes de padding
     - Implementar hover con elevación
     - _Requisitos: 21.3_
 
   - [x] 5.4 Crear componente Modal
+
     - Implementar overlay con backdrop
     - Agregar animaciones de entrada/salida
     - Implementar cierre con ESC y click fuera
@@ -68,39 +78,49 @@
     - _Requisitos: 5.2, 5.3_
 
   - [x] 5.5 Crear componente Dropdown
+
     - Implementar menú desplegable
     - Agregar navegación por teclado
     - Implementar posicionamiento inteligente
     - _Requisitos: 5.2_
 
   - [x] 5.6 Crear componente Badge
+
     - Implementar variantes de color
     - Implementar tamaños
     - Agregar soporte para iconos
     - _Requisitos: 2.4_
 
   - [x] 5.7 Crear componente Spinner/Loader
+
     - Implementar animación de carga
     - Implementar tamaños
     - Agregar variante de overlay
     - _Requisitos: 3.1_
 
   - [x] 5.8 Crear componente Rating
+
     - Implementar estrellas llenas, medias y vacías
     - Agregar modo interactivo y solo lectura
     - Implementar tamaños
     - Mostrar valor numérico opcional
     - _Requisitos: 7.1, 8.1_
 
-- [x] 6. Crear componentes de navegación y layout
+- [ ] 6. Crear componentes de navegación y layout
+
+
   - [x] 6.1 Crear componente Breadcrumbs
+
+
     - Implementar navegación jerárquica
     - Agregar separadores personalizables
     - Implementar truncado para rutas largas
     - Hacer responsive (solo último item en móvil)
     - _Requisitos: 8.1_
 
+
   - [x] 6.2 Crear componente Pagination
+
     - Implementar botones de navegación
     - Agregar números de página con ellipsis
     - Mostrar "Página X de Y"
@@ -108,12 +128,16 @@
     - _Requisitos: 7.1_
 
   - [x] 6.3 Crear componente Tabs
+
+
     - Implementar navegación por pestañas
     - Agregar indicador de tab activo
     - Implementar navegación por teclado
     - _Requisitos: 8.1_
 
   - [x] 6.4 Crear componente Skeleton Loader
+
+
     - Implementar ProductCardSkeleton
     - Implementar ProductDetailSkeleton
     - Implementar DashboardSkeleton
@@ -123,6 +147,8 @@
 ## Fase 3: Sistema de Autenticación
 
 - [x] 7. Implementar servicio de autenticación
+
+
   - Crear servicio AuthService con métodos: login, logout, register, refreshToken, forgotPassword, validateResetToken, resetPassword, oauthLogin, oauthCallback, setPassword, linkAuthMethod, unlinkAuthMethod
   - Configurar Axios con withCredentials para cookies httpOnly
   - Implementar interceptor para refresh token automático
@@ -133,6 +159,8 @@
   - _Requisitos: 20.1, 20.2, 20.3, 20.4, 20.8, 20.9, 20.10, 23.1, 23.2, 23.4, 23.5, 23.10, 24.1, 24.2_
 
 - [x] 8. Crear hook useAuth
+
+
   - Implementar hook con React Query para gestión de estado de autenticación
   - Agregar métodos: login, logout, register, checkAuth
   - Implementar caché de usuario autenticado
@@ -142,7 +170,10 @@
 - [x] 9. Crear componentes de autenticación
 
 
+
   - [x] 9.1 Crear layout compartido para páginas de autenticación
+
+
     - Crear componente AuthLayout con diseño centrado
     - Implementar AuthCard con logo, título y subtítulo
     - Agregar fondo con gradiente o imagen de tecnología
@@ -150,6 +181,7 @@
     - _Requisitos: 20.6, 21.5_
 
   - [x] 9.2 Crear componente PasswordStrengthIndicator
+
     - Implementar barra de progreso con colores (rojo/amarillo/verde)
     - Crear lista de requisitos con checkmarks dinámicos
     - Validar: 8+ caracteres, mayúscula, minúscula, número, especial
@@ -158,6 +190,7 @@
     - _Requisitos: 20.7_
 
   - [x] 9.3 Crear página de Login
+
     - Implementar formulario con React Hook Form y Zod
     - Agregar input de email con validación
     - Agregar input de password con toggle show/hide
@@ -169,6 +202,7 @@
     - _Requisitos: 20.1, 20.6_
 
   - [x] 9.4 Crear página de Register
+
     - Implementar formulario de registro con validación
     - Agregar inputs: nombre, apellido, email
     - Implementar input de password con PasswordStrengthIndicator
@@ -180,7 +214,9 @@
     - _Requisitos: 20.1, 20.6, 20.7_
 
   - [x] 9.5 Crear sistema de recuperación de contraseña
+
     - [x] 9.5.1 Crear página Forgot Password (Paso 1)
+
       - Implementar formulario con input de email
       - Agregar validación de formato de email
       - Implementar botón "Enviar instrucciones"
@@ -190,6 +226,7 @@
       - _Requisitos: 23.1, 23.2, 23.3_
 
     - [x] 9.5.2 Crear página Reset Password (Paso 2)
+
       - Extraer token de URL query params
       - Validar token al cargar página (GET /api/auth/validate-reset-token)
       - Mostrar formulario si token es válido
@@ -203,12 +240,14 @@
       - _Requisitos: 23.4, 23.5, 23.6, 23.7, 23.9_
 
     - [x] 9.5.3 Implementar confirmación y redirección (Paso 3)
+
       - Mostrar modal o página de confirmación de éxito
       - Implementar auto-redirección a login después de 3 segundos
       - Mostrar toast en login: "Contraseña actualizada"
       - _Requisitos: 23.8_
 
     - [x] 9.5.4 Implementar manejo de errores de autenticación
+
       - Crear diccionario de mensajes de error
       - Implementar componente ErrorMessage
       - Mostrar errores debajo del campo correspondiente
@@ -216,6 +255,7 @@
       - _Requisitos: 23.9_
 
   - [x] 9.6 Implementar validación de seguridad de contraseñas
+
     - Crear schema de Zod para validación de contraseña
     - Validar: mínimo 8 caracteres, mayúscula, minúscula, número, especial
     - Implementar lista de contraseñas comunes prohibidas
@@ -223,17 +263,20 @@
     - _Requisitos: 20.7, 23.6_
 
   - [x] 9.7 Crear componente ProtectedRoute
+
     - Implementar verificación de autenticación
     - Redirigir a login si no autenticado
     - Mostrar spinner mientras verifica
     - _Requisitos: 20.5_
 
   - [x] 9.8 Crear componente AdminRoute
+
     - Implementar verificación de rol de admin
     - Redirigir a unauthorized si no es admin
     - _Requisitos: 20.5_
 
   - [x] 9.9 Implementar rate limiting en frontend
+
 
 
 
@@ -249,7 +292,9 @@
 
 
 
+
     - [x] 9.10.1 Crear configuración de proveedores OAuth
+
 
 
 
@@ -269,6 +314,7 @@
 
 
 
+
       - Implementar botón "Continuar con Google" con logo
       - Implementar botón "Continuar con GitHub" con logo
       - Agregar loading state durante OAuth
@@ -281,6 +327,7 @@
 
 
 
+
       - Agregar SocialLoginButtons en página de Login
       - Agregar SocialLoginButtons en página de Registro
       - Implementar divider "o" entre métodos
@@ -288,6 +335,7 @@
       - _Requisitos: 24.1, 24.2_
 
     - [x] 9.10.4 Crear páginas de callback de OAuth
+
 
 
 
@@ -310,6 +358,7 @@
 
 
 
+
       - Detectar cuando email de OAuth ya existe
       - Mostrar mensaje: "Este email ya está registrado. Inicia sesión para vincular."
       - Redirigir a login con mensaje informativo
@@ -321,7 +370,9 @@
 
 
 
+
     - [x] 9.11.1 Modificar flujo de "Olvidé mi contraseña"
+
 
 
 
@@ -333,6 +384,7 @@
       - _Requisitos: 23.11, 24.6_
 
     - [x] 9.11.2 Crear modal de establecer contraseña en Dashboard
+
 
 
 
@@ -354,6 +406,7 @@
 
 
 
+
   - Implementar logo con link a home
   - Agregar barra de búsqueda global (placeholder, implementar después)
   - Crear navegación principal: Categorías, Ofertas, Soporte
@@ -363,6 +416,7 @@
   - _Requisitos: 4.1, 17.1_
 
 - [x] 11. Crear Footer component
+
 
 
 
@@ -380,6 +434,7 @@
 
 
 
+
   - Implementar menú hamburger con animación slide-in
   - Agregar navegación por categorías
   - Incluir enlaces rápidos a cuenta y pedidos
@@ -387,6 +442,7 @@
   - _Requisitos: 4.2, 4.4_
 
 - [x] 13. Crear layout principal (RootLayout)
+
 
 
 
@@ -406,6 +462,7 @@
 
 
 
+
   - Crear componente Toast con variantes: success, error, warning, info
   - Implementar NotificationProvider con contexto
   - Crear hook useNotification para mostrar notificaciones
@@ -417,6 +474,7 @@
 ## Fase 6: Búsqueda Global
 
 - [x] 15. Implementar búsqueda global rápida
+
 
 
 
@@ -441,6 +499,7 @@
 
 
 
+
   - Crear ProductService con métodos: getProducts, getProduct, searchProducts
   - Crear CategoryService con métodos: getCategories, getCategory
   - Implementar tipos TypeScript: Product, Category, ProductFilters
@@ -448,6 +507,7 @@
   - _Requisitos: 22.1_
 
 - [x] 17. Crear componente ProductCard
+
 
 
 
@@ -467,7 +527,9 @@
 
 
 
+
   - [x] 18.1 Crear Sidebar de Filtros
+
 
 
 
@@ -487,6 +549,7 @@
 
 
 
+
     - Implementar grid responsivo (4-3-2-1 columnas)
     - Agregar ProductCard para cada producto
     - Implementar skeleton loading
@@ -494,6 +557,7 @@
     - _Requisitos: 7.1, 7.2, 7.5_
 
   - [x] 18.3 Crear Toolbar de Catálogo
+
 
 
 
@@ -509,6 +573,7 @@
 
 
 
+
     - Sincronizar filtros con URL
     - Implementar navegación con historial del navegador
     - Permitir compartir URLs con filtros aplicados
@@ -519,7 +584,9 @@
 
 
 
+
   - [x] 19.1 Crear Galería de Imágenes
+
 
 
 
@@ -537,6 +604,7 @@
 
 
 
+
     - Mostrar nombre, marca, SKU
     - Agregar rating con reviews
     - Mostrar precio con descuento si aplica
@@ -546,6 +614,7 @@
     - _Requisitos: 8.1, 8.5_
 
   - [x] 19.3 Crear Comparador de Precios
+
 
 
 
@@ -566,12 +635,14 @@
 
 
 
+
     - Implementar tab de Descripción
     - Crear tab de Especificaciones Técnicas (tabla)
     - Agregar tab de Reviews
     - _Requisitos: 8.1_
 
   - [x] 19.5 Crear sección de Preguntas y Respuestas
+
 
 
 
@@ -587,6 +658,7 @@
 
 
 
+
     - Mostrar grid de 4 productos relacionados
     - Usar ProductCard component
     - _Requisitos: 8.1_
@@ -594,6 +666,7 @@
 ## Fase 8: Carrito de Compras
 
 - [x] 20. Crear servicio de carrito
+
 
 
 
@@ -611,6 +684,7 @@
 
 
 
+
   - Mostrar imagen del producto (100x100px)
   - Agregar nombre con link a detalle
   - Mostrar SKU y marca
@@ -620,15 +694,26 @@
   - Implementar animación al agregar/eliminar
   - _Requisitos: 9.1, 9.2_
 
-- [ ] 22. Crear página de Carrito de Compras
-  - [ ] 22.1 Crear lista de productos del carrito
+- [x] 22. Crear página de Carrito de Compras
+
+
+
+  - [x] 22.1 Crear lista de productos del carrito
+
+
+
+
+
+
+
     - Implementar layout de 70% lista + 30% resumen
     - Agregar CartItem para cada producto
     - Mostrar mensaje si carrito está vacío
     - Agregar botón "Limpiar Carrito"
     - _Requisitos: 9.1, 9.2_
 
-  - [ ] 22.2 Crear resumen del carrito
+  - [x] 22.2 Crear resumen del carrito
+
     - Mostrar desglose: Subtotal, Envío, Impuestos, Total
     - Agregar input para código de descuento
     - Implementar estimación de envío
@@ -636,7 +721,8 @@
     - Mostrar badges de seguridad
     - _Requisitos: 9.3, 9.5_
 
-  - [ ] 22.3 Implementar cálculo en tiempo real
+  - [x] 22.3 Implementar cálculo en tiempo real
+
     - Actualizar totales al cambiar cantidades
     - Calcular impuestos basado en ubicación
     - Estimar costo de envío
@@ -840,8 +926,8 @@
     - Agregar botones: "Rastrear pedido", "Contactar soporte", "Ver ofertas"
     - _Requisitos: 11.4_
 
-- [x] 35.7 Crear vista completa de Notificaciones
-  - [x] 35.7.1 Crear NotificationDropdown en Header
+- [ ] 35.7 Crear vista completa de Notificaciones
+  - [ ] 35.7.1 Crear NotificationDropdown en Header
     - Implementar dropdown que se abre al hacer clic en campanita (desktop)
     - Mostrar últimas 5 notificaciones con iconos por tipo
     - Agregar badge con contador de no leídas
@@ -849,7 +935,7 @@
     - Cerrar con ESC o click fuera
     - _Requisitos: 11.3_
 
-  - [x] 35.7.2 Crear página /notificaciones
+  - [ ] 35.7.2 Crear página /notificaciones
     - Implementar vista completa del historial de notificaciones
     - Agregar filtros: Todas, Sin leer, Por tipo (Pedido, Envío, Pago, Sistema, Promoción)
     - Mostrar notificaciones con iconos, colores y tiempo relativo

@@ -219,7 +219,7 @@ shipment-tracker:
 **Archivos afectados:**
 - `docker-compose.optimized.yml` (sección shipment-tracker)
 - `docker-compose.prod.yml` (sección shipment-tracker)
-- `automation/shipment-tracker/src/config/database.ts` (verificar configuración)
+- `domains/support/shipment-tracker/src/config/database.ts` (verificar configuración)
 
 **Validación:** El servicio debe usar el hostname del servicio Docker, no localhost.
 
@@ -309,13 +309,13 @@ export default router;
 
 **Validación adicional:**
 ```typescript
-// automation/auto-purchase/src/services/orderService.ts
+// domains/commerce/auto-purchase-service/src/services/orderService.ts
 // Verificar que use el hostname correcto
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3000';
 ```
 
 **Archivos a verificar:**
-- `automation/auto-purchase/src/services/orderService.ts`
+- `domains/commerce/auto-purchase-service/src/services/orderService.ts`
 - `docker-compose.optimized.yml` (variable ORDER_SERVICE_URL)
 
 ### 9. API Gateway (Menor)

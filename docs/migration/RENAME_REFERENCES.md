@@ -127,16 +127,16 @@ grepSearch -query "ciberseguridad" -caseSensitive false -includePattern "*.{ps1,
 Los scripts actualmente usan las siguientes rutas, que son correctas para la estructura actual:
 
 - `services/product`
-- `services/order`
+- `domains/commerce/order-service`
 - `domains/customer/user-service`
 - `services/payment`
 - `domains/customer/notification-service`
-- `services/ticket`
-- `automation/sync-engine`
-- `automation/auto-purchase`
-- `automation/shipment-tracker`
-- `ai-services/chatbot`
-- `ai-services/recommender`
+- `domains/support/ticket-service`
+- `domains/catalog/sync-engine`
+- `domains/commerce/auto-purchase-service`
+- `domains/support/shipment-tracker`
+- `domains/support/chatbot-service`
+- `domains/catalog/recommender-service`
 - `api-gateway`
 - `frontend`
 

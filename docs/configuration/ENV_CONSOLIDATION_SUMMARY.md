@@ -74,7 +74,7 @@
    - No debe estar en el repositorio
    - Debe crearse localmente desde `.env.local.example`
 
-3. **`ai-services/chatbot/.env.example`**
+3. **`domains/support/chatbot-service/.env.example`**
    - Variables movidas a `.env.shared.example`
 
 4. **`ai-services/recommender/.env.example`**
@@ -89,7 +89,7 @@
 7. **`domains/customer/user-service/.env.example`**
    - Variables movidas a `.env.shared.example`
 
-8. **`automation/shipment-tracker/.env.example`**
+8. **`domains/support/shipment-tracker/.env.example`**
    - Variables movidas a `.env.shared.example`
 
 ### 🔄 Archivos Mantenidos (Sin Cambios)

@@ -431,7 +431,7 @@ service-name/
 |----------|------------------|-----------------|-----------------|
 | order-service | `services/order/` | `domains/commerce/order-service/` | Gestión de pedidos, estados, historial |
 | payment-service | `services/payment/` | `domains/commerce/payment-service/` | Procesamiento de pagos, transacciones |
-| auto-purchase-service | `automation/auto-purchase/` | `domains/commerce/auto-purchase-service/` | Compras automáticas basadas en reglas |
+| auto-purchase-service | `automation/auto-purchase/` ✅ | `domains/commerce/auto-purchase-service/` ✅ | Compras automáticas basadas en reglas |
 
 **Dependencias**:
 - PostgreSQL (pedidos, pagos)

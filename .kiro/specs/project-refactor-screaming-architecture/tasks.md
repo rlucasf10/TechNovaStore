@@ -544,7 +544,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Eliminar automation/ (ahora vacía)
   - _Requirements: 3.2_
 
-- [ ] 24. Validar reorganización completa
+- [x] 24. Validar reorganización completa
 - [x] 24.1 Validar estructura de dominios
   - Verificar que todos los servicios están en dominios correctos
   - Verificar que no quedan servicios en ubicaciones antiguas
@@ -561,7 +561,7 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Verificar que todos los tests pasan
   - _Requirements: 9.4_
 
-- [ ] 24.4 Crear checkpoint de Git
+- [x] 24.4 Crear checkpoint de Git
   - Commit: "Phase 3: Reorganize to domain architecture"
   - Crear tag: `phase-3-complete`
   - _Requirements: 6.5_

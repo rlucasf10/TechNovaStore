@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import { AuthenticatedRequest } from '@technovastore/shared-types';
-import { asyncHandler } from '../../../../../shared/middleware/errorHandler';
+import { asyncHandler } from '@technovastore/shared-utils';
 import { GdprService } from '../services/gdprService';
 import { logger } from '../utils/logger';
 

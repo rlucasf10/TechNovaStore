@@ -3,10 +3,10 @@
  * Performs final cleanup and resource leak detection
  */
 
-import { resourceCleanupManager } from '../shared/utils/src/test/resourceCleanupManager';
-import { openHandleDetector } from '../shared/utils/src/test/handleDetector';
-import { databaseCleanupManager } from '../shared/utils/src/test/databaseCleanup';
-import { testServerManager } from '../shared/utils/src/test/serverCleanup';
+import { resourceCleanupManager } from '../shared/infrastructure/utils/src/test/resourceCleanupManager';
+import { openHandleDetector } from '../shared/infrastructure/utils/src/test/handleDetector';
+import { databaseCleanupManager } from '../shared/infrastructure/utils/src/test/databaseCleanup';
+import { testServerManager } from '../shared/infrastructure/utils/src/test/serverCleanup';
 
 export default async function globalTeardown(): Promise<void> {
   console.log('Starting global test teardown...');

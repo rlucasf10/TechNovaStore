@@ -4,6 +4,9 @@ FROM service-base:latest
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json
 
+# Copy shared packages first (needed for npm install)
+COPY shared /workspace/shared
+
 # Set working directory
 WORKDIR /workspace/domains/customer/notification-service
 
@@ -14,8 +17,13 @@ COPY domains/customer/notification-service/tsconfig.json ./
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy source code (not node_modules)
+# Copy jest config from workspace root
+COPY jest.config.base.js /workspace/
+
+# Copy source code and tests
 COPY domains/customer/notification-service/src ./src
+COPY domains/customer/notification-service/test ./test
+COPY domains/customer/notification-service/jest.config.js ./jest.config.js
 
 # Expose port
 EXPOSE 3000

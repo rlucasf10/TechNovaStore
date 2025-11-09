@@ -75,7 +75,7 @@ class DuplicateCleanup {
 
     // Verificar que no existan duplicados
     const potentialDuplicates = [
-      'services/order/tsconfig.json',
+      'domains/commerce/order-service/tsconfig.json',
       'domains/customer/user-service/tsconfig.json',
       'domains/catalog/product-service/tsconfig.json',
       'shared/config/tsconfig.json'

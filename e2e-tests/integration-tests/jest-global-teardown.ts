@@ -1,6 +1,6 @@
-import { testServerManager } from '../../shared/utils/src/test/serverCleanup';
-import { databaseCleanupManager } from '../../shared/utils/src/test/databaseCleanup';
-import { openHandleDetector } from '../../shared/utils/src/test/handleDetector';
+import { testServerManager } from '../../shared/infrastructure/utils/src/test/serverCleanup';
+import { databaseCleanupManager } from '../../shared/infrastructure/utils/src/test/databaseCleanup';
+import { openHandleDetector } from '../../shared/infrastructure/utils/src/test/handleDetector';
 
 export default async function integrationGlobalTeardown(): Promise<void> {
   console.log('Starting integration test teardown...');

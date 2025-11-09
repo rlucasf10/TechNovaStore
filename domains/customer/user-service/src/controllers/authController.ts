@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import { AuthService, LoginCredentials, RegisterData } from '../services/authService';
 import { OAuthService } from '../services/oauthService';
 import { OAuthProvider } from '../config/oauth';
-import { asyncHandler } from '../../../../../shared/middleware/errorHandler';
+import { asyncHandler } from '@technovastore/shared-utils';
 import { logger } from '../utils/logger';
 
 export class AuthController {

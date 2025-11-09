@@ -10,11 +10,11 @@
     {
       "hash": "f0db669e57d2860be33809438bd1d791",
       "files": [
-        "ai-services\\chatbot\\tsconfig.json",
-        "services\\ticket\\tsconfig.json"
+        "domains\\support\\chatbot-service\\tsconfig.json",
+        "domains\\support\\ticket-service\\tsconfig.json"
       ],
       "count": 2,
-      "recommendation": "Keep: services\\ticket\\tsconfig.json, Remove: ai-services\\chatbot\\tsconfig.json"
+      "recommendation": "Keep: domains\\support\\ticket-service\\tsconfig.json, Remove: domains\\support\\chatbot-service\\tsconfig.json"
     },
     {
       "hash": "f74faf96401fcbdb413680e1bfe5126d",
@@ -29,12 +29,12 @@
   "dockerAnalysis": {
     "configurations": [
       {
-        "path": "ai-services\\chatbot\\Dockerfile",
+        "path": "domains\\support\\chatbot-service\\Dockerfile",
         "size": 1044,
         "lineCount": 33
       },
       {
-        "path": "ai-services\\chatbot\\Dockerfile.prod",
+        "path": "domains\\support\\chatbot-service\\Dockerfile.prod",
         "size": 1595,
         "lineCount": 44
       },
@@ -54,7 +54,7 @@
         "lineCount": 20
       },
       {
-        "path": "automation\\shipment-tracker\\Dockerfile",
+        "path": "domains\\support\\shipment-tracker\\Dockerfile",
         "size": 833,
         "lineCount": 20
       },
@@ -177,7 +177,7 @@
       {
         "files": [
           "ai-services\\recommender\\Dockerfile",
-          "automation\\shipment-tracker\\Dockerfile"
+          "domains\\support\\shipment-tracker\\Dockerfile"
         ],
         "similarity": 71,
         "commonLines": [
@@ -324,7 +324,7 @@
       {
         "files": [
           "automation\\auto-purchase\\Dockerfile",
-          "automation\\shipment-tracker\\Dockerfile"
+          "domains\\support\\shipment-tracker\\Dockerfile"
         ],
         "similarity": 80,
         "commonLines": [
@@ -496,7 +496,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "automation\\sync-engine\\Dockerfile"
         ],
         "similarity": 71,
@@ -520,7 +520,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "services\\notification\\Dockerfile"
         ],
         "similarity": 75,
@@ -544,7 +544,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "services\\order\\Dockerfile"
         ],
         "similarity": 80,
@@ -569,7 +569,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "services\\payment\\Dockerfile"
         ],
         "similarity": 80,
@@ -594,7 +594,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "services\\product\\Dockerfile"
         ],
         "similarity": 76,
@@ -619,7 +619,7 @@
       },
       {
         "files": [
-          "automation\\shipment-tracker\\Dockerfile",
+          "domains\\support\\shipment-tracker\\Dockerfile",
           "services\\user\\Dockerfile"
         ],
         "similarity": 76,
@@ -1053,7 +1053,7 @@
           "image: technovastore-shipment-tracker:latest",
           "build:",
           "context: .",
-          "dockerfile: ./automation/shipment-tracker/Dockerfile",
+          "dockerfile: ./domains/support/shipment-tracker/Dockerfile",
           "container_name: technovastore-shipment-tracker",
           "restart: unless-stopped",
           "ports:",
@@ -1571,7 +1571,7 @@
           "image: technovastore-shipment-tracker:latest",
           "build:",
           "context: .",
-          "dockerfile: ./automation/shipment-tracker/Dockerfile",
+          "dockerfile: ./domains/support/shipment-tracker/Dockerfile",
           "container_name: technovastore-shipment-tracker",
           "restart: unless-stopped",
           "ports:",
@@ -1596,7 +1596,7 @@
           "chatbot:",
           "image: technovastore-chatbot:latest",
           "build:",
-          "context: ./ai-services/chatbot",
+          "context: ./domains/support/chatbot-service",
           "dockerfile: Dockerfile",
           "container_name: technovastore-chatbot",
           "restart: unless-stopped",
@@ -2027,3 +2027,4 @@
     }
   ]
 }
+

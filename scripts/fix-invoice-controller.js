@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 
-const filePath = 'services/order/src/controllers/invoiceController.ts';
+const filePath = 'domains/commerce/order-service/src/controllers/invoiceController.ts';
 
 try {
   let content = fs.readFileSync(filePath, 'utf8');

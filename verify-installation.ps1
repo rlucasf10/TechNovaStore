@@ -85,14 +85,14 @@ $services = @(
     @{Step=2; Total=12; Name="API Gateway"; Path="api-gateway"},
     @{Step=3; Total=12; Name="Product Service"; Path="domains/catalog/product-service"},
     @{Step=4; Total=12; Name="User Service"; Path="domains/customer/user-service"},
-    @{Step=5; Total=12; Name="Order Service"; Path="services/order"},
+    @{Step=5; Total=12; Name="Order Service"; Path="domains/commerce/order-service"},
     @{Step=6; Total=12; Name="Payment Service"; Path="services/payment"},
     @{Step=7; Total=12; Name="Notification Service"; Path="domains/customer/notification-service"},
-    @{Step=8; Total=12; Name="Ticket Service"; Path="services/ticket"},
+    @{Step=8; Total=12; Name="Ticket Service"; Path="domains/support/ticket-service"},
     @{Step=9; Total=12; Name="Sync Engine"; Path="domains/catalog/sync-engine"},
-    @{Step=10; Total=12; Name="Auto Purchase"; Path="automation/auto-purchase"},
-    @{Step=11; Total=12; Name="Shipment Tracker"; Path="automation/shipment-tracker"},
-    @{Step=12; Total=12; Name="Frontend"; Path="frontend"}
+    @{Step=10; Total=12; Name="Auto Purchase"; Path="domains/commerce/auto-purchase-service"},
+    @{Step=11; Total=12; Name="Shipment Tracker"; Path="domains/support/shipment-tracker"},
+    @{Step=12; Total=12; Name="Frontend"; Path="domains/platform/frontend"}
 )
 
 $allSuccess = $true

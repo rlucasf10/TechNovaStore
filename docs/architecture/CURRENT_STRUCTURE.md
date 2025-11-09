@@ -38,9 +38,12 @@ TechNovaStore/
 │       └── project-guidelines.md
 ├── .vscode/
 │   └── settings.json
-├── ai-services/
-│   ├── chatbot/
-│   └── recommender/
+├── domains/
+│   ├── support/
+│   │   ├── chatbot-service/
+│   │   └── ticket-service/
+│   └── catalog/
+│       └── recommender-service/
 ├── api-gateway/
 ├── automation/
 │   ├── auto-purchase/
@@ -256,8 +259,8 @@ TechNovaStore/
 
 | Servicio | Ruta | Package.json | Dockerfile | Src | Tests |
 |----------|------|--------------|------------|-----|-------|
-| chatbot | `ai-services\chatbot` | ✅ | ✅ | ✅ | ❌ |
-| recommender | `ai-services\recommender` | ✅ | ✅ | ✅ | ✅ |
+| chatbot | `domains\support\chatbot-service` | ✅ | ✅ | ✅ | ❌ |
+| recommender | `domains\catalog\recommender-service` | ✅ | ✅ | ✅ | ✅ |
 
 ### Automation Services (3)
 

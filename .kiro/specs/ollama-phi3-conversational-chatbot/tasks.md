@@ -11,8 +11,8 @@
 
 - [x] 2. Crear OllamaAdapter para comunicación con Ollama
   - [x] 2.1 Implementar clase OllamaAdapter con interfaces TypeScript
-    - Crear carpeta `ai-services/chatbot/src/adapters/` si no existe
-    - Crear archivo `ai-services/chatbot/src/adapters/OllamaAdapter.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/adapters/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/adapters/OllamaAdapter.ts`
     - Definir interfaces: OllamaConfig, OllamaMessage, OllamaRequest, OllamaResponse
     - Implementar constructor con configuración desde variables de entorno
     - _Requisitos: 2.5, 7.1, 7.2, 7.3, 7.4_
@@ -44,8 +44,8 @@
     - _Requisitos: 5.1, 8.4_
 
 - [x] 3. Implementar system prompt especializado para e-commerce
-  - Crear carpeta `ai-services/chatbot/src/prompts/` si no existe
-  - Crear archivo `ai-services/chatbot/src/prompts/SystemPrompt.ts` con template de prompt
+  - Crear carpeta `domains/support/chatbot-service/src/prompts/` si no existe
+  - Crear archivo `domains/support/chatbot-service/src/prompts/SystemPrompt.ts` con template de prompt
   - Definir reglas estrictas: no inventar datos, usar solo contexto, responder en español
   - Incluir instrucciones para manejo de consultas técnicas de tecnología
   - Agregar placeholders para {product_context} y {conversation_history}
@@ -107,8 +107,8 @@
 
 - [x] 6. Crear SimpleFallbackRecognizer (sin Python/spaCy)
   - [x] 6.1 Crear clase SimpleFallbackRecognizer usando librería 'natural'
-    - Crear carpeta `ai-services/chatbot/src/fallback/` si no existe
-    - Crear archivo `ai-services/chatbot/src/fallback/SimpleFallbackRecognizer.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/fallback/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/fallback/SimpleFallbackRecognizer.ts`
     - Importar natural para tokenización
     - Definir interfaz SimpleFallbackIntent
     - Implementar constructor con patrones de intenciones básicas
@@ -197,8 +197,8 @@
 
 - [ ] 9. Implementar sistema de monitoreo y métricas
   - [ ] 9.1 Crear clase MetricsCollector
-    - Crear carpeta `ai-services/chatbot/src/metrics/` si no existe
-    - Crear archivo `ai-services/chatbot/src/metrics/MetricsCollector.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/metrics/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/metrics/MetricsCollector.ts`
     - Definir interfaz OllamaMetrics con campos de métricas
     - Implementar métodos: recordRequest, recordFallback, recordStreamingRequest
     - Implementar método updateHealthStatus
@@ -260,11 +260,11 @@
   - _Requisitos: 2.1, 5.1_
 
 - [ ] 13. Eliminar archivos obsoletos de Python/spaCy
-  - Eliminar archivo `ai-services/chatbot/src/nlp/spacyProcessor.py`
-  - Eliminar archivo `ai-services/chatbot/src/nlp/NLPProcessor.ts` (usa Python)
-  - Eliminar archivo `ai-services/chatbot/src/intent/IntentRecognizer.ts` (depende de spaCy)
-  - Eliminar carpeta `ai-services/chatbot/src/nlp/` si queda vacía
-  - Eliminar carpeta `ai-services/chatbot/src/intent/` si queda vacía
+  - Eliminar archivo `domains/support/chatbot-service/src/nlp/spacyProcessor.py`
+  - Eliminar archivo `domains/support/chatbot-service/src/nlp/NLPProcessor.ts` (usa Python)
+  - Eliminar archivo `domains/support/chatbot-service/src/intent/IntentRecognizer.ts` (depende de spaCy)
+  - Eliminar carpeta `domains/support/chatbot-service/src/nlp/` si queda vacía
+  - Eliminar carpeta `domains/support/chatbot-service/src/intent/` si queda vacía
   - Actualizar imports en archivos que referencien estos módulos
   - _Requisitos: 5.1, 5.2_
 
@@ -294,7 +294,7 @@
 
 - [ ] 15. Crear documentación
   - [ ] 15.1 Actualizar README del chatbot
-    - Actualizar archivo `ai-services/chatbot/README.md`
+    - Actualizar archivo `domains/support/chatbot-service/README.md`
     - Documentar nueva arquitectura con Ollama
     - Agregar instrucciones de setup con Ollama
     - Documentar variables de entorno
@@ -302,20 +302,20 @@
     - Incluir ejemplos de uso
 
   - [ ] 15.2 Documentar API de Socket.IO
-    - Crear archivo `ai-services/chatbot/docs/SOCKET_API.md`
+    - Crear archivo `domains/support/chatbot-service/docs/SOCKET_API.md`
     - Documentar eventos: chat_message_stream, bot_typing, chat_stream_chunk, chat_stream_end
     - Incluir ejemplos de código para cliente
     - Documentar formato de datos de cada evento
 
   - [ ] 15.3 Crear guía de usuario del chatbot
-    - Crear archivo `ai-services/chatbot/docs/USER_GUIDE.md`
+    - Crear archivo `domains/support/chatbot-service/docs/USER_GUIDE.md`
     - Escribir ejemplos de consultas efectivas
     - Documentar limitaciones conocidas
     - Explicar cómo escalar a soporte humano
     - Incluir FAQ
 
   - [ ] 15.4 Documentar expectativas realistas de Phi-3 Mini
-    - Crear archivo `ai-services/chatbot/docs/PHI3_EXPECTATIONS.md`
+    - Crear archivo `domains/support/chatbot-service/docs/PHI3_EXPECTATIONS.md`
     - Documentar capacidades y limitaciones
     - Documentar latencias esperadas (2-5 segundos primera, 1-3 siguientes)
     - Explicar diferencias vs GPT-4/ChatGPT
@@ -330,31 +330,31 @@
 
 - [ ] 17. Testing y validación
   - [ ] 17.1 Crear tests unitarios para OllamaAdapter
-    - Crear carpeta `ai-services/chatbot/src/tests/unit/` si no existe
-    - Crear archivo `ai-services/chatbot/src/tests/unit/OllamaAdapter.test.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/tests/unit/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/tests/unit/OllamaAdapter.test.ts`
     - Test de formateo de prompts
     - Test de manejo de errores
     - Test de health checks
     - Mock de HTTP requests
 
   - [ ] 17.2 Crear tests unitarios para SimpleFallbackRecognizer
-    - Crear archivo `ai-services/chatbot/src/tests/unit/SimpleFallbackRecognizer.test.ts`
+    - Crear archivo `domains/support/chatbot-service/src/tests/unit/SimpleFallbackRecognizer.test.ts`
     - Test de reconocimiento de intenciones básicas
     - Test de extracción de entidades simples
     - Test de generación de respuestas de fallback
     - Verificar que NO depende de Python/spaCy
 
   - [ ] 17.3 Crear tests de integración
-    - Crear carpeta `ai-services/chatbot/src/tests/integration/` si no existe
-    - Crear archivo `ai-services/chatbot/src/tests/integration/ollama-integration.test.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/tests/integration/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/tests/integration/ollama-integration.test.ts`
     - Test end-to-end con Ollama real
     - Test de pipeline RAG completo
     - Test de fallback cuando Ollama falla
     - Test de streaming de respuestas
 
   - [ ] 17.4 Realizar tests de carga
-    - Crear carpeta `ai-services/chatbot/src/tests/load/` si no existe
-    - Crear archivo `ai-services/chatbot/src/tests/load/chatbot-load.test.ts`
+    - Crear carpeta `domains/support/chatbot-service/src/tests/load/` si no existe
+    - Crear archivo `domains/support/chatbot-service/src/tests/load/chatbot-load.test.ts`
     - Test con 10 usuarios simultáneos
     - Medir latencia y throughput
     - Verificar uso de memoria no exceda límites

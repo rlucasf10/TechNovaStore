@@ -81,14 +81,47 @@ Reglas y convenciones generales para el desarrollo de todo el proyecto TechNovaS
 
 ## Entorno de Desarrollo
 
-**IMPORTANTE**: Este proyecto se ejecuta completamente con Docker.
+**CRÍTICO**: Este proyecto se ejecuta COMPLETAMENTE con Docker. NUNCA ejecutar comandos npm/node directamente en local.
 
 ### Información del Entorno
 
 - **Sistema Operativo Local**: Windows 11
-- **Entorno de Ejecución**: Docker containers
+- **Entorno de Ejecución**: Docker containers (OBLIGATORIO)
 - **Arquitectura**: Microservicios con Docker Compose
 - **Docker Compose Activo**: `docker-compose.optimized.yml` (NO usar docker-compose.yml)
+
+### Reglas de Ejecución con Docker
+
+**REGLA ABSOLUTA**: TODOS los comandos de compilación, testing y ejecución DEBEN hacerse dentro de contenedores Docker.
+
+#### Comandos CORRECTOS ✅
+
+```bash
+# Compilar un servicio
+docker exec technovastore-api-gateway npm run build
+
+# Ejecutar tests
+docker exec technovastore-api-gateway npm test
+
+# Instalar dependencias
+docker exec technovastore-api-gateway npm install
+
+# Ver logs
+docker logs technovastore-api-gateway
+
+# Ejecutar comando en contenedor
+docker exec -it technovastore-api-gateway sh
+```
+
+#### Comandos INCORRECTOS ❌
+
+```bash
+# NUNCA hacer esto:
+npm run build          # ❌ NO ejecutar en local
+npm test              # ❌ NO ejecutar en local
+npm install           # ❌ NO ejecutar en local
+node dist/index.js    # ❌ NO ejecutar en local
+```
 
 ### Servicios Dockerizados (Containers Activos)
 

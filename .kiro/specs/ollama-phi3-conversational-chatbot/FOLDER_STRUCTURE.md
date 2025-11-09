@@ -4,10 +4,11 @@
 
 ```
 technovastore/
-├── ai-services/
-│   └── chatbot/
-│       ├── src/
-│       │   ├── adapters/              # NUEVO
+├── domains/
+│   └── support/
+│       └── chatbot-service/
+│           ├── src/
+│           │   ├── adapters/              # NUEVO
 │       │   │   └── OllamaAdapter.ts
 │       │   │
 │       │   ├── fallback/              # NUEVO
@@ -90,43 +91,43 @@ technovastore/
 
 ## Carpetas Nuevas a Crear
 
-### 1. `ai-services/chatbot/src/adapters/`
+### 1. `domains/support/chatbot-service/src/adapters/`
 **Propósito:** Contiene adaptadores para servicios externos
 **Archivos:**
 - `OllamaAdapter.ts` - Comunicación con Ollama API
 
-### 2. `ai-services/chatbot/src/fallback/`
+### 2. `domains/support/chatbot-service/src/fallback/`
 **Propósito:** Sistema de fallback sin dependencias Python
 **Archivos:**
 - `SimpleFallbackRecognizer.ts` - Reconocimiento básico de intenciones
 
-### 3. `ai-services/chatbot/src/prompts/`
+### 3. `domains/support/chatbot-service/src/prompts/`
 **Propósito:** Templates de prompts para LLM
 **Archivos:**
 - `SystemPrompt.ts` - System prompt especializado en e-commerce
 
-### 4. `ai-services/chatbot/src/metrics/`
+### 4. `domains/support/chatbot-service/src/metrics/`
 **Propósito:** Sistema de métricas y monitoreo
 **Archivos:**
 - `MetricsCollector.ts` - Recolección de métricas de Ollama
 
-### 5. `ai-services/chatbot/src/tests/unit/`
+### 5. `domains/support/chatbot-service/src/tests/unit/`
 **Propósito:** Tests unitarios
 **Archivos:**
 - `OllamaAdapter.test.ts`
 - `SimpleFallbackRecognizer.test.ts`
 
-### 6. `ai-services/chatbot/src/tests/integration/`
+### 6. `domains/support/chatbot-service/src/tests/integration/`
 **Propósito:** Tests de integración
 **Archivos:**
 - `ollama-integration.test.ts`
 
-### 7. `ai-services/chatbot/src/tests/load/`
+### 7. `domains/support/chatbot-service/src/tests/load/`
 **Propósito:** Tests de carga
 **Archivos:**
 - `chatbot-load.test.ts`
 
-### 8. `ai-services/chatbot/docs/`
+### 8. `domains/support/chatbot-service/docs/`
 **Propósito:** Documentación del chatbot
 **Archivos:**
 - `SOCKET_API.md` - Documentación de API Socket.IO
@@ -140,13 +141,13 @@ technovastore/
 
 ## Carpetas a Eliminar
 
-### 1. `ai-services/chatbot/src/nlp/` (si queda vacía)
+### 1. `domains/support/chatbot-service/src/nlp/` (si queda vacía)
 **Razón:** Ya no usamos spaCy (Python)
 **Archivos a eliminar:**
 - `spacyProcessor.py`
 - `NLPProcessor.ts`
 
-### 2. `ai-services/chatbot/src/intent/` (si queda vacía)
+### 2. `domains/support/chatbot-service/src/intent/` (si queda vacía)
 **Razón:** IntentRecognizer depende de spaCy
 **Archivos a eliminar:**
 - `IntentRecognizer.ts`
@@ -154,27 +155,27 @@ technovastore/
 ## Archivos a Modificar
 
 ### Archivos Core
-- `ai-services/chatbot/src/ChatbotService.ts` - Agregar streaming Socket.IO
-- `ai-services/chatbot/src/NLPEngine.ts` - Integrar Ollama y SimpleFallbackRecognizer
-- `ai-services/chatbot/src/index.ts` - Actualizar imports
+- `domains/support/chatbot-service/src/ChatbotService.ts` - Agregar streaming Socket.IO
+- `domains/support/chatbot-service/src/NLPEngine.ts` - Integrar Ollama y SimpleFallbackRecognizer
+- `domains/support/chatbot-service/src/index.ts` - Actualizar imports
 
 ### Configuración
-- `ai-services/chatbot/.env.example` - Agregar variables Ollama
-- `ai-services/chatbot/package.json` - Actualizar dependencias
-- `ai-services/chatbot/Dockerfile` - Remover Python/spaCy
-- `ai-services/chatbot/Dockerfile.prod` - Remover Python/spaCy
+- `domains/support/chatbot-service/.env.example` - Agregar variables Ollama
+- `domains/support/chatbot-service/package.json` - Actualizar dependencias
+- `domains/support/chatbot-service/Dockerfile` - Remover Python/spaCy
+- `domains/support/chatbot-service/Dockerfile.prod` - Remover Python/spaCy
 - `docker-compose.yml` - Agregar servicio Ollama
 
 ### Documentación
-- `ai-services/chatbot/README.md` - Actualizar con nueva arquitectura
+- `domains/support/chatbot-service/README.md` - Actualizar con nueva arquitectura
 
 ## Archivos Sin Cambios
 
 ### Mantener Como Están
-- `ai-services/chatbot/src/knowledge/ProductKnowledgeBase.ts` ✅
-- `ai-services/chatbot/src/services/EscalationIntegration.ts` ✅
-- `ai-services/chatbot/tsconfig.json` ✅
-- `ai-services/chatbot/jest.config.js` ✅
+- `domains/support/chatbot-service/src/knowledge/ProductKnowledgeBase.ts` ✅
+- `domains/support/chatbot-service/src/services/EscalationIntegration.ts` ✅
+- `domains/support/chatbot-service/tsconfig.json` ✅
+- `domains/support/chatbot-service/jest.config.js` ✅
 
 ## Convenciones de Nombres
 

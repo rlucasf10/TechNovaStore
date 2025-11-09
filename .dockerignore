@@ -41,6 +41,8 @@ temp/
 
 # Documentation
 docs/
+!docs/api/
+!docs/api/openapi.yaml
 *.md
 README*
 

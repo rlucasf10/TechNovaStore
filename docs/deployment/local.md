@@ -106,9 +106,9 @@ cd domains/customer/notification-service && npm install && cd ../../..
 cd frontend && npm install && cd ..
 
 # Instalar dependencias de automatización
-cd automation/sync-engine && npm install && cd ../..
-cd automation/auto-purchase && npm install && cd ../..
-cd automation/shipment-tracker && npm install && cd ../..
+cd domains/catalog/sync-engine && npm install && cd ../../..
+cd domains/commerce/auto-purchase-service && npm install && cd ../../..
+cd domains/support/shipment-tracker && npm install && cd ../../..
 ```
 
 ### 4. Configurar Bases de Datos

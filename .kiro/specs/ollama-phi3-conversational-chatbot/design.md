@@ -537,7 +537,7 @@ echo "Modelo Phi-3 Mini listo"
 ```yaml
 chatbot:
   build:
-    context: ./ai-services/chatbot
+    context: ./domains/support/chatbot-service
     dockerfile: Dockerfile
   container_name: technovastore-chatbot
   restart: unless-stopped

@@ -19,15 +19,15 @@ const SERVICES_WITH_TESTS = [
   'frontend',
   'domains/catalog/product-service',
   'domains/customer/user-service',
-  'services/order',
+  'domains/commerce/order-service',
   'services/payment',
   'domains/customer/notification-service',
-  'services/ticket',
-  'ai-services/chatbot',
+  'domains/support/ticket-service',
+  'domains/support/chatbot-service',
   'domains/catalog/recommender-service',
   'domains/catalog/sync-engine',
-  'automation/auto-purchase',
-  'automation/shipment-tracker'
+  'domains/commerce/auto-purchase-service',
+  'domains/support/shipment-tracker'
 ];
 
 class ExistingTestsVerifier {

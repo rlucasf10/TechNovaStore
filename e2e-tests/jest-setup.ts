@@ -5,11 +5,11 @@
 
 /// <reference types="jest" />
 
-import { resourceCleanupManager } from '../shared/utils/src/test/resourceCleanupManager';
-import { databaseCleanupManager } from '../shared/utils/src/test/databaseCleanup';
-import { testServerManager } from '../shared/utils/src/test/serverCleanup';
-import { timerCleanupManager } from '../shared/utils/src/test/timerCleanup';
-import { openHandleDetector } from '../shared/utils/src/test/handleDetector';
+import { resourceCleanupManager } from '../shared/infrastructure/utils/src/test/resourceCleanupManager';
+import { databaseCleanupManager } from '../shared/infrastructure/utils/src/test/databaseCleanup';
+import { testServerManager } from '../shared/infrastructure/utils/src/test/serverCleanup';
+import { timerCleanupManager } from '../shared/infrastructure/utils/src/test/timerCleanup';
+import { openHandleDetector } from '../shared/infrastructure/utils/src/test/handleDetector';
 
 // Set test environment
 process.env.NODE_ENV = 'test';
@@ -101,4 +101,4 @@ export {
   databaseCleanupManager,
   testServerManager,
   timerCleanupManager 
-} from '../shared/utils/src/test';
+} from '../shared/infrastructure/utils/src/test';

@@ -4,6 +4,9 @@ FROM service-base:latest
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json
 
+# Copy shared packages first (needed for npm install)
+COPY shared /workspace/shared
+
 # Set working directory
 WORKDIR /workspace/domains/catalog/recommender-service
 
@@ -16,8 +19,13 @@ COPY domains/catalog/recommender-service/tsconfig.json ./
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy source code
+# Copy jest config base from root
+COPY jest.config.base.js /workspace/
+
+# Copy source code, tests and jest config
 COPY domains/catalog/recommender-service/src ./src
+COPY domains/catalog/recommender-service/test ./test
+COPY domains/catalog/recommender-service/jest.config.js ./jest.config.js
 
 # Expose port
 EXPOSE 3000

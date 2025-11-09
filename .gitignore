@@ -246,3 +246,4 @@ tmp-*
 
 # Cache
 *.cache
+nul

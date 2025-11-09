@@ -93,12 +93,12 @@ TechNovaStore utiliza una arquitectura de microservicios basada en Node.js con T
 #### Auto Purchase System
 - **Responsabilidad**: Compra automática en proveedores
 - **Tecnología**: Node.js, PostgreSQL, Queue System
-- **Ubicación**: `automation/auto-purchase/`
+- **Ubicación**: `domains/commerce/auto-purchase-service/`
 
 #### Shipment Tracker
 - **Responsabilidad**: Seguimiento de envíos
 - **Tecnología**: Node.js, APIs de tracking
-- **Ubicación**: `automation/shipment-tracker/`
+- **Ubicación**: `domains/support/shipment-tracker/`
 
 ## Configuración del Entorno de Desarrollo
 

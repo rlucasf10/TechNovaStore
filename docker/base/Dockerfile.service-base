@@ -9,6 +9,7 @@ WORKDIR /workspace
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY tsconfig.base.json ./
+COPY jest.config.base.js ./
 
 # Copy ALL shared packages (source and config)
 COPY shared/ ./shared/
@@ -19,14 +20,21 @@ RUN mkdir -p services
 # Install workspace root dependencies (if any)
 RUN npm install || true
 
-# Install dependencies and build each shared package
-WORKDIR /workspace/shared/types
+# Install dependencies and build each shared package in correct order
+# 1. Build types first (no dependencies)
+WORKDIR /workspace/shared/domain/types
 RUN npm install --legacy-peer-deps && npm run build
 
-WORKDIR /workspace/shared/config
+# 2. Build config (depends on types)
+WORKDIR /workspace/shared/infrastructure/config
 RUN npm install --legacy-peer-deps && npm run build
 
-WORKDIR /workspace/shared/utils
+# 3. Build utils (depends on types and config)
+WORKDIR /workspace/shared/infrastructure/utils
+RUN npm install --legacy-peer-deps && npm run build
+
+# 4. Build models (depends on config)
+WORKDIR /workspace/shared/domain/models
 RUN npm install --legacy-peer-deps && npm run build
 
 # Return to workspace root

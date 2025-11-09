@@ -1,66 +1,173 @@
-# Dominio: Platform (Plataforma)
+# Platform Domain
 
-## Propósito
+Este dominio contiene los servicios de plataforma que proporcionan la infraestructura base para toda la aplicación TechNovaStore.
 
-Este dominio es responsable de la **infraestructura de la plataforma**, incluyendo el API Gateway que orquesta todas las peticiones y el frontend que proporciona la interfaz de usuario.
+## Servicios
 
-## Responsabilidades
+### API Gateway
+**Puerto**: 3000  
+**Descripción**: Gateway principal que enruta todas las peticiones HTTP a los microservicios correspondientes.
 
-- **API Gateway**: Punto de entrada único para todas las peticiones, enrutamiento, autenticación y rate limiting
-- **Frontend**: Aplicación web con Next.js que proporciona la interfaz de usuario
-- **Orquestación**: Coordinación de llamadas entre microservicios
+**Responsabilidades**:
+- Enrutamiento de peticiones a microservicios
+- Autenticación y autorización centralizada
+- Rate limiting y protección contra ataques
+- CORS y seguridad HTTP
+- Monitoreo y métricas
+- Documentación API (Swagger)
 
-## Servicios Incluidos
+**Endpoints principales**:
+- `/api/products` → Product Service
+- `/api/auth` → User Service (Auth)
+- `/api/users` → User Service
+- `/api/orders` → Order Service
+- `/api/payments` → Payment Service
+- `/api/notifications` → Notification Service
+- `/api/chat` → Chatbot Service
+- `/health` → Health check
+- `/metrics` → Prometheus metrics
+- `/api-docs` → Swagger documentation
 
-- `api-gateway`: Gateway principal que enruta peticiones a microservicios
-- `frontend`: Aplicación web frontend con Next.js
+**Seguridad**:
+- JWT authentication
+- CSRF protection
+- XSS protection
+- Rate limiting por endpoint
+- Security event monitoring
+- SSL/TLS support
 
-## Casos de Uso Principales
+### Frontend
+**Puerto**: 3011  
+**Descripción**: Aplicación web Next.js que proporciona la interfaz de usuario.
 
-1. Enrutar peticiones HTTP a microservicios correspondientes
-2. Validar tokens JWT y autenticación
-3. Aplicar rate limiting y throttling
-4. Agregar respuestas de múltiples microservicios
-5. Proporcionar interfaz de usuario responsive
-6. Gestionar estado de la aplicación en el cliente
-7. Implementar Server-Side Rendering (SSR)
+**Características**:
+- Server-side rendering (SSR)
+- Static site generation (SSG)
+- Optimización de imágenes
+- Internacionalización (i18n)
+- PWA support
+- SEO optimizado
 
-## Dependencias
+## Arquitectura
 
-- **Redis**: Cache de respuestas y rate limiting
-- **Todos los microservicios**: El gateway se comunica con todos los servicios
-- **CDN**: Para servir assets estáticos del frontend
+```
+┌─────────────────┐
+│    Frontend     │
+│   (Next.js)     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   API Gateway   │
+│   (Express)     │
+└────────┬────────┘
+         │
+         ├──────────────┬──────────────┬──────────────┐
+         ▼              ▼              ▼              ▼
+    [Catalog]      [Commerce]     [Customer]     [Support]
+    Services       Services       Services       Services
+```
 
-## Características del API Gateway
+## Desarrollo
 
-- **Autenticación**: Validación de tokens JWT
-- **Autorización**: Control de acceso basado en roles
-- **Rate Limiting**: Límite de peticiones por usuario/IP
-- **Circuit Breaker**: Protección contra fallos en cascada
-- **Request/Response Logging**: Logs estructurados de todas las peticiones
-- **CORS**: Configuración de CORS para el frontend
-- **Compression**: Compresión de respuestas
-- **Caching**: Cache de respuestas frecuentes
+**IMPORTANTE**: Este proyecto usa Docker exclusivamente. NO ejecutar comandos npm directamente.
 
-## Características del Frontend
+### Iniciar servicios con Docker
 
-- **Next.js 14**: Framework React con App Router
-- **TypeScript**: Tipado estático
-- **Tailwind CSS**: Estilos utility-first
-- **Zustand**: Gestión de estado global
-- **React Query**: Cache y sincronización de datos del servidor
-- **SSR/SSG**: Renderizado del lado del servidor y generación estática
-- **Responsive Design**: Diseño adaptable a todos los dispositivos
-- **Accesibilidad**: Cumplimiento de estándares WCAG
+```bash
+# Iniciar API Gateway
+docker-compose -f docker-compose.optimized.yml up -d api-gateway
 
-## Eventos Publicados
+# Iniciar Frontend
+docker-compose -f docker-compose.optimized.yml up -d frontend
 
-- `api.request`: Cuando se recibe una petición en el gateway
-- `api.response`: Cuando se envía una respuesta desde el gateway
-- `api.error`: Cuando ocurre un error en el gateway
-- `frontend.page.view`: Cuando se visualiza una página
-- `frontend.user.action`: Cuando el usuario realiza una acción
+# Ver logs en tiempo real
+docker-compose -f docker-compose.optimized.yml logs -f api-gateway
+docker-compose -f docker-compose.optimized.yml logs -f frontend
+```
 
-## Eventos Consumidos
+### Ejecutar tests en Docker
 
-- Todos los eventos de todos los dominios (para logging y monitoreo)
+```bash
+# API Gateway
+docker exec technovastore-api-gateway npm test
+
+# Frontend
+docker exec technovastore-frontend npm test
+```
+
+### Compilar servicios en Docker
+
+```bash
+# API Gateway
+docker exec technovastore-api-gateway npm run build
+
+# Frontend
+docker exec technovastore-frontend npm run build
+```
+
+### Reconstruir contenedores
+
+```bash
+# Reconstruir API Gateway
+docker-compose -f docker-compose.optimized.yml up -d --build api-gateway
+
+# Reconstruir Frontend
+docker-compose -f docker-compose.optimized.yml up -d --build frontend
+```
+
+## Variables de Entorno
+
+### API Gateway
+- `PORT`: Puerto del servidor (default: 3000)
+- `NODE_ENV`: Entorno de ejecución
+- `JWT_SECRET`: Secret para JWT
+- `PRODUCT_SERVICE_URL`: URL del servicio de productos
+- `USER_SERVICE_URL`: URL del servicio de usuarios
+- `ORDER_SERVICE_URL`: URL del servicio de pedidos
+- `PAYMENT_SERVICE_URL`: URL del servicio de pagos
+- `NOTIFICATION_SERVICE_URL`: URL del servicio de notificaciones
+- `CHATBOT_SERVICE_URL`: URL del servicio de chatbot
+
+### Frontend
+- `NEXT_PUBLIC_API_URL`: URL del API Gateway
+- `NEXT_PUBLIC_SOCKET_URL`: URL del servidor WebSocket
+- `NEXT_PUBLIC_APP_URL`: URL de la aplicación
+
+## Monitoreo
+
+### Health Checks
+- API Gateway: `http://localhost:3000/health`
+- Frontend: `http://localhost:3011/api/health`
+
+### Métricas
+- API Gateway: `http://localhost:3000/metrics` (Prometheus format)
+
+### Logs
+Los logs se almacenan en:
+- API Gateway: `domains/platform/api-gateway/logs/`
+- Frontend: `domains/platform/frontend/.next/`
+
+## Seguridad
+
+### API Gateway
+- Autenticación JWT
+- CSRF protection
+- XSS protection
+- Rate limiting
+- Security headers (Helmet)
+- CORS configurado
+- SSL/TLS support
+
+### Frontend
+- CSP (Content Security Policy)
+- Sanitización de inputs
+- Secure cookies
+- HTTPS redirect
+- XSS protection
+
+## Documentación
+
+- [API Gateway Documentation](./api-gateway/README.md)
+- [Frontend Documentation](./frontend/README.md)
+- [API Swagger Docs](http://localhost:3000/api-docs)

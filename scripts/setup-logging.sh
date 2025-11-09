@@ -49,7 +49,7 @@ cd ../..
 
 # Install dependencies for all services
 echo "📦 Installing dependencies for services..."
-services=("api-gateway" "domains/catalog/product-service" "services/order" "domains/customer/user-service" "automation/auto-purchase")
+services=("api-gateway" "domains/catalog/product-service" "domains/commerce/order-service" "domains/customer/user-service" "domains/commerce/auto-purchase-service")
 
 for service in "${services[@]}"; do
     if [ -d "$service" ]; then

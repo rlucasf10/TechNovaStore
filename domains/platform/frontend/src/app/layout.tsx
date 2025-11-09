@@ -1,0 +1,42 @@
+import React from 'react'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Providers } from './providers'
+import { CookieConsent } from '@/ui'
+import '@/middleware/errorHandler' // Import error handler to suppress browser extension errors
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+})
+
+export const metadata: Metadata = {
+  title: 'TechNovaStore - Tienda de Tecnología',
+  description: 'Tu tienda online de productos tecnológicos e informáticos con los mejores precios',
+  keywords: 'tecnología, informática, electrónicos, gadgets, ordenadores, móviles',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={inter.className}>
+        <Providers>
+          {children}
+          <CookieConsent />
+        </Providers>
+      </body>
+    </html>
+  )
+}

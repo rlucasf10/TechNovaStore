@@ -110,10 +110,10 @@ RATE_LIMIT_MAX_REQUESTS=100
 - ✅ `.env.logging.example`
 - ✅ `api-gateway/.env.security.example`
 - ✅ `domains/customer/notification-service/.env.example`
-- ✅ `services/ticket/.env.example`
-- ✅ `ai-services/chatbot/.env.example`
-- ✅ `ai-services/recommender/.env.example`
-- ✅ `automation/shipment-tracker/.env.example`
+- ✅ `domains/support/ticket-service/.env.example`
+- ✅ `domains/support/chatbot-service/.env.example`
+- ✅ `domains/catalog/recommender-service/.env.example`
+- ✅ `domains/support/shipment-tracker/.env.example`
 
 ## Configuración Centralizada
 

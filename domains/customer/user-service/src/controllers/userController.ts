@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import { AuthService } from '../services/authService';
 import { User } from '../models/User';
-import { asyncHandler } from '../../../../../shared/middleware/errorHandler';
+import { asyncHandler } from '@technovastore/shared-utils';
 import { AuthenticatedRequest } from '@technovastore/shared-types';
 import { logger } from '../utils/logger';
 

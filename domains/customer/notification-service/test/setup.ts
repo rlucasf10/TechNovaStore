@@ -6,7 +6,9 @@
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3000';
 
-// Mock console methods to reduce noise in tests
+// Mock console methods to reduce noise in tests (optional)
+// Uncomment if you want to suppress console output during tests
+/*
 global.console = {
   ...console,
   log: jest.fn(),
@@ -15,3 +17,4 @@ global.console = {
   warn: jest.fn(),
   error: jest.fn(),
 };
+*/

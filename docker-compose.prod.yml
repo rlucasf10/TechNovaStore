@@ -151,7 +151,7 @@ services:
     image: technovastore-api-gateway:latest
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./domains/platform/api-gateway/Dockerfile
     container_name: technovastore-api-gateway-1-prod
     restart: unless-stopped
     environment:
@@ -180,7 +180,7 @@ services:
     image: technovastore-api-gateway:latest
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./domains/platform/api-gateway/Dockerfile
     container_name: technovastore-api-gateway-2-prod
     restart: unless-stopped
     environment:
@@ -231,7 +231,7 @@ services:
   order-service:
     image: technovastore-order-service:latest
     build:
-      context: ./services/order
+      context: ./domains/commerce/order-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-order-service-prod
     restart: unless-stopped
@@ -274,7 +274,7 @@ services:
   payment-service:
     image: technovastore-payment-service:latest
     build:
-      context: ./services/payment
+      context: ./domains/commerce/payment-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-payment-service-prod
     restart: unless-stopped
@@ -320,7 +320,7 @@ services:
   ticket-service:
     image: technovastore-ticket-service:latest
     build:
-      context: ./services/ticket
+      context: ./domains/support/ticket-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-ticket-service-prod
     restart: unless-stopped
@@ -372,7 +372,7 @@ services:
   auto-purchase:
     image: technovastore-auto-purchase:latest
     build:
-      context: ./automation/auto-purchase
+      context: ./domains/commerce/auto-purchase-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-auto-purchase-prod
     restart: unless-stopped
@@ -393,7 +393,7 @@ services:
   shipment-tracker:
     image: technovastore-shipment-tracker:latest
     build:
-      context: ./automation/shipment-tracker
+      context: ./domains/support/shipment-tracker
       dockerfile: Dockerfile.prod
     container_name: technovastore-shipment-tracker-prod
     restart: unless-stopped
@@ -415,7 +415,7 @@ services:
   chatbot:
     image: technovastore-chatbot:latest
     build:
-      context: ./ai-services/chatbot
+      context: ./domains/support/chatbot-service
       dockerfile: Dockerfile.prod
     container_name: technovastore-chatbot-prod
     restart: unless-stopped
@@ -463,7 +463,7 @@ services:
   frontend-1:
     image: technovastore-frontend:latest
     build:
-      context: ./frontend
+      context: ./domains/platform/frontend
       dockerfile: Dockerfile.prod
     container_name: technovastore-frontend-1-prod
     restart: unless-stopped
@@ -491,7 +491,7 @@ services:
   frontend-2:
     image: technovastore-frontend:latest
     build:
-      context: ./frontend
+      context: ./domains/platform/frontend
       dockerfile: Dockerfile.prod
     container_name: technovastore-frontend-2-prod
     restart: unless-stopped

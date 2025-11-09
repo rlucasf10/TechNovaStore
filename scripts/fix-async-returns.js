@@ -78,10 +78,10 @@ class AsyncReturnFixer {
     // Target directories
     const targetDirs = [
       'domains/customer/user-service/src/controllers',
-      'services/order/src/controllers',
+      'domains/commerce/order-service/src/controllers',
       'domains/catalog/product-service/src/controllers',
       'domains/customer/notification-service/src',
-      'ai-services/chatbot/src'
+      'domains/support/chatbot-service/src'
     ];
 
     for (const dir of targetDirs) {

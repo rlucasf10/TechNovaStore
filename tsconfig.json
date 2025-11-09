@@ -39,7 +39,6 @@
   "include": [
     "src/**/*",
     "e2e-tests/**/*",
-    "shared/**/*",
     "services/**/*",
     "automation/**/*",
     "ai-services/**/*"
@@ -49,12 +48,8 @@
     "dist",
     "build",
     "coverage",
-    "**/*.js"
-  ],
-  "references": [
-    { "path": "./shared/types" },
-    { "path": "./shared/utils" },
-    { "path": "./shared/config" },
-    { "path": "./shared/models" }
+    "**/*.js",
+    "shared/**/dist",
+    "shared/**/node_modules"
   ]
 }

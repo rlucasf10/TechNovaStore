@@ -24,14 +24,14 @@ install:
 	cd frontend && npm install
 	cd api-gateway && npm install
 	cd domains/catalog/product-service && npm install
-	cd services/order && npm install
+	cd domains/commerce/order-service && npm install
 	cd domains/customer/user-service && npm install
 	cd services/payment && npm install
 	cd domains/customer/notification-service && npm install
 	cd domains/catalog/sync-engine && npm install
-	cd automation/auto-purchase && npm install
-	cd automation/shipment-tracker && npm install
-	cd ai-services/chatbot && npm install
+	cd domains/commerce/auto-purchase-service && npm install
+	cd domains/support/shipment-tracker && npm install
+	cd domains/support/chatbot-service && npm install
 	cd domains/catalog/recommender-service && npm install
 
 # Build all services

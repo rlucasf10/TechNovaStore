@@ -5,7 +5,7 @@ import morgan from 'morgan';
 // import { config } from '@technovastore/shared-config';
 import { connectPostgreSQL } from './config/database';
 import { logger } from './utils/logger';
-import { errorHandler } from '../../../../shared/middleware/errorHandler';
+import { errorHandler } from '@technovastore/shared-utils';
 import { authRoutes } from './routes/authRoutes';
 import { userRoutes } from './routes/userRoutes';
 import { gdprRoutes } from './routes/gdprRoutes';

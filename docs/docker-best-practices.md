@@ -29,7 +29,7 @@ docker build -f docker/base/Dockerfile.service-base -t service-base .
 ### 2. Construir servicios individuales
 
 ```bash
-docker build -f services/order/Dockerfile -t order-service .
+docker build -f domains/commerce/order-service/Dockerfile -t order-service .
 docker build -f domains/customer/user-service/Dockerfile -t user-service .
 ```
 
@@ -76,8 +76,8 @@ COPY shared/ ./shared/
 
 ```dockerfile
 FROM service-base
-COPY services/order/ ./services/order/
-RUN cd services/order && npm install
+COPY domains/commerce/order-service/ ./domains/commerce/order-service/
+RUN cd domains/commerce/order-service && npm install
 # ... solo 3-5 líneas específicas
 ```
 

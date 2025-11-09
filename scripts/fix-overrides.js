@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 
-const filePath = 'automation/auto-purchase/src/services/__mocks__/orderServiceClient.ts';
+const filePath = 'domains/commerce/auto-purchase-service/src/services/__mocks__/orderServiceClient.ts';
 
 try {
   let content = fs.readFileSync(filePath, 'utf8');

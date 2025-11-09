@@ -1,0 +1,26 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["node", "express", "jest"],
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "../../../node_modules/@types"],
+    "allowJs": true,
+    "checkJs": false,
+    "removeComments": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@technovastore/shared-types": ["../../../shared/domain/types/src"],
+      "@technovastore/shared-models": ["../../../shared/domain/models/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../../shared/**/*"
+  ]
+}

@@ -38,20 +38,20 @@ jobs:
             context: ./domains/customer/notification-service
             dockerfile: ./domains/customer/notification-service/Dockerfile
           - service: ticket-service
-            context: ./services/ticket
-            dockerfile: ./services/ticket/Dockerfile
+            context: ./domains/support/ticket-service
+            dockerfile: ./domains/support/ticket-service/Dockerfile
           - service: sync-engine
             context: ./domains/catalog/sync-engine
             dockerfile: ./domains/catalog/sync-engine/Dockerfile
           - service: auto-purchase
-            context: ./automation/auto-purchase
-            dockerfile: ./automation/auto-purchase/Dockerfile
+            context: ./domains/commerce/auto-purchase-service
+            dockerfile: ./domains/commerce/auto-purchase-service/Dockerfile
           - service: shipment-tracker
-            context: ./automation/shipment-tracker
-            dockerfile: ./automation/shipment-tracker/Dockerfile
+            context: ./domains/support/shipment-tracker
+            dockerfile: ./domains/support/shipment-tracker/Dockerfile
           - service: chatbot
-            context: ./ai-services/chatbot
-            dockerfile: ./ai-services/chatbot/Dockerfile
+            context: ./domains/support/chatbot-service
+            dockerfile: ./domains/support/chatbot-service/Dockerfile
           - service: recommender
             context: ./domains/catalog/recommender-service
             dockerfile: ./domains/catalog/recommender-service/Dockerfile

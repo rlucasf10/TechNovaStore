@@ -11,8 +11,9 @@
     "test:gdpr": "jest --testPathPattern=gdpr-simple.test.ts"
   },
   "dependencies": {
-    "@technovastore/shared-config": "file:../../../shared/config",
-    "@technovastore/shared-types": "file:../../../shared/types",
+    "@technovastore/shared-config": "file:../../../shared/infrastructure/config",
+    "@technovastore/shared-types": "file:../../../shared/domain/types",
+    "@technovastore/shared-utils": "file:../../../shared/infrastructure/utils",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",

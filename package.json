@@ -4,7 +4,10 @@
   "description": "TechNovaStore - Tienda online automatizada de productos tecnológicos",
   "private": true,
   "workspaces": [
-    "shared/config",
+    "shared/domain/types",
+    "shared/domain/models",
+    "shared/infrastructure/config",
+    "shared/infrastructure/utils",
     "api-gateway",
     "services/*",
     "automation/*",
@@ -13,16 +16,15 @@
     "domains/commerce/*",
     "domains/customer/*",
     "domains/support/*",
-    "domains/platform/*",
-    "frontend"
+    "domains/platform/*"
   ],
   "scripts": {
     "install:all": "npm install",
     "build": "npm run build --workspaces --if-present",
-    "build:services": "npm run build -w api-gateway -w domains/catalog/product-service -w domains/customer/user-service -w services/order -w services/payment -w domains/customer/notification-service -w services/ticket",
-    "build:automation": "npm run build -w domains/catalog/sync-engine -w automation/auto-purchase -w automation/shipment-tracker",
-    "build:ai": "npm run build -w ai-services/chatbot -w domains/catalog/recommender-service",
-    "build:frontend": "npm run build -w frontend",
+    "build:services": "npm run build -w api-gateway -w domains/catalog/product-service -w domains/customer/user-service -w domains/commerce/order-service -w domains/commerce/payment-service -w domains/customer/notification-service -w domains/support/ticket-service",
+    "build:automation": "npm run build -w domains/catalog/sync-engine -w domains/commerce/auto-purchase-service -w domains/support/shipment-tracker",
+    "build:ai": "npm run build -w domains/support/chatbot-service -w domains/catalog/recommender-service",
+    "build:frontend": "npm run build -w domains/platform/frontend",
     "dev": "npm run dev --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

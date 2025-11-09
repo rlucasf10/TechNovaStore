@@ -64,7 +64,7 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
     },
     {
       "name": "🛒 Order Service",
-      "path": "./services/order"
+      "path": "./domains/commerce/order-service"
     },
     {
       "name": "💳 Payment Service",
@@ -101,13 +101,13 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
       "api-gateway",
       "services/product",
       "domains/customer/user-service",
-      "services/order",
+      "domains/commerce/order-service",
       "services/payment",
       "domains/customer/notification-service",
       "frontend",
-      "automation/sync-engine",
-      "automation/auto-purchase",
-      "automation/shipment-tracker"
+      "domains/catalog/sync-engine",
+      "domains/commerce/auto-purchase-service",
+      "domains/support/shipment-tracker"
     ],
     "files.exclude": {
       "**/node_modules": true,
@@ -195,8 +195,8 @@ Esta guía te ayudará a configurar un entorno de desarrollo completo para TechN
       "name": "🛒 Debug Order Service",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/services/order/src/index.ts",
-      "outFiles": ["${workspaceFolder}/services/order/dist/**/*.js"],
+      "program": "${workspaceFolder}/domains/commerce/order-service/src/index.ts",
+      "outFiles": ["${workspaceFolder}/domains/commerce/order-service/dist/**/*.js"],
       "runtimeArgs": ["-r", "ts-node/register"],
       "env": {
         "NODE_ENV": "development",
@@ -537,14 +537,14 @@ DEBUG_MONGODB=true
     "dev:api": "cd api-gateway && npm run dev",
     "dev:product": "cd domains/catalog/product-service && npm run dev",
     "dev:user": "cd domains/customer/user-service && npm run dev",
-    "dev:order": "cd services/order && npm run dev",
+    "dev:order": "cd domains/commerce/order-service && npm run dev",
     "dev:payment": "cd services/payment && npm run dev",
     "dev:notification": "cd domains/customer/notification-service && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:automation": "concurrently \"npm run dev:sync\" \"npm run dev:purchase\" \"npm run dev:tracker\"",
-    "dev:sync": "cd automation/sync-engine && npm run dev",
-    "dev:purchase": "cd automation/auto-purchase && npm run dev",
-    "dev:tracker": "cd automation/shipment-tracker && npm run dev",
+    "dev:sync": "cd domains/catalog/sync-engine && npm run dev",
+    "dev:purchase": "cd domains/commerce/auto-purchase-service && npm run dev",
+    "dev:tracker": "cd domains/support/shipment-tracker && npm run dev",
     
     "build": "npm run build:shared && npm run build:services && npm run build:frontend",
     "build:shared": "cd shared && npm run build",

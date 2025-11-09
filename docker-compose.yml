@@ -139,7 +139,7 @@ services:
     image: technovastore-api-gateway:latest
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./domains/platform/api-gateway/Dockerfile
     container_name: technovastore-api-gateway
     restart: unless-stopped
     ports:
@@ -192,7 +192,7 @@ services:
     image: technovastore-order-service:latest
     build:
       context: .
-      dockerfile: ./services/order/Dockerfile
+      dockerfile: ./domains/commerce/order-service/Dockerfile
     container_name: technovastore-order-service
     restart: unless-stopped
     ports:
@@ -237,7 +237,7 @@ services:
     image: technovastore-payment-service:latest
     build:
       context: .
-      dockerfile: ./services/payment/Dockerfile
+      dockerfile: ./domains/commerce/payment-service/Dockerfile
     container_name: technovastore-payment-service
     restart: unless-stopped
     ports:
@@ -278,7 +278,7 @@ services:
     image: technovastore-ticket-service:latest
     build:
       context: .
-      dockerfile: ./services/ticket/Dockerfile
+      dockerfile: ./domains/support/ticket-service/Dockerfile
     container_name: technovastore-ticket-service
     restart: unless-stopped
     ports:
@@ -324,7 +324,7 @@ services:
     image: technovastore-auto-purchase:latest
     build:
       context: .
-      dockerfile: ./automation/auto-purchase/Dockerfile
+      dockerfile: ./domains/commerce/auto-purchase-service/Dockerfile
     container_name: technovastore-auto-purchase
     restart: unless-stopped
     ports:
@@ -342,7 +342,7 @@ services:
     image: technovastore-shipment-tracker:latest
     build:
       context: .
-      dockerfile: ./automation/shipment-tracker/Dockerfile
+      dockerfile: ./domains/support/shipment-tracker/Dockerfile
     container_name: technovastore-shipment-tracker
     restart: unless-stopped
     ports:
@@ -360,7 +360,7 @@ services:
   chatbot:
     image: technovastore-chatbot:latest
     build:
-      context: ./ai-services/chatbot
+      context: ./domains/support/chatbot-service
       dockerfile: Dockerfile
     container_name: technovastore-chatbot
     restart: unless-stopped
@@ -404,7 +404,7 @@ services:
   frontend:
     image: technovastore-frontend:latest
     build:
-      context: ./frontend
+      context: ./domains/platform/frontend
       dockerfile: Dockerfile
     container_name: technovastore-frontend
     restart: unless-stopped

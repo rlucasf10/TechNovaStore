@@ -7,8 +7,8 @@
     "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types", "../../../node_modules/@types"],
     "paths": {
-      "@technovastore/shared-types": ["../../../shared/types/src"],
-      "@technovastore/shared-models": ["../../../shared/models/src"]
+      "@technovastore/shared-types": ["../../../shared/domain/types/src"],
+      "@technovastore/shared-models": ["../../../shared/domain/models/src"]
     }
   },
   "include": ["src/**/*", "test/**/*"],

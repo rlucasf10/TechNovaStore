@@ -34,9 +34,12 @@ TechNovaStore/
 │   ├── payment/
 │   ├── notification/
 │   └── ticket/
-├── ai-services/           # Separado artificialmente
-│   ├── chatbot/
-│   └── recommender/
+├── domains/               # Nueva estructura de dominios
+│   ├── support/
+│   │   ├── chatbot-service/
+│   │   └── ticket-service/
+│   └── catalog/
+│       └── recommender-service/
 ├── automation/            # Separado artificialmente
 │   ├── sync-engine/
 │   ├── auto-purchase/

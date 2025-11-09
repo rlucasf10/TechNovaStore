@@ -3,8 +3,8 @@
  * Configures the Resource Cleanup Manager and test environment
  */
 
-import { resourceCleanupManager } from '../shared/utils/src/test/resourceCleanupManager';
-import { openHandleDetector } from '../shared/utils/src/test/handleDetector';
+import { resourceCleanupManager } from '../shared/infrastructure/utils/src/test/resourceCleanupManager';
+import { openHandleDetector } from '../shared/infrastructure/utils/src/test/handleDetector';
 
 export default async function globalSetup(): Promise<void> {
   // Set test environment variables

@@ -35,9 +35,9 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 
 #### Grupo 2: .env (8 variantes)
 - `.env.example` - Plantilla raíz
-- `ai-services/chatbot/.env.example`
-- `ai-services/recommender/.env.example`
-- `automation/shipment-tracker/.env.example`
+- `domains/support/chatbot-service/.env.example`
+- `domains/catalog/recommender-service/.env.example`
+- `domains/support/shipment-tracker/.env.example`
 - `frontend/.env.local` - Configuración local del frontend
 - `services/notification/.env.example`
 - `services/ticket/.env.example`
@@ -122,7 +122,7 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 
 ### 2.1 Archivos de Test Temporales
 
-1. `ai-services/chatbot/src/tests/test-format-conversation.ts`
+1. `domains/support/chatbot-service/src/tests/test-format-conversation.ts`
    - **Tipo**: Test temporal
    - **Recomendación**: Revisar si es necesario, si no, eliminar
 
@@ -182,7 +182,7 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 | Servicio | Ruta | Estado | Observaciones |
 |----------|------|--------|---------------|
 | notification | `domains/customer/notification-service` | ✅ Completo | Con tests básicos |
-| order | `services/order` | ✅ Completo | Sin tests |
+| order | `domains/commerce/order-service` | ✅ Completo | Con tests |
 | payment | `services/payment` | ✅ Completo | Sin tests |
 | product | `services/product` | ✅ Completo | Sin tests |
 | ticket | `services/ticket` | ✅ Completo | Sin tests |
@@ -194,15 +194,15 @@ Este documento consolida el análisis completo del proyecto TechNovaStore realiz
 
 | Servicio | Ruta | Estado | Observaciones |
 |----------|------|--------|---------------|
-| chatbot | `ai-services/chatbot` | ✅ Completo | Con tests |
-| recommender | `ai-services/recommender` | ✅ Completo | Estado desconocido |
+| chatbot | `domains/support/chatbot-service` | ✅ Completo | Con tests |
+| recommender | `domains/catalog/recommender-service` | ✅ Completo | Estado desconocido |
 
 #### Automation Services (3 servicios)
 
 | Servicio | Ruta | Estado | Observaciones |
 |----------|------|--------|---------------|
-| auto-purchase | `automation/auto-purchase` | ✅ Completo | Estado desconocido |
-| shipment-tracker | `automation/shipment-tracker` | ✅ Completo | Estado desconocido |
+| auto-purchase | `domains/commerce/auto-purchase-service` | ✅ Migrado | Movido a dominio commerce |
+| shipment-tracker | `domains/support/shipment-tracker` | ✅ Completo | Estado desconocido |
 | sync-engine | `automation/sync-engine` | ✅ Completo | Estado desconocido |
 
 #### Platform Services (2 servicios)
@@ -401,9 +401,9 @@ Scripts en raíz:
 #### Dominio: commerce (Comercio y Transacciones)
 
 **Servicios**:
-- `order-service` (services/order)
-- `payment-service` (services/payment)
-- `auto-purchase-service` (automation/auto-purchase)
+- `order-service` (domains/commerce/order-service)
+- `payment-service` (domains/commerce/payment-service)
+- `auto-purchase-service` (domains/commerce/auto-purchase-service)
 
 **Responsabilidad**: Gestión de pedidos, pagos y compras automáticas.
 
@@ -418,9 +418,9 @@ Scripts en raíz:
 #### Dominio: support (Soporte al Cliente)
 
 **Servicios**:
-- `ticket-service` (services/ticket)
-- `chatbot-service` (ai-services/chatbot)
-- `shipment-tracker` (automation/shipment-tracker)
+- `ticket-service` (domains/support/ticket-service)
+- `chatbot-service` (domains/support/chatbot-service)
+- `shipment-tracker` (domains/support/shipment-tracker)
 
 **Responsabilidad**: Soporte, tickets, chatbot y seguimiento de envíos.
 

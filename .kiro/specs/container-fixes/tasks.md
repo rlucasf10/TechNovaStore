@@ -102,7 +102,7 @@
     - _Requirements: 2.1, 2.2, 3.3_
 
   - [-] 5.3 Verify Shipment Tracker database configuration code
-    - Check `automation/shipment-tracker/src/config/database.ts`
+    - Check `domains/support/shipment-tracker/src/config/database.ts`
     - Ensure it reads POSTGRES_HOST from environment
     - Verify connection string uses correct hostname
     - _Requirements: 2.1, 2.2, 2.3_
@@ -175,7 +175,7 @@
 
 - [-] 8. Verify Auto Purchase Service Connection to Order Service
   - [-] 8.1 Check Auto Purchase Order Service URL configuration
-    - Open `automation/auto-purchase/src/services/orderService.ts`
+    - Open `domains/commerce/auto-purchase-service/src/services/orderService.ts`
     - Verify ORDER_SERVICE_URL uses correct hostname
     - Should be "http://order-service:3000" not "localhost"
     - _Requirements: 5.1, 5.2_

@@ -20,8 +20,8 @@
 
 **.env** (8 variantes):
 - `.env.example`
-- `ai-services\chatbot\.env.example`
-- `ai-services\recommender\.env.example`
+- `domains\support\chatbot-service\.env.example`
+- `domains\catalog\recommender-service\.env.example`
 - `automation\shipment-tracker\.env.example`
 - `frontend\.env.local`
 - `services\notification\.env.example`
@@ -40,8 +40,8 @@
 ### Configuraciones Similares por Nombre
 
 **package.json** (19 variantes):
-- `ai-services\chatbot\package.json`
-- `ai-services\recommender\package.json`
+- `domains\support\chatbot-service\package.json`
+- `domains\catalog\recommender-service\package.json`
 - `api-gateway\package.json`
 - `automation\auto-purchase\package.json`
 - `automation\shipment-tracker\package.json`
@@ -61,8 +61,8 @@
 - `shared\utils\package.json`
 
 **tsconfig.json** (16 variantes):
-- `ai-services\chatbot\tsconfig.json`
-- `ai-services\recommender\tsconfig.json`
+- `domains\support\chatbot-service\tsconfig.json`
+- `domains\catalog\recommender-service\tsconfig.json`
 - `api-gateway\tsconfig.json`
 - `automation\auto-purchase\tsconfig.json`
 - `automation\shipment-tracker\tsconfig.json`
@@ -86,7 +86,7 @@
 
 Se encontraron **7 archivos** temporales u obsoletos:
 
-- `ai-services\chatbot\src\tests\test-format-conversation.ts`
+- `domains\support\chatbot-service\src\tests\test-format-conversation.ts`
 - `frontend\e2e\fixtures\test-data.ts`
 - `frontend\e2e\utils\test-helpers.ts`
 - `frontend\scripts\verify-design-system.js`

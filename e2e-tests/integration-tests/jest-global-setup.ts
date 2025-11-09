@@ -3,8 +3,8 @@
  * Prepares the environment for integration tests with databases and external services
  */
 
-import { resourceCleanupManager } from '../../shared/utils/src/test/resourceCleanupManager';
-import { openHandleDetector } from '../../shared/utils/src/test/handleDetector';
+import { resourceCleanupManager } from '../../shared/infrastructure/utils/src/test/resourceCleanupManager';
+import { openHandleDetector } from '../../shared/infrastructure/utils/src/test/handleDetector';
 
 export default async function integrationGlobalSetup(): Promise<void> {
   console.log('Setting up integration test environment...');

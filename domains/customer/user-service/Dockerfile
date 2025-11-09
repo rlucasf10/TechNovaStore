@@ -4,6 +4,9 @@ FROM service-base:latest
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json
 
+# Copy shared packages first (needed for npm install)
+COPY shared /workspace/shared
+
 # Set working directory
 WORKDIR /workspace/domains/customer/user-service
 
@@ -14,9 +17,14 @@ COPY domains/customer/user-service/tsconfig.json ./
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy source code (not node_modules)
+# Copy jest config base from root
+COPY jest.config.base.js /workspace/
+
+# Copy source code, tests, scripts and jest config
 COPY domains/customer/user-service/src ./src
+COPY domains/customer/user-service/test ./test
 COPY domains/customer/user-service/scripts ./scripts
+COPY domains/customer/user-service/jest.config.js ./jest.config.js
 
 # Expose port
 EXPOSE 3000

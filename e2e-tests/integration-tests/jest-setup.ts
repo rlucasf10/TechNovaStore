@@ -5,11 +5,11 @@
 
 /// <reference types="jest" />
 
-import { resourceCleanupManager } from '../../shared/utils/src/test/resourceCleanupManager';
-import { databaseCleanupManager } from '../../shared/utils/src/test/databaseCleanup';
-import { testServerManager } from '../../shared/utils/src/test/serverCleanup';
-import { openHandleDetector } from '../../shared/utils/src/test/handleDetector';
-import { enhancedAfterEach, enhancedAfterAll } from '../../shared/utils/src/test/integrationTestSetup';
+import { resourceCleanupManager } from '../../shared/infrastructure/utils/src/test/resourceCleanupManager';
+import { databaseCleanupManager } from '../../shared/infrastructure/utils/src/test/databaseCleanup';
+import { testServerManager } from '../../shared/infrastructure/utils/src/test/serverCleanup';
+import { openHandleDetector } from '../../shared/infrastructure/utils/src/test/handleDetector';
+import { enhancedAfterEach, enhancedAfterAll } from '../../shared/infrastructure/utils/src/test/integrationTestSetup';
 
 // Set integration test environment
 process.env.NODE_ENV = 'test';
@@ -68,4 +68,4 @@ export {
   setupIntegrationTestWithDatabases,
   setupIntegrationTestHooks,
   withDatabaseCleanup 
-} from '../../shared/utils/src/test/integrationTestSetup';
+} from '../../shared/infrastructure/utils/src/test/integrationTestSetup';

@@ -93,12 +93,12 @@ TechNovaStore/
 ❌ .env.example                          # ELIMINAR - Consolidar en .env.docker.example
 ❌ frontend/.env.local                   # ELIMINAR - Usar .env.docker (contiene valores reales)
 ❌ frontend/.env.local.example           # CONSOLIDAR - Mover a .env.shared.example
-❌ ai-services/chatbot/.env.example      # CONSOLIDAR - Mover variables únicas a .env.shared
-❌ ai-services/recommender/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
+❌ domains/support/chatbot-service/.env.example      # CONSOLIDAR - Mover variables únicas a .env.shared
+❌ domains/catalog/recommender-service/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ domains/customer/notification-service/.env.example    # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ services/ticket/.env.example          # CONSOLIDAR - Mover variables únicas a .env.shared
 ❌ domains/customer/user-service/.env.example            # CONSOLIDAR - Mover variables únicas a .env.shared
-❌ automation/shipment-tracker/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
+❌ domains/support/shipment-tracker/.env.example  # CONSOLIDAR - Mover variables únicas a .env.shared
 ```
 
 **Nota:** `api-gateway/.env.security.example` se mantiene porque contiene configuración de seguridad específica y extensa.
@@ -510,12 +510,12 @@ Documentación completa de todas las variables de entorno, su propósito y valor
 ```bash
 rm .env.example
 rm frontend/.env.local  # Si existe en el repo
-rm ai-services/chatbot/.env.example
-rm ai-services/recommender/.env.example
+rm domains/support/chatbot-service/.env.example
+rm domains/catalog/recommender-service/.env.example
 rm domains/customer/notification-service/.env.example
 rm services/ticket/.env.example
 rm domains/customer/user-service/.env.example
-rm automation/shipment-tracker/.env.example
+rm domains/support/shipment-tracker/.env.example
 ```
 
 **Actualizar .gitignore:**
@@ -616,8 +616,8 @@ node scripts/analyze-env-duplications.js
 - [ ] Agregar referencia a `.env.shared.example`
 
 ### Fase 3: Migrar Variables de Servicios
-- [ ] Extraer variables de `chatbot/.env.example`
-- [ ] Extraer variables de `recommender/.env.example`
+- [ ] Extraer variables de `domains/support/chatbot-service/.env.example`
+- [ ] Extraer variables de `domains/catalog/recommender-service/.env.example`
 - [ ] Extraer variables de `notification/.env.example`
 - [ ] Extraer variables de `ticket/.env.example`
 - [ ] Extraer variables de `user/.env.example`
