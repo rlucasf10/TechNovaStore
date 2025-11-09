@@ -453,52 +453,52 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - Ejecutar tests
   - _Requirements: 6.1, 6.2, 9.4_
 
-- [ ] 19. Migrar dominio commerce
-- [ ] 19.1 Mover order-service a domains/commerce/
+- [x] 19. Migrar dominio commerce
+- [x] 19.1 Mover order-service a domains/commerce/
   - Mover services/order/ a domains/commerce/order-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 19.2 Mover payment-service a domains/commerce/
+- [x] 19.2 Mover payment-service a domains/commerce/
   - Mover services/payment/ a domains/commerce/payment-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 19.3 Mover auto-purchase a domains/commerce/
+- [x] 19.3 Mover auto-purchase a domains/commerce/
   - Mover automation/auto-purchase/ a domains/commerce/auto-purchase-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 19.4 Validar dominio commerce
+- [x] 19.4 Validar dominio commerce
   - Compilar servicios del dominio
   - Iniciar contenedores Docker
   - Verificar health checks
   - Ejecutar tests
   - _Requirements: 6.1, 6.2, 9.4_
 
-- [ ] 20. Migrar dominio support
-- [ ] 20.1 Mover ticket-service a domains/support/
+- [x] 20. Migrar dominio support
+- [x] 20.1 Mover ticket-service a domains/support/
   - Mover services/ticket/ a domains/support/ticket-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 20.2 Mover chatbot a domains/support/
+- [x] 20.2 Mover chatbot a domains/support/
   - Mover ai-services/chatbot/ a domains/support/chatbot-service/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 20.3 Mover shipment-tracker a domains/support/
+- [x] 20.3 Mover shipment-tracker a domains/support/
   - Mover automation/shipment-tracker/ a domains/support/shipment-tracker/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 20.4 Validar dominio support
+- [x] 20.4 Validar dominio support
   - Compilar servicios del dominio
   - Iniciar contenedores Docker
   - Verificar health checks
@@ -506,20 +506,20 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - _Requirements: 6.1, 6.2, 9.4_
 
 - [ ] 21. Migrar dominio platform
-- [ ] 21.1 Mover api-gateway a domains/platform/
+- [x] 21.1 Mover api-gateway a domains/platform/
   - Mover api-gateway/ a domains/platform/api-gateway/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 21.2 Mover frontend a domains/platform/
+- [x] 21.2 Mover frontend a domains/platform/
   - Mover frontend/ a domains/platform/frontend/
   - Actualizar imports y referencias
   - Actualizar docker-compose
   - Actualizar scripts de build
   - _Requirements: 3.2, 3.3, 7.1, 7.2_
 
-- [ ] 21.3 Validar dominio platform
+- [x] 21.3 Validar dominio platform
   - Compilar servicios del dominio
   - Iniciar contenedores Docker
   - Verificar health checks
@@ -527,36 +527,36 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
   - _Requirements: 6.1, 6.2, 9.4_
 
 - [ ] 22. Reorganizar código compartido (shared)
-- [ ] 22.1 Reorganizar shared/ por propósito
+- [x] 22.1 Reorganizar shared/ por propósito
   - Crear shared/domain/ para lógica de dominio compartida
   - Crear shared/infrastructure/ para utilidades de infraestructura
   - Mover código existente a nuevas ubicaciones
   - _Requirements: 3.4_
 
-- [ ] 22.2 Actualizar referencias a shared
+- [x] 22.2 Actualizar referencias a shared
   - Actualizar imports en todos los servicios
   - Actualizar package.json de servicios
   - _Requirements: 7.1, 7.2_
 
-- [ ] 23. Eliminar carpetas antiguas vacías
+- [x] 23. Eliminar carpetas antiguas vacías
   - Eliminar services/ (ahora vacía)
   - Eliminar ai-services/ (ahora vacía)
   - Eliminar automation/ (ahora vacía)
   - _Requirements: 3.2_
 
 - [ ] 24. Validar reorganización completa
-- [ ] 24.1 Validar estructura de dominios
+- [x] 24.1 Validar estructura de dominios
   - Verificar que todos los servicios están en dominios correctos
   - Verificar que no quedan servicios en ubicaciones antiguas
   - _Requirements: 3.1, 3.2_
 
-- [ ] 24.2 Validar todos los servicios
+- [x] 24.2 Validar todos los servicios
   - Iniciar todos los contenedores Docker
   - Verificar que todos los servicios inician
   - Verificar health checks de todos los servicios
   - _Requirements: 6.1, 6.2_
 
-- [ ] 24.3 Ejecutar suite completa de tests
+- [x] 24.3 Ejecutar suite completa de tests
   - Ejecutar tests de todos los servicios
   - Verificar que todos los tests pasan
   - _Requirements: 9.4_
