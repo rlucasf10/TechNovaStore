@@ -1,0 +1,62 @@
+/**
+ * Lógica de detección de retrasos en entregas
+ */
+
+import { OrderForDelayCheck } from '../shared/types';
+
+export class DelayDetector {
+  private static readonly DELAY_THRESHOLD_HOURS = 24;
+  private static readonly EXCLUDED_STATUSES = ['delivered', 'cancelled', 'refunded'];
+
+  static isOrderDelayed(order: OrderForDelayCheck): boolean {
+    const now = new Date();
+    const estimatedDelivery = new Date(order.estimatedDelivery);
+    
+    const hoursPastDelivery = (now.getTime() - estimatedDelivery.getTime()) / (1000 * 60 * 60);
+    
+    return (
+      hoursPastDelivery > this.DELAY_THRESHOLD_HOURS &&
+      !this.EXCLUDED_STATUSES.includes(order.currentStatus.toLowerCase())
+    );
+  }
+
+  static getDelayedOrders(orders: OrderForDelayCheck[]): OrderForDelayCheck[] {
+    return orders.filter(order => this.isOrderDelayed(order));
+  }
+
+  static calculateNewEstimatedDelivery(originalDelivery: Date, delayReason?: string): Date {
+    const newDelivery = new Date(originalDelivery);
+    
+    switch (delayReason?.toLowerCase()) {
+      case 'weather':
+        newDelivery.setDate(newDelivery.getDate() + 2);
+        break;
+      case 'customs':
+        newDelivery.setDate(newDelivery.getDate() + 5);
+        break;
+      case 'provider_delay':
+        newDelivery.setDate(newDelivery.getDate() + 3);
+        break;
+      case 'shipping_issue':
+        newDelivery.setDate(newDelivery.getDate() + 4);
+        break;
+      default:
+        newDelivery.setDate(newDelivery.getDate() + 3);
+    }
+    
+    return newDelivery;
+  }
+
+  static getDelayReasonMessage(reason?: string): string {
+    const reasonMessages: Record<string, string> = {
+      'weather': 'Condiciones meteorológicas adversas',
+      'customs': 'Retraso en el procesamiento aduanero',
+      'provider_delay': 'Retraso en el procesamiento del proveedor',
+      'shipping_issue': 'Incidencia en el transporte',
+      'high_demand': 'Alta demanda del producto',
+      'inventory_issue': 'Problema de inventario del proveedor'
+    };
+
+    return reasonMessages[reason?.toLowerCase() || ''] || 'Retraso en el procesamiento del pedido';
+  }
+}

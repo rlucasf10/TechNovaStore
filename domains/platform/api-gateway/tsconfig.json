@@ -2,11 +2,21 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "noImplicitReturns": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "index.ts",
+    "proxy-request/**/*",
+    "authenticate-request/**/*",
+    "validate-csrf-token/**/*",
+    "rate-limit-request/**/*",
+    "sanitize-input/**/*",
+    "monitor-security/**/*",
+    "shared/**/*",
+    "api/**/*"
+  ],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

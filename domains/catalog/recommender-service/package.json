@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "nodemon --exec ts-node index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint": "eslint **/*.ts --ignore-pattern 'node_modules/**' --ignore-pattern 'dist/**' --ignore-pattern 'src/**' --ignore-pattern 'test/**'",
+    "lint:fix": "eslint **/*.ts --fix --ignore-pattern 'node_modules/**' --ignore-pattern 'dist/**' --ignore-pattern 'src/**' --ignore-pattern 'test/**'"
   },
   "dependencies": {
     "@technovastore/shared-config": "file:../../../shared/infrastructure/config",

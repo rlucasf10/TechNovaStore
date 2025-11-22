@@ -2,16 +2,22 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": ".",
     "types": ["node", "express", "jest"],
     "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types", "../../../node_modules/@types"],
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": [
+    "*.ts",
+    "**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
+    "src",
+    "test",
     "../../../shared/**/*"
   ]
 }

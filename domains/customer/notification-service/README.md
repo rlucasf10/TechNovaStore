@@ -1,192 +1,114 @@
 # Notification Service
 
-El servicio de notificaciones de TechNovaStore maneja el envío automático de emails para diferentes eventos del sistema, incluyendo actualizaciones de estado de envío y alertas de retraso.
+Servicio de notificaciones de TechNovaStore que maneja el envío de emails a clientes.
 
-## Características
+## Estructura (Screaming Architecture)
 
-- ✅ Envío automático de emails con templates HTML
-- ✅ Notificaciones de estado de envío
-- ✅ Sistema de alertas para retrasos
-- ✅ Templates personalizables para diferentes tipos de notificación
-- ✅ Detección automática de retrasos cada 6 horas
-- ✅ API REST para integración con otros servicios
-- ✅ Soporte para notificaciones en lote
+Este servicio sigue **Screaming Architecture**, donde la estructura refleja los casos de uso del negocio:
 
-## Tipos de Notificaciones
-
-1. **Confirmación de pedido** - Cuando se confirma un pedido
-2. **Actualización de envío** - Cambios en el estado del envío
-3. **Alerta de retraso** - Cuando un envío se retrasa
-4. **Pedido cancelado** - Cancelación de pedidos
-5. **Confirmación de pago** - Confirmación de pagos
-6. **Factura generada** - Cuando se genera una factura
-
-## API Endpoints
-
-### Salud del Servicio
 ```
-GET /health
+notification-service/
+├── send-order-confirmation/       # Enviar confirmación de pedido
+├── send-shipment-status/          # Enviar estado de envío
+├── send-delay-alert/              # Enviar alerta de retraso
+├── send-payment-confirmation/     # Enviar confirmación de pago
+├── send-order-cancellation/       # Enviar cancelación de pedido
+├── send-invoice-generated/        # Enviar factura generada
+├── check-delivery-delays/         # Verificar retrasos en entregas
+├── shared/                        # Infraestructura compartida
+│   ├── email/                     # Servicio de email
+│   ├── types/                     # Tipos compartidos
+│   └── templates/                 # Templates base
+├── api/                           # Capa HTTP
+│   ├── NotificationController.ts
+│   └── routes.ts
+├── config/                        # Configuración
+└── index.ts                       # Punto de entrada
 ```
 
-### Enviar Notificación General
-```
-POST /notifications/email
-Content-Type: application/json
+## Casos de Uso
 
-{
-  "type": "order_confirmation",
-  "recipient": "customer@example.com",
-  "data": {
-    "orderId": "ORDER-123",
-    "customerName": "Juan Pérez",
-    "totalAmount": 299.99
-  }
-}
-```
+### 1. Enviar Confirmación de Pedido
+Envía un email de confirmación cuando un cliente realiza un pedido.
 
-### Notificación de Estado de Envío
-```
-POST /notifications/shipment-status
-Content-Type: application/json
+### 2. Enviar Estado de Envío
+Notifica al cliente sobre cambios en el estado de su envío.
 
-{
-  "orderId": "ORDER-123",
-  "status": "shipped",
-  "trackingNumber": "TRACK-456",
-  "estimatedDelivery": "2024-01-15T00:00:00Z",
-  "customerEmail": "customer@example.com"
-}
-```
+### 3. Enviar Alerta de Retraso
+Informa al cliente sobre retrasos en la entrega.
 
-### Alerta de Retraso
-```
-POST /notifications/delay-alert
-Content-Type: application/json
+### 4. Enviar Confirmación de Pago
+Confirma que el pago ha sido procesado exitosamente.
 
-{
-  "orderId": "ORDER-123",
-  "originalDelivery": "2024-01-10T00:00:00Z",
-  "newEstimatedDelivery": "2024-01-15T00:00:00Z",
-  "customerEmail": "customer@example.com",
-  "reason": "Retraso en el proveedor"
-}
-```
+### 5. Enviar Cancelación de Pedido
+Notifica la cancelación de un pedido.
 
-### Verificación Manual de Retrasos (Admin)
-```
-POST /admin/check-delays
-```
+### 6. Enviar Factura Generada
+Envía la factura al cliente cuando está disponible.
 
-## Configuración
-
-### Variables de Entorno
-
-Copia `.env.example` a `.env` y configura las siguientes variables:
-
-```bash
-# Configuración del servidor
-PORT=3005
-NODE_ENV=development
-
-# Configuración SMTP
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=tu-email@gmail.com
-SMTP_PASS=tu-contraseña-de-aplicación
-
-# Configuración de email
-EMAIL_FROM=noreply@technovastore.com
-```
-
-### Configuración SMTP
-
-Para Gmail:
-1. Habilita la autenticación de 2 factores
-2. Genera una contraseña de aplicación
-3. Usa la contraseña de aplicación en `SMTP_PASS`
+### 7. Verificar Retrasos en Entregas
+Verifica automáticamente cada 6 horas si hay pedidos retrasados y envía alertas.
 
 ## Desarrollo
 
-### Instalación
 ```bash
+# Instalar dependencias
 npm install
-```
 
-### Desarrollo
-```bash
+# Ejecutar en modo desarrollo
 npm run dev
-```
 
-### Build
-```bash
-npm run build
-```
-
-### Tests
-```bash
+# Ejecutar tests
 npm test
-```
 
-### Producción
-```bash
-npm start
+# Build para producción
+npm run build
 ```
 
 ## Docker
 
-### Build
 ```bash
-docker build -t technovastore/notification-service .
+# Build imagen
+docker build -t notification-service .
+
+# Ejecutar contenedor
+docker run -p 3000:3000 notification-service
 ```
 
-### Run
-```bash
-docker run -p 3005:3005 --env-file .env technovastore/notification-service
+## Variables de Entorno
+
+```
+PORT=3000
+NODE_ENV=development
+SMTP_HOST=localhost
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+EMAIL_FROM=noreply@technovastore.com
 ```
 
-## Integración con Otros Servicios
+## API
 
-### Shipment Tracker
-El servicio de seguimiento de envíos debe llamar a este servicio cuando:
-- El estado de un envío cambia
-- Se detecta un retraso en la entrega
+Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 
-### Order Service
-El servicio de pedidos debe notificar cuando:
-- Se confirma un pedido
-- Se cancela un pedido
-- Se genera una factura
+## Arquitectura
 
-### Payment Service
-El servicio de pagos debe notificar cuando:
-- Se confirma un pago
-- Falla un pago
+Este servicio implementa **Screaming Architecture**:
 
-## Detección Automática de Retrasos
+- ✅ La estructura "grita" QUÉ HACE el servicio
+- ✅ Cada caso de uso está en su propia carpeta
+- ✅ Todo lo relacionado con un caso de uso está junto
+- ✅ Fácil de encontrar, modificar y eliminar funcionalidad
+- ✅ Tests junto al código que prueban
 
-El servicio ejecuta automáticamente cada 6 horas una verificación de retrasos que:
+## Agregar Nuevo Caso de Uso
 
-1. Consulta pedidos pendientes de entrega
-2. Identifica pedidos que superan la fecha estimada de entrega
-3. Envía alertas automáticas a los clientes
-4. Calcula nuevas fechas estimadas basadas en el tipo de retraso
+1. Crear carpeta con nombre descriptivo: `send-new-notification/`
+2. Crear handler: `SendNewNotification.ts`
+3. Crear template si es necesario: `NewNotificationTemplate.ts`
+4. Crear tests: `SendNewNotification.test.ts`
+5. Registrar en el controlador y rutas
+6. Inyectar dependencias en `index.ts`
 
-## Monitoreo
-
-### Health Check
-```bash
-curl http://localhost:3005/health
-```
-
-### Logs
-Los logs incluyen información sobre:
-- Emails enviados exitosamente
-- Errores de envío
-- Verificaciones de retraso
-- Errores de conexión SMTP
-
-## Requisitos Cumplidos
-
-- ✅ **Requisito 4.2**: Envío de notificaciones por email cuando cambia el estado del envío (dentro de 30 minutos)
-- ✅ **Requisito 4.5**: Notificaciones automáticas cuando los envíos se retrasan más allá de la fecha estimada de entrega
+¡Eso es todo! No necesitas navegar por capas técnicas.

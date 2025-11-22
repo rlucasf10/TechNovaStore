@@ -1,9 +1,22 @@
+// Forzar NODE_ENV='test' para que los mocks usen delays cortos
+process.env.NODE_ENV = 'test';
+
 module.exports = {
   ...require('../../../jest.config.base.js'),
   
   // Service-specific configuration
-  roots: ['<rootDir>/test'],
-  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
+  roots: [
+    '<rootDir>/execute-purchase',
+    '<rootDir>/orchestrate-purchase',
+    '<rootDir>/select-provider',
+    '<rootDir>/place-order',
+    '<rootDir>/handle-confirmation',
+    '<rootDir>/calculate-cost',
+    '<rootDir>/process-orders-batch',
+    '<rootDir>/get-purchase-status',
+    '<rootDir>/cancel-purchase',
+    '<rootDir>/get-processing-stats'
+  ],
   testTimeout: 20000,
   
   // Module path mapping for shared packages

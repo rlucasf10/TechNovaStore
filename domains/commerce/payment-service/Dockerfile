@@ -20,9 +20,15 @@ RUN npm install --legacy-peer-deps
 # Copy jest config from workspace root
 COPY jest.config.base.js /workspace/
 
-# Copy source code and tests
-COPY domains/commerce/payment-service/src ./src
-COPY domains/commerce/payment-service/test ./test
+# Copy source code (Screaming Architecture - casos de uso en la raíz)
+COPY domains/commerce/payment-service/process-payment ./process-payment
+COPY domains/commerce/payment-service/process-refund ./process-refund
+COPY domains/commerce/payment-service/get-payment-status ./get-payment-status
+COPY domains/commerce/payment-service/verify-payment ./verify-payment
+COPY domains/commerce/payment-service/shared ./shared
+COPY domains/commerce/payment-service/api ./api
+COPY domains/commerce/payment-service/config ./config
+COPY domains/commerce/payment-service/index.ts ./index.ts
 COPY domains/commerce/payment-service/jest.config.js ./jest.config.js
 
 # Expose port

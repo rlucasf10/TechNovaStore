@@ -1,47 +1,68 @@
 # Archivos y carpetas que Gemini Code Assist debe ignorar
-# Esto mejora la velocidad de indexación y reduce el uso de memoria
+# Optimizado para MÁXIMA velocidad de indexación y cero ruido
 
-# Dependencies
+# --- CRÍTICO: Dependencias y Lock Files ---
+# El uso de **/ asegura que se ignoren en cualquier nivel de profundidad
+**/node_modules/**
+**/node_modules
 node_modules/
+
+# Archivos de bloqueo (Suelen ser enormes y ralentizan el parseo)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# --- Frameworks & Build Outputs ---
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.serverless/
+target/
+vendor/
+bin/
+obj/
+
+# --- Logs & Debugging ---
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Build outputs
-dist/
-build/
-.next/
-out/
-
-# Logs
-logs/
-*.log
-
-# Coverage
+# --- Testing & Coverage ---
 coverage/
-.nyc_output
+.nyc_output/
+test-results/
+playwright-report/
+cypress/videos/
+cypress/screenshots/
+*.lcov
+*.xml
 
-# Cache directories
+# --- Caches ---
 .cache/
 .parcel-cache/
+.eslintcache
+.stylelintcache
 .rpt2_cache/
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
+*.pyc
+__pycache__/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# Test artifacts
-test-results/
-playwright-report/
-test-results.xml
-
-# OS files
+# --- IDE & System Metadata ---
+.git/
+.svn/
+.hg/
+.idea/
+.vscode/
 .DS_Store
 .DS_Store?
 ._*
@@ -50,16 +71,40 @@ test-results.xml
 ehthumbs.db
 Thumbs.db
 
-# Git internals
-.git/
-
-# Backup files
+# --- Archivos Temporales y Backups ---
+tmp/
+temp/
+*.tmp
+*.temp
 *.bak
 *.backup
-*.bundle
+*.swp
+*.swo
+*~
 
-# Large binary files
+# --- Archivos Binarios y de Medios Grandes ---
+# Evita que intente leer binarios como texto
 *.zip
 *.tar.gz
+*.rar
+*.7z
 *.sql
+*.sqlite
+*.db
 *.dump
+*.pdf
+*.ico
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.mp4
+*.mov
+*.mp3
+*.wav
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin

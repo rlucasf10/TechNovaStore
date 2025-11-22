@@ -13,10 +13,14 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "../../../shared/**/*"
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

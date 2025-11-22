@@ -8,7 +8,26 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": [
+    "index.ts",
+    "api/**/*",
+    "shared/**/*",
+    "register-user/**/*",
+    "authenticate-user/**/*",
+    "refresh-token/**/*",
+    "request-password-reset/**/*",
+    "confirm-password-reset/**/*",
+    "validate-access-token/**/*",
+    "oauth-authentication/**/*",
+    "get-user-profile/**/*",
+    "update-user-profile/**/*",
+    "change-password/**/*",
+    "deactivate-account/**/*",
+    "export-personal-data/**/*",
+    "request-account-deletion/**/*",
+    "cancel-account-deletion/**/*",
+    "manage-consent/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",

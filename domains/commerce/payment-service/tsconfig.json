@@ -11,10 +11,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "dist",
+    "**/*.test.ts",
     "../../../shared/**/*"
   ]
 }

@@ -22,9 +22,17 @@ RUN npm install --legacy-peer-deps
 # Copy jest config base from root
 COPY jest.config.base.js /workspace/
 
-# Copy source code, tests and jest config
-COPY domains/catalog/recommender-service/src ./src
-COPY domains/catalog/recommender-service/test ./test
+# Copy source code with Screaming Architecture structure
+COPY domains/catalog/recommender-service/*.ts ./
+COPY domains/catalog/recommender-service/get-user-recommendations ./get-user-recommendations
+COPY domains/catalog/recommender-service/get-similar-products ./get-similar-products
+COPY domains/catalog/recommender-service/get-session-recommendations ./get-session-recommendations
+COPY domains/catalog/recommender-service/get-trending-products ./get-trending-products
+COPY domains/catalog/recommender-service/record-interaction ./record-interaction
+COPY domains/catalog/recommender-service/update-models ./update-models
+COPY domains/catalog/recommender-service/shared ./shared
+COPY domains/catalog/recommender-service/api ./api
+COPY domains/catalog/recommender-service/config ./config
 COPY domains/catalog/recommender-service/jest.config.js ./jest.config.js
 
 # Expose port

@@ -2,13 +2,20 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "include": [
+    "index.ts",
+    "get-tracking-info/**/*",
+    "update-tracking-info/**/*",
+    "update-all-active-shipments/**/*",
+    "get-estimated-delivery/**/*",
+    "get-shipment-status/**/*",
+    "shared/**/*",
+    "api/**/*",
+    "config/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts", "**/*.spec.ts"]
 }

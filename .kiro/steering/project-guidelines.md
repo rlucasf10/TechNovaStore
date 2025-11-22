@@ -2,6 +2,66 @@
 
 Reglas y convenciones generales para el desarrollo de todo el proyecto TechNovaStore, una plataforma de e-commerce especializada en tecnología e informática con arquitectura de microservicios.
 
+## REGLA CRÍTICA DE REFACTORIZACIÓN (Screaming Architecture)
+
+**⚠️ IMPORTANTE**: Al refactorizar servicios a Screaming Architecture, seguir estas reglas ESTRICTAMENTE:
+
+### Reglas de Refactorización
+
+- ⚠️ **NUNCA reescribir código desde cero**
+- ✅ **SIEMPRE refactorizar código existente**
+- ✅ **MANTENER toda la lógica y funcionalidad original**
+- ✅ **SOLO reorganizar archivos y estructura**
+- ✅ **Verificar que tests originales siguen pasando**
+
+### Proceso de Refactorización Screaming Architecture
+
+1. **Leer y analizar** el código actual del servicio (src/services/, src/controllers/, src/models/)
+2. **Identificar métodos existentes** como casos de uso (ej: `sendOrderConfirmation` → `send-order-confirmation/`)
+3. **Crear carpetas por caso de uso EN LA RAÍZ** del servicio (al mismo nivel que src/, NO dentro de src/)
+4. **Extraer lógica** de cada método a su carpeta de caso de uso (MANTENER lógica original)
+5. **Crear tests MUY COMPLETOS** para cada caso de uso (mínimo 10-15 tests por caso de uso)
+6. **Consolidar infraestructura** en shared/ EN LA RAÍZ (modelos, repositorios, clientes, utilidades)
+7. **Reorganizar controladores y rutas** en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
+8. **Actualizar imports** y referencias manteniendo funcionalidad original
+9. **Validar** que tests pasan y servicio funciona EXACTAMENTE igual que antes
+10. **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+
+### Estructura Screaming Architecture
+
+```
+service-name/
+├── use-case-1/               # Caso de uso EN LA RAÍZ (nombre de negocio)
+│   ├── UseCaseName.ts        # Lógica del caso de uso (clase)
+│   └── UseCaseName.test.ts   # Tests MUY COMPLETOS (10-15 tests mínimo)
+├── use-case-2/
+│   ├── UseCaseName.ts
+│   └── UseCaseName.test.ts
+├── shared/                   # Infraestructura compartida EN LA RAÍZ
+│   ├── models/               # Modelos de datos (extraídos de src/models/)
+│   ├── repositories/         # Repositorios (si aplica)
+│   ├── clients/              # Clientes externos
+│   ├── utils/                # Utilidades (logger, etc.)
+│   └── types/                # Tipos compartidos
+├── api/                      # Capa de presentación HTTP EN LA RAÍZ
+│   ├── Controller.ts         # Controlador (extraído de src/controllers/)
+│   └── routes.ts             # Rutas (extraídas de src/routes/)
+├── config/                   # Configuración EN LA RAÍZ
+│   └── index.ts
+├── index.ts                  # Entry point EN LA RAÍZ
+├── package.json
+└── tsconfig.json
+
+NOTA: Las carpetas src/ y dist/ deben BORRARSE completamente después de la refactorización
+```
+
+### Lo que NO hacer
+
+- ❌ NO usar carpetas técnicas (domain/, application/, infrastructure/, presentation/)
+- ❌ NO usar carpeta test/ separada
+- ❌ NO reescribir lógica desde cero
+- ❌ NO cambiar comportamiento del servicio
+
 ## Idioma de Respuestas
 
 **IMPORTANTE**: Todas las respuestas en el chat deben ser en español.

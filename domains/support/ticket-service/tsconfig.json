@@ -2,8 +2,37 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": [
+    "index.ts",
+    "config/**/*",
+    "shared/**/*",
+    "api/**/*",
+    "create-ticket/**/*",
+    "create-ticket-from-chatbot/**/*",
+    "get-ticket/**/*",
+    "update-ticket/**/*",
+    "add-message/**/*",
+    "resolve-ticket/**/*",
+    "close-ticket/**/*",
+    "escalate-to-human/**/*",
+    "get-ticket-messages/**/*",
+    "create-satisfaction-survey/**/*",
+    "send-satisfaction-survey/**/*",
+    "get-satisfaction-metrics/**/*",
+    "generate-satisfaction-alerts/**/*",
+    "get-satisfaction-trends/**/*",
+    "analyze-feedback-sentiment/**/*",
+    "get-ticket-metrics/**/*",
+    "get-detailed-metrics/**/*",
+    "get-response-time-metrics/**/*",
+    "get-tickets-approaching-sla-breach/**/*",
+    "get-ticket-audit-trail/**/*",
+    "get-ticket-audit-summary/**/*",
+    "get-sla-benchmarks/**/*",
+    "update-sla-benchmark/**/*",
+    "analyze-for-escalation/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts"]
 }

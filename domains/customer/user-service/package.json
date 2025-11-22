@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-old-space-size=512' nodemon --exec ts-node --transpile-only src/index.ts",
+    "dev": "NODE_OPTIONS='--max-old-space-size=512' nodemon --exec ts-node --transpile-only index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",
-    "security-check": "node scripts/security-check.js",
-    "test:gdpr": "jest --testPathPattern=gdpr-simple.test.ts"
+    "security-check": "node scripts/security-check.js"
   },
   "dependencies": {
     "@technovastore/shared-config": "file:../../../shared/infrastructure/config",

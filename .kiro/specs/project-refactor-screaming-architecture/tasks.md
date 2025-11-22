@@ -568,100 +568,226 @@ El plan está organizado en 6 fases principales, cada una con tareas y subtareas
 
 ---
 
-## Phase 4: Estandarización de Microservicios
+## Phase 4: Estandarización de Microservicios con Screaming Architecture
 
-- [ ] 25. Crear plantilla de estructura estándar
+**IMPORTANTE**: Todos los servicios deben seguir Screaming Architecture con:
+- Organización por casos de uso (carpetas con nombres de negocio)
+- Tests junto al código que prueban (dentro de cada carpeta de caso de uso)
+- Infraestructura compartida en shared/
+- Capa API separada en api/
+- NO usar carpetas técnicas (domain/, application/, infrastructure/, presentation/)
+- NO usar carpeta test/ separada
+
+**REGLA CRÍTICA DE REFACTORIZACIÓN**:
+- ⚠️ **NUNCA reescribir código desde cero**
+- ✅ **SIEMPRE refactorizar código existente**
+- ✅ **MANTENER toda la lógica y funcionalidad original**
+- ✅ **SOLO reorganizar archivos y estructura**
+- ✅ **Verificar que tests originales siguen pasando**
+
+- [x] 25. Crear plantilla de estructura estándar con Screaming Architecture
   - Documentar estructura estándar en STANDARD_SERVICE_STRUCTURE.md
-  - Crear script para generar estructura estándar
+  - Crear script para generar estructura estándar por casos de uso
   - Crear script para analizar estructura actual de servicio
-  - _Requirements: 5.1, 5.2_
+  - _Requirements: 5.1, 5.2, 5.6, 5.7_
 
-- [ ] 26. Estandarizar servicios simples (notification, shipment-tracker)
-- [ ] 26.1 Estandarizar notification-service
-  - Analizar estructura actual
-  - Crear estructura estándar (domain, application, infrastructure, presentation)
-  - Mover archivos a nuevas ubicaciones
-  - Actualizar imports
-  - Reorganizar tests (unit, integration, e2e)
-  - Validar servicio
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 26. Estandarizar servicios simples con Screaming Architecture (notification, shipment-tracker)
+- [x] 26.1 Estandarizar notification-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - Leer y analizar código actual en src/services/NotificationService.ts
+  - Identificar métodos existentes como casos de uso (sendOrderConfirmation → send-order-confirmation)
+  - Crear carpetas por caso de uso basadas en métodos existentes
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Mover EmailService y TemplateService a shared/email/ y shared/templates/
+  - Mover DelayDetector a shared/utils/
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 26.2 Estandarizar shipment-tracker
-  - Aplicar mismo proceso que notification-service
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 26.2 Estandarizar shipment-tracker con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - Leer y analizar código actual en src/services/ShipmentTracker.ts
+  - Identificar métodos existentes como casos de uso
+  - Crear carpetas por caso de uso basadas en métodos existentes
+  - Extraer lógica de cada método a su carpeta (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Mover providers a shared/providers/
+  - Mover NotificationService a shared/clients/
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 27. Estandarizar servicios core (product, user, order, payment)
-- [ ] 27.1 Estandarizar product-service
-  - Analizar estructura actual
-  - Crear estructura estándar
-  - Mover archivos (controllers → presentation, models → domain, etc.)
-  - Actualizar imports
-  - Reorganizar tests
-  - Validar servicio
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 27. Estandarizar servicios core con Screaming Architecture (product, user, order, payment)
+- [x] 27.1 Estandarizar product-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - Leer y analizar código actual del servicio
+  - Identificar casos de uso (create-product, update-product, search-products, etc.)
+  - Crear carpetas por caso de uso basadas en funcionalidad existente
+  - Extraer lógica existente a cada carpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 27.2 Estandarizar user-service
-  - Aplicar mismo proceso
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 27.2 Estandarizar user-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/, src/models/)
+  - Identificar métodos existentes como casos de uso (register-user, authenticate-user, update-profile, etc.)
+  - Crear carpetas por caso de uso EN LA RAÍZ basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Crear tests MUY COMPLETOS para cada caso de uso (mínimo 10-15 tests por caso de uso)
+  - Consolidar infraestructura en shared/ EN LA RAÍZ (modelos, repositorios, validadores, middleware, utils)
+  - Reorganizar controladores y rutas en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 27.3 Estandarizar order-service
-  - Aplicar mismo proceso
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 27.3 Estandarizar order-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/, src/models/)
+  - Identificar métodos existentes como casos de uso (create-order, update-order-status, cancel-order, etc.)
+  - Crear carpetas por caso de uso EN LA RAÍZ basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Crear tests MUY COMPLETOS para cada caso de uso (mínimo 10-15 tests por caso de uso)
+  - Consolidar infraestructura en shared/ EN LA RAÍZ (modelos, repositorios, validadores, utils)
+  - Reorganizar controladores y rutas en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 27.4 Estandarizar payment-service
-  - Aplicar mismo proceso
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 27.4 Estandarizar payment-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/, src/models/)
+  - Identificar métodos existentes como casos de uso (process-payment, refund-payment, verify-payment, etc.)
+  - Crear carpetas por caso de uso EN LA RAÍZ basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Crear tests MUY COMPLETOS para cada caso de uso (mínimo 10-15 tests por caso de uso)
+  - Consolidar infraestructura en shared/ EN LA RAÍZ (modelos, repositorios, providers de pago, utils)
+  - Reorganizar controladores y rutas en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 28. Estandarizar servicios de automatización
-- [ ] 28.1 Estandarizar sync-engine
-  - Aplicar proceso de estandarización
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 28. Estandarizar servicios de automatización con Screaming Architecture
+- [x] 28.1 Estandarizar sync-engine con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/, src/models/)
+  - Identificar métodos existentes como casos de uso (sync-products, sync-inventory, sync-prices, etc.)
+  - Crear carpetas por caso de uso EN LA RAÍZ basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Crear tests MUY COMPLETOS para cada caso de uso (mínimo 10-15 tests por caso de uso)
+  - Consolidar infraestructura en shared/ EN LA RAÍZ (modelos, clientes externos, transformadores, schedulers, utils)
+  - Reorganizar controladores y rutas en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 28.2 Estandarizar auto-purchase-service
-  - Aplicar proceso de estandarización
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 28.2 Estandarizar auto-purchase-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/, src/models/)
+  - Identificar métodos existentes como casos de uso (schedule-purchase, execute-purchase, verify-purchase, etc.)
+  - Crear carpetas por caso de uso EN LA Rpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/ (schedulers, clientes de pago, validadores, etc.)
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 29. Estandarizar servicios de soporte
-- [ ] 29.1 Estandarizar ticket-service
-  - Aplicar proceso de estandarización
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 29. Estandarizar servicios de soporte
+- [x] 29.1 Estandarizar ticket-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (src/services/, src/controllers/)
+  - Identificar métodos existentes como casos de uso (create-ticket, assign-ticket, resolve-ticket, etc.)
+  - Crear carpetas por caso de uso basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/ (repositorios, notificadores, models, etc.)
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
 - [ ] 30. Estandarizar servicios complejos (chatbot, recommender, api-gateway)
-- [ ] 30.1 Estandarizar chatbot-service
-  - Analizar estructura actual (más compleja)
-  - Crear estructura estándar adaptada
-  - Mover archivos cuidadosamente
-  - Actualizar imports
-  - Reorganizar tests
-  - Validar servicio exhaustivamente
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 30.1 Estandarizar chatbot-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (estructura más compleja con IA, src/services/, src/controllers/)
+  - Identificar métodos existentes como casos de uso (process-message, recognize-intent, generate-response, etc.)
+  - Crear carpetas por caso de uso basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/ (clientes Ollama, recognizers, knowledge base, etc.)
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 30.2 Estandarizar recommender-service
-  - Aplicar proceso adaptado para servicio de ML
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 30.2 Estandarizar recommender-service con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (servicio de ML/recomendaciones, src/services/, src/controllers/)
+  - Identificar métodos existentes como casos de uso (get-recommendations, calculate-similarity, update-user-preferences, etc.)
+  - Crear carpetas por caso de uso basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/ (algoritmos ML, calculadores, repositorios, etc.)
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 30.3 Estandarizar api-gateway
-  - Aplicar proceso adaptado para gateway
-  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 30.3 Estandarizar api-gateway con Screaming Architecture
+  - **IMPORTANTE**: REFACTORIZAR código existente, NO reescribir desde cero
+  - **ESTRUCTURA**: Casos de uso EN LA RAÍZ del servicio (NO dentro de src/)
+  - Leer y analizar código actual del servicio (gateway con routing y middleware, src/services/, src/controllers/)
+  - Identificar métodos existentes como casos de uso (route-request, authenticate-request, rate-limit, etc.)
+  - Crear carpetas por caso de uso basadas en funcionalidad existente
+  - Extraer lógica de cada método a su carpeta de caso de uso (MANTENER lógica original)
+  - Extraer tests existentes y moverlos junto a cada caso de uso
+  - Consolidar infraestructura en shared/ (middleware, clientes de servicios, etc.)
+  - Reorganizar controladores y rutas existentes en capa api/ (extraer de src/controllers/ y src/routes/)
+  - Actualizar imports y referencias manteniendo funcionalidad original
+  - Validar que tests pasan y servicio funciona EXACTAMENTE igual que antes
+  - **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 31. Validar estandarización completa
-- [ ] 31.1 Verificar estructura de todos los servicios
-  - Verificar que todos siguen estructura estándar
+- [-] 31. Validar estandarización completa
+- [x] 31.1 Verificar estructura de todos los servicios
+  - Verificar que todos siguen estructura screaming architecture
   - Generar reporte de cumplimiento
   - _Requirements: 5.5_
 
-- [ ] 31.2 Validar todos los servicios
+- [x] 31.2 Validar todos los servicios
   - Compilar todos los servicios
-  - Iniciar todos los contenedores
-  - Verificar health checks
+  - Iniciar todos los contenedores (ya estan iniciados)
+  - Verificar health checks (el sync-engine es normal que esté unhealthy)
   - _Requirements: 6.1, 6.2, 9.4_
 
-- [ ] 31.3 Ejecutar suite completa de tests
+- [x] 31.3 Ejecutar suite completa de tests
   - Ejecutar tests de todos los servicios
   - Verificar cobertura de tests
   - _Requirements: 9.4_
 
-- [ ] 31.4 Crear checkpoint de Git
+- [-] 31.4 Crear checkpoint de Git
   - Commit: "Phase 4: Standardize microservices structure"
   - Crear tag: `phase-4-complete`
   - _Requirements: 6.5_

@@ -216,45 +216,93 @@ const serviceToDomain = {
 ```
 
 
-### 5. Estandarizador de Microservicios
+### 5. Estandarizador de Microservicios con Screaming Architecture
 
 #### ServiceStandardizer
 
-**Responsabilidad**: Estandarizar estructura interna de microservicios
+**Responsabilidad**: Estandarizar estructura interna de microservicios usando Screaming Architecture
 
-**Estructura Estándar**:
+**Estructura Estándar (Screaming Architecture)**:
 ```
 service-name/
-├── src/
-│   ├── domain/              # Lógica de dominio
-│   │   ├── entities/
-│   │   ├── value-objects/
-│   │   └── repositories/
-│   ├── application/         # Casos de uso
-│   │   ├── use-cases/
-│   │   └── services/
-│   ├── infrastructure/      # Implementaciones técnicas
+├── use-case-1/                    # Caso de uso 1 (nombre descriptivo del negocio)
+│   ├── UseCaseHandler.ts          # Lógica principal del caso de uso
+│   ├── UseCaseEntities.ts         # Entidades específicas
+│   ├── UseCaseRepository.ts       # Repositorio si es necesario
+│   ├── UseCaseTemplate.ts         # Templates/helpers específicos
+│   └── UseCase.test.ts            # Tests del caso de uso
+├── use-case-2/                    # Caso de uso 2
+│   ├── UseCaseHandler.ts
+│   ├── UseCaseEntities.ts
+│   └── UseCase.test.ts
+├── use-case-3/                    # Caso de uso 3
+│   └── ...
+├── shared/                        # Código compartido entre casos de uso
+│   ├── infrastructure/            # Servicios de infraestructura
 │   │   ├── database/
-│   │   ├── http/
-│   │   └── external/
-│   └── presentation/        # Controladores y rutas
-│       ├── controllers/
-│       ├── routes/
-│       └── middleware/
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── e2e/
-├── config/
-│   ├── development.ts
-│   ├── production.ts
-│   └── test.ts
-├── docs/
+│   │   ├── email/
+│   │   └── http/
+│   ├── types/                     # Tipos compartidos
+│   │   └── index.ts
+│   ├── utils/                     # Utilidades compartidas
+│   │   └── helpers.ts
+│   └── errors/                    # Errores personalizados
+│       └── CustomErrors.ts
+├── api/                           # Capa de presentación HTTP
+│   ├── controllers/               # Controladores HTTP
+│   │   └── ServiceController.ts
+│   ├── routes/                    # Definición de rutas
+│   │   └── routes.ts
+│   └── middleware/                # Middleware HTTP
+│       └── validation.ts
+├── config/                        # Configuración
+│   └── index.ts
+├── docs/                          # Documentación
 │   ├── README.md
 │   └── API.md
 ├── Dockerfile
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+└── index.ts                       # Punto de entrada
+```
+
+**Ejemplo Concreto (notification-service)**:
+```
+notification-service/
+├── send-order-confirmation/       # GRITA: "Enviar confirmación de pedido"
+│   ├── SendOrderConfirmation.ts
+│   ├── OrderConfirmationTemplate.ts
+│   └── SendOrderConfirmation.test.ts
+├── send-shipment-status/          # GRITA: "Enviar estado de envío"
+│   ├── SendShipmentStatus.ts
+│   ├── ShipmentStatusTemplate.ts
+│   └── SendShipmentStatus.test.ts
+├── send-delay-alert/              # GRITA: "Enviar alerta de retraso"
+│   ├── SendDelayAlert.ts
+│   ├── DelayAlertTemplate.ts
+│   └── SendDelayAlert.test.ts
+├── send-payment-confirmation/     # GRITA: "Enviar confirmación de pago"
+│   └── ...
+├── send-order-cancellation/       # GRITA: "Enviar cancelación"
+│   └── ...
+├── check-delivery-delays/         # GRITA: "Verificar retrasos en entregas"
+│   ├── CheckDeliveryDelays.ts
+│   ├── DelayDetector.ts
+│   ├── DelayScheduler.ts
+│   └── CheckDeliveryDelays.test.ts
+├── shared/                        # Infraestructura compartida
+│   ├── email/
+│   │   └── EmailService.ts
+│   ├── types/
+│   │   └── index.ts
+│   └── templates/
+│       └── BaseTemplate.ts
+├── api/
+│   ├── NotificationController.ts
+│   └── routes.ts
+├── config/
+│   └── index.ts
+└── index.ts
 ```
 
 **Métodos**:

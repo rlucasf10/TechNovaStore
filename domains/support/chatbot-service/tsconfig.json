@@ -2,8 +2,22 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "."
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": [
+    "index.ts",
+    "process-message/**/*",
+    "process-message-streaming/**/*",
+    "process-with-ollama/**/*",
+    "use-simple-fallback/**/*",
+    "retrieve-products-rag/**/*",
+    "recognize-intent/**/*",
+    "generate-response/**/*",
+    "manage-session/**/*",
+    "escalate-to-human/**/*",
+    "shared/**/*",
+    "api/**/*",
+    "config/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "src", "test", "**/*.test.ts"]
 }

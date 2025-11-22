@@ -11,6 +11,6 @@
       "@technovastore/shared-models": ["../../../shared/domain/models/src"]
     }
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["**/*.ts", "test/**/*"],
   "exclude": ["node_modules", "dist", "../../../shared/**/*"]
 }

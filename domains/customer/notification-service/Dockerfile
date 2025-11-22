@@ -20,10 +20,8 @@ RUN npm install --legacy-peer-deps
 # Copy jest config from workspace root
 COPY jest.config.base.js /workspace/
 
-# Copy source code and tests
-COPY domains/customer/notification-service/src ./src
-COPY domains/customer/notification-service/test ./test
-COPY domains/customer/notification-service/jest.config.js ./jest.config.js
+# Copy all source code (Screaming Architecture structure - includes tests)
+COPY domains/customer/notification-service/ ./
 
 # Expose port
 EXPOSE 3000

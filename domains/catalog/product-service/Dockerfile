@@ -22,10 +22,21 @@ RUN npm install --legacy-peer-deps
 # Copy jest config base from root
 COPY jest.config.base.js /workspace/
 
-# Copy source code, tests and jest config
-COPY domains/catalog/product-service/src ./src
-COPY domains/catalog/product-service/test ./test
+# Copy source code and jest config
+COPY domains/catalog/product-service/config ./config
+COPY domains/catalog/product-service/shared ./shared
+COPY domains/catalog/product-service/api ./api
+COPY domains/catalog/product-service/list-products ./list-products
+COPY domains/catalog/product-service/get-product-by-id ./get-product-by-id
+COPY domains/catalog/product-service/get-product-by-sku ./get-product-by-sku
+COPY domains/catalog/product-service/create-product ./create-product
+COPY domains/catalog/product-service/update-product ./update-product
+COPY domains/catalog/product-service/delete-product ./delete-product
+COPY domains/catalog/product-service/search-products ./search-products
+COPY domains/catalog/product-service/get-related-products ./get-related-products
+COPY domains/catalog/product-service/index.ts ./index.ts
 COPY domains/catalog/product-service/jest.config.js ./jest.config.js
+COPY domains/catalog/product-service/jest.setup.ts ./jest.setup.ts
 
 # Expose port
 EXPOSE 3000

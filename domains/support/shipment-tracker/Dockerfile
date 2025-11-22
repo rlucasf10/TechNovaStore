@@ -15,9 +15,19 @@ COPY domains/support/shipment-tracker/jest.config.js ./
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy source code and tests
-COPY domains/support/shipment-tracker/src ./src
+# Copy tests
 COPY domains/support/shipment-tracker/test ./test
+
+# Copy estructura Screaming Architecture
+COPY domains/support/shipment-tracker/index.ts ./index.ts
+COPY domains/support/shipment-tracker/get-tracking-info ./get-tracking-info
+COPY domains/support/shipment-tracker/update-tracking-info ./update-tracking-info
+COPY domains/support/shipment-tracker/update-all-active-shipments ./update-all-active-shipments
+COPY domains/support/shipment-tracker/get-estimated-delivery ./get-estimated-delivery
+COPY domains/support/shipment-tracker/get-shipment-status ./get-shipment-status
+COPY domains/support/shipment-tracker/shared ./shared
+COPY domains/support/shipment-tracker/api ./api
+COPY domains/support/shipment-tracker/config ./config
 
 # Expose port
 EXPOSE 3000

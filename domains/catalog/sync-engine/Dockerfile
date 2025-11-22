@@ -22,10 +22,8 @@ RUN npm install --legacy-peer-deps
 # Copy jest config base from root
 COPY jest.config.base.js /workspace/
 
-# Copy source code, tests and jest config
-COPY domains/catalog/sync-engine/src ./src
-COPY domains/catalog/sync-engine/test ./test
-COPY domains/catalog/sync-engine/jest.config.js ./jest.config.js
+# Copy all source code (use cases, shared, api, config, tests)
+COPY domains/catalog/sync-engine/ ./
 
 # Expose port
 EXPOSE 3000

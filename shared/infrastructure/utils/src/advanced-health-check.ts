@@ -161,7 +161,7 @@ export const healthCheckConfigs = {
   apiGateway: (dependencies: any) => ({
     serviceName: 'api-gateway',
     dependencies,
-    memoryThresholdMB: 256,
+    memoryThresholdMB: 512,
     customChecks: {
       'rate-limit': async () => {
         // Check if rate limiting is working

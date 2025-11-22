@@ -1,203 +1,245 @@
-# Reporte de Validación de Estructura de Dominios
+# Reporte de Validación de Screaming Architecture
 
-**Fecha**: 9 de noviembre de 2025  
-**Fase**: Phase 3 - Reorganización a Dominios  
-**Tarea**: 24.1 - Validar estructura de dominios  
-**Estado**: ✅ VALIDACIÓN EXITOSA
+Fecha: 22/11/2025, 0:32:59
 
----
+## Resumen
 
-## Resumen Ejecutivo
+- **Total de servicios analizados**: 13
+- **Puntuación promedio**: 92%
 
-La validación de la estructura de dominios ha sido completada exitosamente. Todos los servicios han sido migrados correctamente a sus dominios correspondientes según la arquitectura Screaming Architecture, y no quedan servicios en las ubicaciones antiguas.
+### Distribución por Estado
 
----
+- 🟢 **Excelente** (≥90%): 12 servicios
+- 🟡 **Bueno** (70-89%): 0 servicios
+- 🟠 **Necesita mejoras** (50-69%): 0 servicios
+- 🔴 **Pobre** (<50%): 1 servicios
 
-## Estructura de Dominios Validada
+## Resultados por Dominio
 
-### 📊 Estadísticas Generales
+### Dominio: catalog
 
-- **Total de dominios**: 5
-- **Total de servicios**: 13
-- **Ubicaciones antiguas eliminadas**: 3 (services/, ai-services/, automation/)
+#### 🟢 product-service (100%)
 
-### 📁 Dominios y Servicios
+**Ruta**: `domains/catalog/product-service`
 
-#### 1. Dominio: `catalog` (Gestión de Catálogo)
-**Propósito**: Gestión de productos, sincronización con proveedores, recomendaciones ML
+**Criterios de validación**:
 
-✅ **Servicios (3)**:
-- `product-service` - Gestión de productos
-- `sync-engine` - Motor de sincronización con proveedores
-- `recommender-service` - Sistema de recomendaciones con ML
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 8 carpetas de casos de uso: create-product, delete-product, get-product-by-id...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 8 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-**Ubicación**: `domains/catalog/`
+#### 🟢 recommender-service (100%)
 
----
+**Ruta**: `domains/catalog/recommender-service`
 
-#### 2. Dominio: `commerce` (Comercio y Transacciones)
-**Propósito**: Procesamiento de pedidos, pagos, compras automáticas
+**Criterios de validación**:
 
-✅ **Servicios (3)**:
-- `order-service` - Gestión de pedidos
-- `payment-service` - Procesamiento de pagos
-- `auto-purchase-service` - Compras automáticas
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 6 carpetas de casos de uso: get-session-recommendations, get-similar-products, get-trending-products...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 6 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-**Ubicación**: `domains/commerce/`
+#### 🟢 sync-engine (100%)
 
----
+**Ruta**: `domains/catalog/sync-engine`
 
-#### 3. Dominio: `customer` (Gestión de Clientes)
-**Propósito**: Gestión de usuarios, autenticación, notificaciones
+**Criterios de validación**:
 
-✅ **Servicios (2)**:
-- `user-service` - Gestión de usuarios y autenticación
-- `notification-service` - Envío de notificaciones
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 12 carpetas de casos de uso: analyze-market, cleanup-old-data, compare-product-prices...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 12 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-**Ubicación**: `domains/customer/`
+### Dominio: commerce
 
----
+#### 🟢 auto-purchase-service (100%)
 
-#### 4. Dominio: `support` (Soporte al Cliente)
-**Propósito**: Soporte al cliente, asistente IA, seguimiento de envíos
+**Ruta**: `domains/commerce/auto-purchase-service`
 
-✅ **Servicios (3)**:
-- `ticket-service` - Gestión de tickets de soporte
-- `chatbot-service` - Asistente conversacional con IA
-- `shipment-tracker` - Seguimiento de envíos
+**Criterios de validación**:
 
-**Ubicación**: `domains/support/`
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 10 carpetas de casos de uso: calculate-cost, cancel-purchase, execute-purchase...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 10 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
----
+#### 🟢 order-service (100%)
 
-#### 5. Dominio: `platform` (Plataforma y Gateway)
-**Propósito**: Punto de entrada, interfaz de usuario
+**Ruta**: `domains/commerce/order-service`
 
-✅ **Servicios (2)**:
-- `api-gateway` - API Gateway principal
-- `frontend` - Aplicación web frontend
+**Criterios de validación**:
 
-**Ubicación**: `domains/platform/`
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 22 carpetas de casos de uso: cancel-invoice, create-order, generate-automatic-invoice...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 22 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
----
+#### 🟢 payment-service (100%)
 
-## Verificación de Ubicaciones Antiguas
+**Ruta**: `domains/commerce/payment-service`
 
-### ✅ Carpetas Eliminadas Correctamente
+**Criterios de validación**:
 
-Las siguientes ubicaciones antiguas (tecnología-céntricas) han sido eliminadas:
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 4 carpetas de casos de uso: get-payment-status, process-payment, process-refund...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 4 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-1. ✅ `services/` - Eliminada
-2. ✅ `ai-services/` - Eliminada
-3. ✅ `automation/` - Eliminada
+### Dominio: customer
 
-**Resultado**: No quedan servicios en ubicaciones antiguas. Todos han sido migrados a la estructura de dominios.
+#### 🟢 notification-service (100%)
 
----
+**Ruta**: `domains/customer/notification-service`
 
-## Cumplimiento de Requisitos
+**Criterios de validación**:
 
-### Requirement 3.1: Estructura de Dominios
-✅ **CUMPLIDO**: Estructura basada en dominios de negocio creada correctamente
-- 5 dominios principales: catalog, commerce, customer, support, platform
-- Cada dominio tiene su propósito claramente definido
-- Estructura refleja el dominio del negocio, no la tecnología
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 7 carpetas de casos de uso: check-delivery-delays, send-delay-alert, send-invoice-generated...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 7 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-### Requirement 3.2: Organización por Casos de Uso
-✅ **CUMPLIDO**: Servicios agrupados por funcionalidad de negocio
-- Servicios relacionados agrupados en el mismo dominio
-- Separación clara de responsabilidades
-- Independencia de microservicios mantenida
+#### 🟢 user-service (100%)
 
----
+**Ruta**: `domains/customer/user-service`
 
-## Mapeo de Servicios (Antes → Después)
+**Criterios de validación**:
 
-### Migración desde `services/`
-- `services/product/` → `domains/catalog/product-service/`
-- `services/order/` → `domains/commerce/order-service/`
-- `services/user/` → `domains/customer/user-service/`
-- `services/payment/` → `domains/commerce/payment-service/`
-- `services/notification/` → `domains/customer/notification-service/`
-- `services/ticket/` → `domains/support/ticket-service/`
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 15 carpetas de casos de uso: authenticate-user, cancel-account-deletion, change-password...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 15 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-### Migración desde `ai-services/`
-- `ai-services/chatbot/` → `domains/support/chatbot-service/`
-- `ai-services/recommender/` → `domains/catalog/recommender-service/`
+### Dominio: platform
 
-### Migración desde `automation/`
-- `automation/sync-engine/` → `domains/catalog/sync-engine/`
-- `automation/auto-purchase/` → `domains/commerce/auto-purchase-service/`
-- `automation/shipment-tracker/` → `domains/support/shipment-tracker/`
+#### 🟢 api-gateway (100%)
 
-### Migración desde raíz
-- `api-gateway/` → `domains/platform/api-gateway/`
-- `frontend/` → `domains/platform/frontend/`
+**Ruta**: `domains/platform/api-gateway`
 
----
+**Criterios de validación**:
 
-## Validación Técnica
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 6 carpetas de casos de uso: authenticate-request, monitor-security, proxy-request...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 6 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-### Script de Validación
-**Ubicación**: `scripts/validate-domain-structure.js`
+#### 🔴 frontend (0%)
 
-**Verificaciones realizadas**:
-1. ✅ Existencia de carpeta `domains/`
-2. ✅ Existencia de todos los dominios esperados
-3. ✅ Presencia de todos los servicios en sus dominios
-4. ✅ Ausencia de ubicaciones antiguas
-5. ✅ Generación de reporte estadístico
+**Ruta**: `domains/platform/frontend`
 
-**Resultado**: Exit Code 0 (Éxito)
+**Criterios de validación**:
 
----
+- ❌ **Carpetas de casos de uso en raíz** (0/30 pts): ✗ Solo 0 carpetas de casos de uso (se requieren al menos 2)
+- ❌ **Sin carpeta src/** (0/20 pts): ✗ Tiene carpeta src/ (debe mover código a raíz)
+- ❌ **Carpeta shared/ con infraestructura** (0/15 pts): ✗ No tiene carpeta shared/
+- ❌ **Carpeta api/ con presentación HTTP** (0/15 pts): ✗ No tiene carpeta api/
+- ❌ **Tests junto al código** (0/10 pts): ✗ No se encontraron tests
+- ❌ **Carpeta config/** (0/5 pts): ✗ No tiene carpeta config/
+- ❌ **Archivo index.ts en raíz** (0/5 pts): ✗ No tiene index.ts en raíz
 
-## Beneficios de la Nueva Estructura
+**Recomendaciones**:
 
-### 1. Screaming Architecture
-La estructura ahora "grita" QUÉ HACE el sistema:
-- Al ver `domains/catalog/` → Inmediatamente claro que gestiona el catálogo
-- Al ver `domains/commerce/` → Inmediatamente claro que maneja transacciones
-- Al ver `domains/support/` → Inmediatamente claro que es soporte al cliente
+- Debe tener al menos 2 carpetas de casos de uso con nombres descriptivos del negocio
+- El código debe estar en la raíz, no dentro de src/
+- Debe tener shared/ con subcarpetas como models/, utils/, types/
+- Debe tener api/ con controladores y rutas
+- Los tests deben estar en las carpetas de casos de uso, no en test/ separada
+- Debe tener config/ para configuración
+- Debe tener index.ts como punto de entrada en la raíz
 
-### 2. Organización por Dominio de Negocio
-- Servicios relacionados están juntos
-- Fácil encontrar funcionalidad por área de negocio
-- Mejor comprensión del sistema para nuevos desarrolladores
+### Dominio: support
 
-### 3. Escalabilidad
-- Fácil agregar nuevos servicios a dominios existentes
-- Fácil crear nuevos dominios si el negocio crece
-- Separación clara de responsabilidades
+#### 🟢 chatbot-service (100%)
 
-### 4. Mantenibilidad
-- Cambios en un dominio no afectan otros dominios
-- Documentación organizada por dominio
-- Tests organizados por dominio
+**Ruta**: `domains/support/chatbot-service`
 
----
+**Criterios de validación**:
 
-## Próximos Pasos
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 9 carpetas de casos de uso: escalate-to-human, generate-response, manage-session...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 9 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
 
-### Tareas Pendientes en Phase 3
-- [ ] 24.2 - Validar todos los servicios (compilación, Docker, health checks)
-- [ ] 24.3 - Ejecutar suite completa de tests
-- [ ] 24.4 - Crear checkpoint de Git
+#### 🟢 shipment-tracker (100%)
 
-### Recomendaciones
-1. Mantener esta estructura de dominios como estándar
-2. Documentar en qué dominio va cada nuevo servicio
-3. Actualizar README principal con nueva estructura
-4. Crear guía de navegación para desarrolladores
+**Ruta**: `domains/support/shipment-tracker`
 
----
+**Criterios de validación**:
+
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 5 carpetas de casos de uso: get-estimated-delivery, get-shipment-status, get-tracking-info...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 5 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
+
+#### 🟢 ticket-service (100%)
+
+**Ruta**: `domains/support/ticket-service`
+
+**Criterios de validación**:
+
+- ✅ **Carpetas de casos de uso en raíz** (30/30 pts): ✓ Encontradas 24 carpetas de casos de uso: add-message, analyze-feedback-sentiment, analyze-for-escalation...
+- ✅ **Sin carpeta src/** (20/20 pts): ✓ No tiene carpeta src/ (código en raíz)
+- ✅ **Carpeta shared/ con infraestructura** (15/15 pts): ✓ Tiene carpeta shared/
+- ✅ **Carpeta api/ con presentación HTTP** (15/15 pts): ✓ Tiene carpeta api/
+- ✅ **Tests junto al código** (10/10 pts): ✓ 24 tests junto al código
+- ✅ **Carpeta config/** (5/5 pts): ✓ Tiene carpeta config/
+- ✅ **Archivo index.ts en raíz** (5/5 pts): ✓ Tiene index.ts en raíz
+
+## Cumplimiento por Criterio
+
+| Criterio | Servicios que cumplen | Porcentaje |
+|----------|----------------------|------------|
+| Carpetas de casos de uso en raíz | 12/13 | 92% |
+| Sin carpeta src/ | 12/13 | 92% |
+| Carpeta shared/ con infraestructura | 12/13 | 92% |
+| Carpeta api/ con presentación HTTP | 12/13 | 92% |
+| Tests junto al código | 12/13 | 92% |
+| Carpeta config/ | 12/13 | 92% |
+| Archivo index.ts en raíz | 12/13 | 92% |
+
+## Servicios que Necesitan Atención
+
+Los siguientes servicios tienen puntuaciones bajas y deben ser refactorizados:
+
+- **frontend** (platform): 0% - `domains/platform/frontend`
 
 ## Conclusión
 
-✅ **La estructura de dominios ha sido validada exitosamente**
+✅ **Excelente**: La mayoría de los servicios siguen correctamente Screaming Architecture.
 
-La migración a Screaming Architecture está completa en términos de estructura de carpetas. Todos los servicios están correctamente ubicados en sus dominios correspondientes, y no quedan servicios en ubicaciones antiguas.
+---
 
-La estructura ahora refleja claramente el dominio del negocio (catálogo, comercio, clientes, soporte, plataforma) en lugar de la tecnología utilizada (servicios, IA, automatización).
-
-**Estado de Phase 3**: En progreso - Estructura validada, pendiente validación de servicios y tests.
+*Reporte generado automáticamente por validate-screaming-architecture.js*

@@ -67,17 +67,19 @@ Este documento define los requisitos para la refactorización completa del proye
 4. WHEN el sistema identifica archivos temporales, THE System SHALL eliminar archivos de log, cache y temporales que no deben estar en el repositorio
 5. WHEN el sistema completa la limpieza, THE System SHALL mantener solo archivos esenciales en la raíz (README.md, package.json, docker-compose.yml, .gitignore)
 
-### Requirement 5: Estandarización de Estructura Interna de Microservicios
+### Requirement 5: Estandarización de Estructura Interna de Microservicios con Screaming Architecture
 
-**User Story:** Como desarrollador, quiero que todos los microservicios sigan la misma estructura interna, para facilitar la navegación y el mantenimiento.
+**User Story:** Como desarrollador, quiero que todos los microservicios sigan Screaming Architecture internamente, para que la estructura refleje los casos de uso del negocio y sea inmediatamente comprensible.
 
 #### Acceptance Criteria
 
-1. WHEN el sistema organiza un microservicio, THE System SHALL crear estructura estándar con carpetas src/, tests/, docs/ y config/
-2. WHEN el sistema organiza código fuente, THE System SHALL estructurar src/ con subcarpetas domain/, application/, infrastructure/ y presentation/
-3. WHEN el sistema organiza tests, THE System SHALL crear estructura con unit/, integration/ y e2e/ dentro de tests/
-4. WHEN el sistema organiza configuración, THE System SHALL consolidar archivos de configuración en config/ con archivos por entorno
-5. WHEN el sistema organiza documentación, THE System SHALL ubicar README.md y documentación técnica en docs/ del microservicio
+1. WHEN el sistema organiza un microservicio, THE System SHALL crear carpetas por caso de uso que reflejen funcionalidades de negocio
+2. WHEN el sistema organiza código de caso de uso, THE System SHALL agrupar toda la lógica relacionada (entidades, servicios, tests) en la misma carpeta del caso de uso
+3. WHEN el sistema organiza código compartido, THE System SHALL consolidar infraestructura y utilidades compartidas en carpeta shared/ separada
+4. WHEN el sistema organiza API, THE System SHALL ubicar controladores y rutas HTTP en carpeta api/ dedicada
+5. WHEN el sistema organiza tests, THE System SHALL ubicar tests junto al código que prueban dentro de cada carpeta de caso de uso
+6. WHEN el sistema nombra carpetas, THE System SHALL usar nombres que describan QUÉ HACE el código, no QUÉ TECNOLOGÍA usa
+7. WHEN el sistema completa la organización, THE System SHALL asegurar que la estructura "grite" el dominio del negocio al leerla
 
 ### Requirement 6: Validación Continua Durante Migración
 
