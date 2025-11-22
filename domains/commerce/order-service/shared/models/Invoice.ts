@@ -108,7 +108,6 @@ Invoice.init(
     status: {
       type: DataTypes.ENUM('draft', 'issued', 'paid', 'cancelled'),
       allowNull: false,
-      defaultValue: 'draft',
     },
     pdf_url: {
       type: DataTypes.STRING(500),

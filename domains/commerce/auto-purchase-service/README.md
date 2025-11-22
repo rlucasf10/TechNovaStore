@@ -1,5 +1,63 @@
 # Auto Purchase Service
 
+Servicio de compras automáticas para TechNovaStore.
+
+## Arquitectura: Screaming Architecture
+
+Este servicio sigue el patrón Screaming Architecture, donde la estructura del proyecto refleja los casos de uso del negocio.
+
+## Estructura
+
+```
+auto-purchase-service/
+├── select-provider/          # Seleccionar proveedor
+│   ├── SelectProvider.ts
+│   └── SelectProvider.test.ts
+├── calculate-cost/           # Calcular costo total
+│   ├── CalculateCost.ts
+│   └── CalculateCost.test.ts
+├── place-order/              # Realizar pedido
+│   ├── PlaceOrder.ts
+│   └── PlaceOrder.test.ts
+├── orchestrate-purchase/     # Orquestar compra
+│   ├── OrchestratePurchase.ts
+│   └── OrchestratePurchase.test.ts
+├── execute-purchase/         # Ejecutar compra
+│   ├── ExecutePurchase.ts
+│   └── ExecutePurchase.test.ts
+├── handle-confirmation/      # Manejar confirmación
+│   ├── HandleConfirmation.ts
+│   └── HandleConfirmation.test.ts
+├── cancel-purchase/          # Cancelar compra
+│   ├── CancelPurchase.ts
+│   └── CancelPurchase.test.ts
+├── get-purchase-status/      # Obtener estado de compra
+│   ├── GetPurchaseStatus.ts
+│   └── GetPurchaseStatus.test.ts
+├── get-processing-stats/     # Obtener estadísticas
+│   ├── GetProcessingStats.ts
+│   └── GetProcessingStats.test.ts
+├── process-orders-batch/     # Procesar lote de pedidos
+│   ├── ProcessOrdersBatch.ts
+│   └── ProcessOrdersBatch.test.ts
+├── shared/                   # Infraestructura compartida
+│   ├── clients/              # Clientes HTTP
+│   │   ├── OrderServiceClient.ts
+│   │   └── ProviderClient.ts
+│   ├── schedulers/           # Schedulers
+│   │   └── PurchaseScheduler.ts
+│   ├── validators/           # Validadores
+│   │   └── PurchaseValidator.ts
+│   └── utils/                # Utilidades
+│       └── logger.ts
+├── api/                      # Capa de presentación HTTP
+│   ├── AutoPurchaseController.ts
+│   └── routes.ts
+├── config/                   # Configuración
+│   └── index.ts
+└── index.ts                  # Entry point
+```
+
 This service implements the provider selection algorithm for TechNovaStore's automated purchasing system.
 
 ## Features

@@ -126,9 +126,26 @@ public
 build/
 dist/
 
-# Logs
+# Logs (archivos de log en cualquier ubicación)
 logs/
 *.log
+**/logs/
+**/logs/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache files
+*.cache
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.npm/
+.next/cache/
+node_modules/.cache/
 
 # Database files
 *.db
@@ -190,12 +207,8 @@ backups/
 *.tar.gz
 *.zip
 
-# Logs with potential sensitive information
-logs/
-*.log
-api-gateway/logs/
-services/*/logs/
-automation/*/logs/
+# Logs with potential sensitive information (ya cubierto arriba)
+# logs/ y *.log ya están configurados en la sección de Logs
 
 # Monitoring data
 prometheus_data/
@@ -238,12 +251,10 @@ frontend/nul
 temp-*
 tmp-*
 
-# Logs (agregado por script de limpieza)
-**/logs/*.log
+# Logs (ya cubierto en la sección de Logs arriba)
 
 # Editor swap files
 *.swn
 
-# Cache
-*.cache
+# Cache y archivos temporales (ya cubierto en la sección de Cache arriba)
 nul

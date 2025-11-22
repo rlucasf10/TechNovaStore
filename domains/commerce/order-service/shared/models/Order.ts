@@ -124,7 +124,6 @@ Order.init(
     status: {
       type: DataTypes.ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'),
       allowNull: false,
-      defaultValue: 'pending',
     },
     total_amount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -162,7 +161,6 @@ Order.init(
     payment_status: {
       type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed', 'refunded'),
       allowNull: false,
-      defaultValue: 'pending',
     },
     provider_order_id: {
       type: DataTypes.STRING(100),

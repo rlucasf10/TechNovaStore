@@ -2,6 +2,12 @@
 
 Bienvenido a la documentación técnica de TechNovaStore, una plataforma de e-commerce automatizada construida con arquitectura de microservicios.
 
+## 🗺️ Navegación Rápida
+
+**¿Primera vez aquí?** → Lee la [Guía de Navegación](./NAVIGATION_GUIDE.md) para encontrar rápidamente lo que necesitas.
+
+**¿Quieres ver los cambios recientes?** → Consulta el [Resumen de Reorganización](./REORGANIZATION_SUMMARY.md).
+
 ## Estructura de la Documentación
 
 ### 📚 [Documentación de APIs](./api/README.md)
@@ -15,8 +21,12 @@ Bienvenido a la documentación técnica de TechNovaStore, una plataforma de e-co
 - [Notas de Despliegue](./deployment/DEPLOYMENT-NOTES.md)
 - [Despliegue en Producción](./deployment/PRODUCTION_DEPLOYMENT.md)
 - [Despliegue Local](./deployment/local.md)
+- [Mejores Prácticas de Docker](./deployment/docker-best-practices.md)
 
 ### 👨‍💻 [Documentación para Desarrolladores](./development/README.md)
+- [Guía de Configuración](./development/setup.md)
+- [Correcciones del Frontend](./development/FRONTEND_FIX.md)
+- [Usuario Administrador](./development/USUARIO_ADMINISTRADOR.md)
 - Arquitectura del sistema
 - Guías de desarrollo
 - Estándares de código
@@ -30,33 +40,24 @@ Bienvenido a la documentación técnica de TechNovaStore, una plataforma de e-co
 
 ### 🏗️ [Arquitectura](./architecture/)
 - [Estructura Actual del Proyecto](./architecture/CURRENT_STRUCTURE.md)
-
-### ⚙️ [Configuración](./configuration/)
-- [Estrategia de Consolidación de Variables de Entorno](./configuration/ENV_CONSOLIDATION_STRATEGY.md)
-- [Resumen de Consolidación de Variables](./configuration/ENV_CONSOLIDATION_SUMMARY.md)
-- [Reporte de Duplicación de Variables](./configuration/ENV_DUPLICATION_REPORT.md)
+- [Configuración Consolidada](./architecture/CONFIGURACION-CONSOLIDADA.md)
+- [Estrategia de Consolidación de Variables de Entorno](./architecture/ENV_CONSOLIDATION_STRATEGY.md)
+- [Resumen de Consolidación de Variables](./architecture/ENV_CONSOLIDATION_SUMMARY.md)
+- [Reporte de Duplicación de Variables](./architecture/ENV_DUPLICATION_REPORT.md)
+- [Guía de Conexión a Bases de Datos](./architecture/GUIA_CONEXION_BASES_DATOS.md)
 
 ### 🔒 [Seguridad](./security/)
 - [Configuración de Seguridad](./security/SECURITY_SETUP.md)
 - [Instrucciones de Corrección de Seguridad](./security/SECURITY_FIX_INSTRUCTIONS.md)
 - [Ubicación de Credenciales](./security/DONDE_ESTAN_LAS_CREDENCIALES.md)
-
-### 🔐 [Autenticación](./authentication/)
-- [Configuración OAuth en Docker](./authentication/OAUTH_CONFIGURACION_DOCKER.md)
-- [Implementación OAuth Completa](./authentication/OAUTH_IMPLEMENTATION_COMPLETE.md)
+- [TechNova Zero Trust](./security/TECHNOVA-ZERO-TRUST.md)
+- [Troubleshooting de Autenticación](./security/TROUBLESHOOTING-AUTH.md)
+- [Configuración OAuth en Docker](./security/OAUTH_CONFIGURACION_DOCKER.md)
+- [Implementación OAuth Completa](./security/OAUTH_IMPLEMENTATION_COMPLETE.md)
 
 ### 📊 [Monitoreo](./monitoring/)
 - [Configuración de Logging](./monitoring/LOGGING.md)
 - [Sistema de Monitoreo](./monitoring/MONITORING.md)
-
-### 💾 [Base de Datos](./database/)
-- [Guía de Conexión a Bases de Datos](./database/GUIA_CONEXION_BASES_DATOS.md)
-
-### 👤 [Gestión de Usuarios](./user-management/)
-- [Usuario Administrador](./user-management/USUARIO_ADMINISTRADOR.md)
-
-### 🎨 [Frontend](./frontend/)
-- [Correcciones del Frontend](./frontend/FRONTEND_FIX.md)
 
 ### 📦 [Migración](./migration/)
 - [Plan de Migración](./migration/MIGRATION_PLAN.md)

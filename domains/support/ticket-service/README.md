@@ -1,5 +1,69 @@
 # Ticket Service
 
+Servicio de gestión de tickets de soporte para TechNovaStore.
+
+## Arquitectura: Screaming Architecture
+
+Este servicio sigue el patrón Screaming Architecture, donde la estructura del proyecto refleja los casos de uso del negocio.
+
+## Estructura
+
+```
+ticket-service/
+├── create-ticket/            # Crear ticket
+│   ├── CreateTicket.ts
+│   └── CreateTicket.test.ts
+├── get-ticket-by-id/         # Obtener ticket por ID
+│   ├── GetTicketById.ts
+│   └── GetTicketById.test.ts
+├── get-ticket-by-number/     # Obtener ticket por número
+│   ├── GetTicketByNumber.ts
+│   └── GetTicketByNumber.test.ts
+├── list-tickets/             # Listar tickets
+│   ├── ListTickets.ts
+│   └── ListTickets.test.ts
+├── update-ticket/            # Actualizar ticket
+│   ├── UpdateTicket.ts
+│   └── UpdateTicket.test.ts
+├── resolve-ticket/           # Resolver ticket
+│   ├── ResolveTicket.ts
+│   └── ResolveTicket.test.ts
+├── close-ticket/             # Cerrar ticket
+│   ├── CloseTicket.ts
+│   └── CloseTicket.test.ts
+├── add-message/              # Añadir mensaje
+│   ├── AddMessage.ts
+│   └── AddMessage.test.ts
+├── escalate-from-chatbot/    # Escalar desde chatbot
+│   ├── EscalateFromChatbot.ts
+│   └── EscalateFromChatbot.test.ts
+├── create-satisfaction-survey/ # Crear encuesta de satisfacción
+│   ├── CreateSatisfactionSurvey.ts
+│   └── CreateSatisfactionSurvey.test.ts
+├── get-ticket-metrics/       # Obtener métricas de tickets
+│   ├── GetTicketMetrics.ts
+│   └── GetTicketMetrics.test.ts
+├── get-satisfaction-metrics/ # Obtener métricas de satisfacción
+│   ├── GetSatisfactionMetrics.ts
+│   └── GetSatisfactionMetrics.test.ts
+├── shared/                   # Infraestructura compartida
+│   ├── models/               # Modelos de datos
+│   │   ├── Ticket.ts
+│   │   └── SatisfactionSurvey.ts
+│   ├── repositories/         # Repositorios
+│   │   └── TicketRepository.ts
+│   ├── clients/              # Clientes HTTP
+│   │   └── NotificationServiceClient.ts
+│   └── utils/                # Utilidades
+│       └── logger.ts
+├── api/                      # Capa de presentación HTTP
+│   ├── TicketController.ts
+│   └── routes.ts
+├── config/                   # Configuración
+│   └── index.ts
+└── index.ts                  # Entry point
+```
+
 Sistema de gestión de tickets y escalación automática desde el chatbot para TechNovaStore.
 
 ## Características

@@ -1,5 +1,49 @@
 # Shipment Tracker Service
 
+Servicio de seguimiento de envíos para TechNovaStore.
+
+## Arquitectura: Screaming Architecture
+
+Este servicio sigue el patrón Screaming Architecture, donde la estructura del proyecto refleja los casos de uso del negocio.
+
+## Estructura
+
+```
+shipment-tracker/
+├── get-tracking-info/        # Obtener información de seguimiento
+│   ├── GetTrackingInfo.ts
+│   └── GetTrackingInfo.test.ts
+├── update-tracking-info/     # Actualizar información de seguimiento
+│   ├── UpdateTrackingInfo.ts
+│   └── UpdateTrackingInfo.test.ts
+├── get-shipment-status/      # Obtener estado de envío
+│   ├── GetShipmentStatus.ts
+│   └── GetShipmentStatus.test.ts
+├── get-estimated-delivery/   # Obtener fecha estimada de entrega
+│   ├── GetEstimatedDelivery.ts
+│   └── GetEstimatedDelivery.test.ts
+├── update-all-active-shipments/ # Actualizar todos los envíos activos
+│   ├── UpdateAllActiveShipments.ts
+│   └── UpdateAllActiveShipments.test.ts
+├── shared/                   # Infraestructura compartida
+│   ├── providers/            # Adaptadores de proveedores
+│   │   ├── AmazonProvider.ts
+│   │   ├── AliExpressProvider.ts
+│   │   ├── eBayProvider.ts
+│   │   ├── BanggoodProvider.ts
+│   │   └── NeweggProvider.ts
+│   ├── clients/              # Clientes HTTP
+│   │   └── NotificationServiceClient.ts
+│   └── utils/                # Utilidades
+│       └── logger.ts
+├── api/                      # Capa de presentación HTTP
+│   ├── ShipmentController.ts
+│   └── routes.ts
+├── config/                   # Configuración
+│   └── index.ts
+└── index.ts                  # Entry point
+```
+
 Automated shipment tracking service for TechNovaStore that integrates with multiple provider APIs to track order shipments and provide real-time updates to customers.
 
 ## Features

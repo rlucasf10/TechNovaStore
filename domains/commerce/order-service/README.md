@@ -1,4 +1,99 @@
-# Order Service - TechNovaStore
+# Order Service
+
+Servicio de gestión de pedidos para TechNovaStore.
+
+## Arquitectura: Screaming Architecture
+
+Este servicio sigue el patrón Screaming Architecture, donde la estructura del proyecto refleja los casos de uso del negocio.
+
+## Estructura
+
+```
+order-service/
+├── create-order/             # Crear pedidos
+│   ├── CreateOrder.ts
+│   └── CreateOrder.test.ts
+├── get-order-by-id/          # Obtener pedido por ID
+│   ├── GetOrderById.ts
+│   └── GetOrderById.test.ts
+├── get-order-by-number/      # Obtener pedido por número
+│   ├── GetOrderByNumber.ts
+│   └── GetOrderByNumber.test.ts
+├── get-orders/               # Listar pedidos
+│   ├── GetOrders.ts
+│   └── GetOrders.test.ts
+├── get-user-orders/          # Obtener pedidos de usuario
+│   ├── GetUserOrders.ts
+│   └── GetUserOrders.test.ts
+├── get-order-stats/          # Estadísticas de pedidos
+│   ├── GetOrderStats.ts
+│   └── GetOrderStats.test.ts
+├── update-order-status/      # Actualizar estado de pedido
+│   ├── UpdateOrderStatus.ts
+│   └── UpdateOrderStatus.test.ts
+├── update-payment-status/    # Actualizar estado de pago
+│   ├── UpdatePaymentStatus.ts
+│   └── UpdatePaymentStatus.test.ts
+├── update-tracking-info/     # Actualizar información de seguimiento
+│   ├── UpdateTrackingInfo.ts
+│   └── UpdateTrackingInfo.test.ts
+├── update-provider-info/     # Actualizar información de proveedor
+│   ├── UpdateProviderInfo.ts
+│   └── UpdateProviderInfo.test.ts
+├── mark-order-for-processing/ # Marcar pedido para procesamiento
+│   ├── MarkOrderForProcessing.ts
+│   └── MarkOrderForProcessing.test.ts
+├── get-orders-for-auto-purchase/ # Obtener pedidos para compra automática
+│   ├── GetOrdersForAutoPurchase.ts
+│   └── GetOrdersForAutoPurchase.test.ts
+├── report-auto-purchase-success/ # Reportar éxito de compra automática
+│   ├── ReportAutoPurchaseSuccess.ts
+│   └── ReportAutoPurchaseSuccess.test.ts
+├── report-auto-purchase-failure/ # Reportar fallo de compra automática
+│   ├── ReportAutoPurchaseFailure.ts
+│   └── ReportAutoPurchaseFailure.test.ts
+├── generate-automatic-invoice/ # Generar factura automática
+│   ├── GenerateAutomaticInvoice.ts
+│   └── GenerateAutomaticInvoice.test.ts
+├── generate-invoice-pdf/     # Generar PDF de factura
+│   ├── GenerateInvoicePDF.ts
+│   └── GenerateInvoicePDF.test.ts
+├── get-invoice-by-id/        # Obtener factura por ID
+│   ├── GetInvoiceById.ts
+│   └── GetInvoiceById.test.ts
+├── get-invoice-by-number/    # Obtener factura por número
+│   ├── GetInvoiceByNumber.ts
+│   └── GetInvoiceByNumber.test.ts
+├── get-invoices/             # Listar facturas
+│   ├── GetInvoices.ts
+│   └── GetInvoices.test.ts
+├── mark-invoice-as-paid/     # Marcar factura como pagada
+│   ├── MarkInvoiceAsPaid.ts
+│   └── MarkInvoiceAsPaid.test.ts
+├── update-invoice-status/    # Actualizar estado de factura
+│   ├── UpdateInvoiceStatus.ts
+│   └── UpdateInvoiceStatus.test.ts
+├── cancel-invoice/           # Cancelar factura
+│   ├── CancelInvoice.ts
+│   └── CancelInvoice.test.ts
+├── shared/                   # Infraestructura compartida
+│   ├── models/               # Modelos de datos
+│   │   ├── Order.ts
+│   │   └── Invoice.ts
+│   ├── repositories/         # Repositorios
+│   │   ├── OrderRepository.ts
+│   │   └── InvoiceRepository.ts
+│   ├── validators/           # Validadores
+│   │   └── OrderValidator.ts
+│   └── utils/                # Utilidades
+│       └── logger.ts
+├── api/                      # Capa de presentación HTTP
+│   ├── OrderController.ts
+│   └── routes.ts
+├── config/                   # Configuración
+│   └── index.ts
+└── index.ts                  # Entry point
+```
 
 The Order Service is a core microservice responsible for managing orders, payments, and the complete order lifecycle in the TechNovaStore automated e-commerce platform.
 

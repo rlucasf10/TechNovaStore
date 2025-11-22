@@ -2,6 +2,12 @@
 
 Esta sección contiene toda la información necesaria para desarrolladores que trabajen en TechNovaStore, incluyendo arquitectura, estándares de código, guías de desarrollo y mejores prácticas.
 
+## Contenido
+
+- **[setup.md](./setup.md)** - Guía completa de configuración del entorno de desarrollo
+- **[FRONTEND_FIX.md](./FRONTEND_FIX.md)** - Correcciones y mejoras del frontend
+- **[USUARIO_ADMINISTRADOR.md](./USUARIO_ADMINISTRADOR.md)** - Guía para crear y gestionar usuarios administradores
+
 ## Índice
 
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
