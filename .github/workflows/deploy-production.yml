@@ -1,5 +1,64 @@
 name: Deploy to Production
 
+# ============================================================================
+# DESHABILITADO: Este workflow requiere un servidor de producción configurado
+# ============================================================================
+# Para habilitar este workflow necesitas:
+# 1. Un servidor con Docker instalado (VPS, EC2, etc.)
+# 2. Configurar los siguientes secrets en GitHub:
+#    - PRODUCTION_SSH_KEY: Clave SSH privada
+#    - PRODUCTION_HOST: IP o dominio del servidor
+#    - PRODUCTION_USER: Usuario SSH
+#    - PRODUCTION_MONGO_USERNAME, PRODUCTION_MONGO_PASSWORD
+#    - PRODUCTION_POSTGRES_USERNAME, PRODUCTION_POSTGRES_PASSWORD
+#    - PRODUCTION_REDIS_PASSWORD
+#    - PRODUCTION_JWT_SECRET
+#    - PRODUCTION_SMTP_HOST, PRODUCTION_SMTP_PORT, PRODUCTION_SMTP_USER, PRODUCTION_SMTP_PASS
+#    - SLACK_WEBHOOK_URL (opcional)
+# ============================================================================
+
+# Solo se ejecuta manualmente cuando tengas el servidor configurado
 on:
-  push:
-  
+  workflow_dispatch:
+    inputs:
+      confirm_deploy:
+        description: '¿Confirmas que tienes el servidor de producción configurado?'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_deploy == 'true'
+    environment: production
+    
+    steps:
+    - name: Check secrets configured
+      run: |
+        if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
+          echo "❌ Error: PRODUCTION_SSH_KEY secret not configured"
+          exit 1
+        fi
+        if [ -z "${{ secrets.PRODUCTION_HOST }}" ]; then
+          echo "❌ Error: PRODUCTION_HOST secret not configured"
+          exit 1
+        fi
+        echo "✅ Required secrets are configured"
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production..."
+        # Add your deployment commands here
