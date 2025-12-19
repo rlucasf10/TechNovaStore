@@ -239,8 +239,10 @@ services:
       NODE_ENV: production
       PORT: 3000
       POSTGRESQL_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
     depends_on:
       - postgresql
+      - notification-service
     networks:
       - technovastore-network
     healthcheck:
@@ -284,8 +286,11 @@ services:
       POSTGRESQL_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      ORDER_SERVICE_URL: http://order-service:3000
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
     depends_on:
       - postgresql
+      - notification-service
     networks:
       - technovastore-network
     healthcheck:
@@ -304,15 +309,54 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SMTP_SECURE: "true"
+    depends_on:
+      - postgresql
     networks:
       - technovastore-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  campaign-manager-service:
+    image: technovastore-campaign-manager:latest
+    build:
+      context: ./domains/commerce/campaign-manager-service
+      dockerfile: Dockerfile.prod
+    container_name: technovastore-campaign-manager-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3011
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: technovastore
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PRODUCT_SERVICE_URL: http://product-service:3000
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
+      JWT_SECRET: ${JWT_SECRET}
+      LOG_LEVEL: info
+    depends_on:
+      - postgresql
+      - product-service
+      - notification-service
+    networks:
+      - technovastore-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3011/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -401,8 +445,10 @@ services:
       NODE_ENV: production
       PORT: 3000
       POSTGRESQL_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/technovastore
+      NOTIFICATION_SERVICE_URL: http://notification-service:3000
     depends_on:
       - postgresql
+      - notification-service
     networks:
       - technovastore-network
     healthcheck:

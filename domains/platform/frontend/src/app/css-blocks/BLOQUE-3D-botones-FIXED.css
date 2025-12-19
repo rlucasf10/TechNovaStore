@@ -1,0 +1,35 @@
+/* BLOQUE 3D CORREGIDO: Solo Botones */
+/* ELIMINADOS: selectores que combinan elementos con clases Tailwind (button.bg-gray-100) */
+/* Esos estilos se deben manejar con dark:bg-slate-700 directamente en los componentes */
+
+@import '../styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
+
+  /* Botones con clase específica */
+  .dark .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+
+  .dark .btn-secondary:hover {
+    background-color: #475569;
+  }
+}

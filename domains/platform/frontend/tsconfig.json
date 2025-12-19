@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,7 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
@@ -24,34 +28,101 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/shared": ["./src/shared"],
-      "@/features/*": ["./src/features/*"],
-      "@/catalog/*": ["./src/features/catalog/*"],
-      "@/catalog": ["./src/features/catalog"],
-      "@/commerce/*": ["./src/features/commerce/*"],
-      "@/commerce": ["./src/features/commerce"],
-      "@/customer/*": ["./src/features/customer/*"],
-      "@/customer": ["./src/features/customer"],
-      "@/support/*": ["./src/features/support/*"],
-      "@/support": ["./src/features/support"],
-      "@/admin/*": ["./src/features/admin/*"],
-      "@/admin": ["./src/features/admin"],
-      "@/components/*": ["./src/shared/components/*"],
-      "@/ui/*": ["./src/shared/components/ui/*"],
-      "@/ui": ["./src/shared/components/ui"],
-      "@/layout/*": ["./src/shared/components/layout/*"],
-      "@/layout": ["./src/shared/components/layout"],
-      "@/lib/*": ["./src/shared/lib/*"],
-      "@/hooks/*": ["./src/shared/hooks/*"],
-      "@/types/*": ["./src/shared/types/*"],
-      "@/types": ["./src/shared/types"],
-      "@/services/*": ["./src/shared/services/*"],
-      "@/store/*": ["./src/shared/store/*"],
-      "@/styles/*": ["./src/styles/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
+      "@/shared": [
+        "./src/shared"
+      ],
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/catalog/*": [
+        "./src/features/catalog/*"
+      ],
+      "@/catalog": [
+        "./src/features/catalog"
+      ],
+      "@/commerce/*": [
+        "./src/features/commerce/*"
+      ],
+      "@/commerce": [
+        "./src/features/commerce"
+      ],
+      "@/customer/*": [
+        "./src/features/customer/*"
+      ],
+      "@/customer": [
+        "./src/features/customer"
+      ],
+      "@/support/*": [
+        "./src/features/support/*"
+      ],
+      "@/support": [
+        "./src/features/support"
+      ],
+      "@/admin/*": [
+        "./src/features/admin/*"
+      ],
+      "@/admin": [
+        "./src/features/admin"
+      ],
+      "@/components/*": [
+        "./src/shared/components/*"
+      ],
+      "@/ui/*": [
+        "./src/shared/components/ui/*"
+      ],
+      "@/ui": [
+        "./src/shared/components/ui"
+      ],
+      "@/layout/*": [
+        "./src/shared/components/layout/*"
+      ],
+      "@/layout": [
+        "./src/shared/components/layout"
+      ],
+      "@/lib/*": [
+        "./src/shared/lib/*"
+      ],
+      "@/hooks/*": [
+        "./src/shared/hooks/*"
+      ],
+      "@/types/*": [
+        "./src/shared/types/*"
+      ],
+      "@/types": [
+        "./src/shared/types"
+      ],
+      "@/services/*": [
+        "./src/shared/services/*"
+      ],
+      "@/store/*": [
+        "./src/shared/store/*"
+      ],
+      "@/styles/*": [
+        "./src/styles/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/jest-dom.d.ts", "src/types/global.d.ts"],
-  "exclude": ["node_modules", "**/*.test.ts", "**/*.test.tsx", "**/__tests__/**/*"]
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/types/jest-dom.d.ts",
+    "src/types/global.d.ts",
+    ".next/dev/types/**/*.ts"
+, "src/app/(public)/test-animated-modal/page.tsx", "src/app/global-error.tsx.bk", "src/app/global-error.tsx"  ],
+  "exclude": [
+    "node_modules",
+    "test/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
 }

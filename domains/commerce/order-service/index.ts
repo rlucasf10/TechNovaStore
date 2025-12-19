@@ -16,6 +16,7 @@ import { InvoiceNumberGenerator } from './shared/utils/invoiceNumberGenerator';
 import { register, metricsMiddleware, HealthChecker, createPostgresHealthCheck, createMemoryCheck } from '@technovastore/shared-utils';
 // Importar e inicializar asociaciones de modelos
 import { initializeAssociations } from './shared/models/associations';
+import { apiRateLimiter } from './shared/middleware/rateLimiter';
 
 // Inicializar asociaciones inmediatamente
 initializeAssociations();
@@ -128,6 +129,11 @@ app.get('/api-docs', (_req, res) => {
     },
   });
 });
+
+// Rate limiting para todas las rutas /api/
+// Configuración: 100 requests por 15 minutos por IP
+// Requirements: 7.1, 7.2, 7.3, 7.4
+app.use('/api', apiRateLimiter);
 
 // Routes protegidas (con autenticación)
 app.use('/', routes);

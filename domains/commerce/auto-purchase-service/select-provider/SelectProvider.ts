@@ -28,6 +28,7 @@ import {
   MIN_RELIABILITY_SCORE,
   FALLBACK_PROVIDER_COUNT 
 } from '../shared/config/providers';
+import { logger } from '../shared/utils/logger';
 
 // Interfaces para las dependencias
 export interface ICostCalculator {
@@ -164,7 +165,10 @@ export class SelectProvider {
           }
         }
       } catch (error) {
-        console.warn(`Failed to check availability for provider ${config.name}:`, error);
+        logger.warn('Failed to check availability for provider', { 
+          provider: config.name, 
+          error: error instanceof Error ? error.message : error 
+        });
         // Continuar con otros proveedores
       }
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useCartStore } from '@/commerce'
 import { Button } from '@/ui'
 import { Product } from '@/types'

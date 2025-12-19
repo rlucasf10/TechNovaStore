@@ -29,6 +29,36 @@ import {
   RateLimitState,
   RateLimitConfig,
 } from '@/customer';
+import { secureLogger } from '@/shared/lib/security';
+
+// ============================================================================
+// Utilidades de Transformación de Datos
+// ============================================================================
+
+/**
+ * Transforma los datos del usuario del formato del backend (snake_case)
+ * al formato del frontend (camelCase)
+ */
+function transformUserFromBackend(backendUser: any): User {
+  return {
+    id: backendUser.id?.toString() || '',
+    email: backendUser.email || '',
+    firstName: backendUser.first_name || backendUser.firstName || '',
+    lastName: backendUser.last_name || backendUser.lastName || '',
+    phone: backendUser.phone,
+    avatar: backendUser.avatar,
+    role: backendUser.role === 'admin' ? 'admin' : 'user',
+    emailVerified: backendUser.email_verified || backendUser.emailVerified || false,
+    createdAt: backendUser.created_at ? new Date(backendUser.created_at) : new Date(),
+    updatedAt: backendUser.updated_at ? new Date(backendUser.updated_at) : new Date(),
+    authMethods: (backendUser.auth_methods || backendUser.authMethods || []).map((method: any) => ({
+      type: method.type,
+      providerId: method.providerId,
+      linkedAt: method.linkedAt ? new Date(method.linkedAt) : new Date(),
+      lastUsed: method.lastUsed ? new Date(method.lastUsed) : undefined,
+    })),
+  };
+}
 
 // ============================================================================
 // Configuración
@@ -122,7 +152,7 @@ const getCSRFToken = async (): Promise<{ token: string; sessionId: string }> => 
 
       return { token: csrfToken!, sessionId: sessionId! };
     } catch (error) {
-      console.error('Error getting CSRF token:', error);
+      secureLogger.error('Error getting CSRF token:', error);
       // Reset promise so we can retry
       csrfPromise = null;
       throw error;
@@ -145,17 +175,11 @@ const authAxios = axios.create({
   },
 });
 
-// Interceptor para agregar CSRF token y Authorization header
+// ✅ SEGURIDAD: Interceptor para agregar CSRF token
+// NO agregamos Authorization header porque usamos httpOnly cookies
+// Las cookies httpOnly son enviadas automáticamente por el navegador
 authAxios.interceptors.request.use(
   async (config) => {
-    // Agregar Authorization header si hay token
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-
     // Skip CSRF token for:
     // 1. GET, HEAD, OPTIONS requests (safe methods)
     // 2. The CSRF token endpoint itself (to avoid infinite loop)
@@ -164,13 +188,13 @@ authAxios.interceptors.request.use(
 
     if (!isSafeMethod && !isCsrfEndpoint) {
       try {
-        console.log('Getting CSRF token for:', config.method, config.url);
+        secureLogger.log('Getting CSRF token for:', config.method, config.url);
         const { token: csrf, sessionId: sid } = await getCSRFToken();
-        console.log('Got CSRF token:', csrf.substring(0, 10) + '...', 'Session:', sid);
+        secureLogger.log('Got CSRF token:', csrf.substring(0, 10) + '...', 'Session:', sid);
         config.headers['X-CSRF-Token'] = csrf;
         config.headers['X-Session-ID'] = sid;
       } catch (error) {
-        console.error('Failed to get CSRF token:', error);
+        secureLogger.error('Failed to get CSRF token:', error);
         // Don't continue without CSRF token - it will fail anyway
         throw error;
       }
@@ -178,7 +202,7 @@ authAxios.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Auth request interceptor error:', error);
+    secureLogger.error('Auth request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -188,16 +212,22 @@ authAxios.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
+    const requestUrl = originalRequest?.url || '';
+
+    // Para /auth/me, los errores 401 son esperados (usuario no logueado)
+    // No intentar refresh ni loguear nada
+    if (requestUrl.includes('/auth/me') && error.response?.status === 401) {
+      return Promise.reject(error);
+    }
 
     // Si el error es 401 y no hemos intentado refresh aún
     // Y NO es el endpoint de refresh (para evitar loops infinitos)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/refresh') &&
-      !originalRequest.url?.includes('/auth/login') &&
-      !originalRequest.url?.includes('/auth/register') &&
-      !originalRequest.url?.includes('/auth/me')
+      !requestUrl.includes('/auth/refresh') &&
+      !requestUrl.includes('/auth/login') &&
+      !requestUrl.includes('/auth/register')
     ) {
       originalRequest._retry = true;
 
@@ -317,8 +347,11 @@ const rateLimiter = new RateLimiter();
 // Utilidades de Manejo de Errores
 // ============================================================================
 
-function handleAuthError(error: unknown): AuthError {
-  console.log('🔍 Handling auth error:', error);
+function handleAuthError(error: unknown, silent: boolean = false): AuthError {
+  // Solo loguear si no es silencioso (para errores esperados como 401 en /auth/me)
+  if (!silent) {
+    secureLogger.log('🔍 Handling auth error:', error);
+  }
   
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<{ 
@@ -341,7 +374,10 @@ function handleAuthError(error: unknown): AuthError {
     const status = axiosError.response.status;
     const data = axiosError.response.data;
     
-    console.log('📊 Error response:', { status, data });
+    // Solo loguear si no es silencioso
+    if (!silent) {
+      secureLogger.log('📊 Error response:', { status, data });
+    }
 
     // Error 400 - Bad Request (credenciales incorrectas, datos inválidos)
     if (status === 400) {
@@ -358,7 +394,7 @@ function handleAuthError(error: unknown): AuthError {
         errorMessage = data.errors;
       }
       
-      console.log('🔑 400 Error details:', { errorCode, errorMessage });
+      secureLogger.log('🔑 400 Error details:', { errorCode, errorMessage });
       
       // Manejar VALIDATION_ERROR específicamente (común en backends)
       if (errorCode === 'VALIDATION_ERROR') {
@@ -380,7 +416,7 @@ function handleAuthError(error: unknown): AuthError {
       
       // Normalizar errorMessage (puede ser string o array)
       const normalizedMessage = normalizeErrorMessage(errorMessage);
-      console.log('🔧 Normalized message:', normalizedMessage);
+      secureLogger.log('🔧 Normalized message:', normalizedMessage);
       
       // Si el mensaje contiene palabras clave de credenciales incorrectas
       if (normalizedMessage && (
@@ -517,14 +553,14 @@ class AuthService {
    * Iniciar sesión con email y contraseña
    */
   async login(credentials: LoginCredentials): Promise<User> {
-    console.log('🔐 Login attempt started');
-    console.log('   Email:', credentials.email);
-    console.log('   Endpoint:', AUTH_ENDPOINTS.login);
+    // ✅ SEGURIDAD: NO loguear credenciales (email/password) para prevenir exposición de datos sensibles
+    // Solo loguear información no sensible para debugging
+    secureLogger.log('🔐 Login attempt started');
 
     // Verificar rate limiting
     const limitCheck = rateLimiter.checkLimit('login');
     if (!limitCheck.allowed) {
-      console.error('❌ Rate limit exceeded');
+      secureLogger.error('❌ Rate limit exceeded');
       throw {
         code: 'rate-limit-exceeded',
         message: `Demasiados intentos. Intenta en ${limitCheck.remainingTime} segundos.`,
@@ -532,41 +568,41 @@ class AuthService {
     }
 
     try {
-      console.log('📤 Sending login request...');
       const response = await authAxios.post<{ success: boolean; message: string; data: AuthResponse }>(
         AUTH_ENDPOINTS.login,
         credentials
       );
-      console.log('✅ Login response received:', response.status);
-      console.log('Response data:', response.data);
+      // ✅ SEGURIDAD: Solo loguear status code, NO loguear response.data que podría contener tokens
+      secureLogger.log('✅ Login response received:', response.status);
 
       // Registrar intento exitoso (resetear contador)
       rateLimiter.reset('login');
 
       if (!response.data.data || !response.data.data.user) {
-        console.error('❌ No user data in response');
-        console.error('Full response:', JSON.stringify(response.data));
+        secureLogger.error('❌ No user data in response');
+        // ✅ SEGURIDAD: NO loguear response.data completo que podría contener tokens
         throw new Error('No user data received');
       }
 
-      // Guardar el access token en localStorage
-      const accessToken = response.data.data.tokens?.accessToken || response.data.data.token;
-      if (accessToken && typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', accessToken);
-        console.log('✅ Access token saved to localStorage');
-      }
+      // ✅ SEGURIDAD: NO almacenar tokens en localStorage
+      // El token viene en una httpOnly cookie que el navegador maneja automáticamente
+      // localStorage es vulnerable a ataques XSS
 
-      console.log('✅ Login successful for user:', response.data.data.user.email);
-      return response.data.data.user;
+      // Transformar datos del backend (snake_case) al frontend (camelCase)
+      const user = transformUserFromBackend(response.data.data.user);
+      // ✅ SEGURIDAD: Solo loguear información no sensible (userId, role)
+      secureLogger.log('✅ Login successful for user:', { userId: user.id, role: user.role });
+      return user;
     } catch (error) {
-      console.error('❌ Login error details:', error);
+      // ✅ SEGURIDAD: NO loguear el objeto error completo que podría contener credenciales
+      // Solo loguear información sanitizada
       
       // Registrar intento fallido
       rateLimiter.recordAttempt('login');
       
       // Procesar y lanzar el error manejado
       const authError = handleAuthError(error);
-      console.error('🚨 Processed auth error:', authError);
+      secureLogger.error('🚨 Login failed:', { code: authError.code, message: authError.message });
       
       throw authError;
     }
@@ -574,19 +610,15 @@ class AuthService {
 
   /**
    * Cerrar sesión
+   * ✅ SEGURIDAD: NO eliminamos tokens de localStorage porque no los almacenamos ahí
+   * El backend invalida la httpOnly cookie automáticamente
    */
   async logout(): Promise<void> {
     try {
       await authAxios.post(AUTH_ENDPOINTS.logout);
     } catch (error) {
       // Ignorar errores de logout (el usuario ya no está autenticado)
-      console.error('Logout error:', error);
-    } finally {
-      // Siempre eliminar el token del localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        console.log('✅ Access token removed from localStorage');
-      }
+      secureLogger.error('Logout error:', error);
     }
   }
 
@@ -604,7 +636,8 @@ class AuthService {
         throw new Error('No user data received');
       }
 
-      return response.data.data.user;
+      // Transformar datos del backend (snake_case) al frontend (camelCase)
+      return transformUserFromBackend(response.data.data.user);
     } catch (error) {
       throw handleAuthError(error);
     }
@@ -623,13 +656,23 @@ class AuthService {
 
   /**
    * Obtener usuario actual
+   * ✅ SEGURIDAD: Hacemos petición directamente al backend
+   * Si hay una httpOnly cookie válida, el backend responde con el usuario
+   * Si no hay cookie o es inválida, el backend responde 401
+   * NO verificamos localStorage porque no almacenamos tokens ahí
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      const response = await authAxios.get<{ success: boolean; data: User }>(AUTH_ENDPOINTS.me);
-      return response.data.data || null;
+      const response = await authAxios.get<{ success: boolean; data: any }>(AUTH_ENDPOINTS.me);
+      const backendUser = response.data.data;
+      if (!backendUser) {
+        return null;
+      }
+      // Transformar datos del backend (snake_case) al frontend (camelCase)
+      return transformUserFromBackend(backendUser);
     } catch (error) {
-      const authError = handleAuthError(error);
+      // Pasar silent=true para no loguear errores 401 esperados
+      const authError = handleAuthError(error, true);
       // Si el error es 401 (no autenticado), retornar null en lugar de lanzar error
       if (authError.code === 'unauthorized') {
         return null;
@@ -710,9 +753,10 @@ class AuthService {
 
   /**
    * Iniciar flujo de OAuth 2.0
-   * Construye la URL de autorización con state y PKCE, y redirige al proveedor
+   * Construye la URL de autorización con state y PKCE, y abre popup del proveedor
+   * @returns Referencia al popup abierto (o null si se redirigió)
    */
-  async oauthLogin(provider: OAuthProvider, redirectTo?: string): Promise<void> {
+  async oauthLogin(provider: OAuthProvider, redirectTo?: string): Promise<Window | null> {
     // Verificar que el proveedor esté configurado
     if (!isOAuthProviderConfigured(provider)) {
       throw new Error(
@@ -729,12 +773,32 @@ class AuthService {
         usePKCE: true, // Habilitar PKCE para mayor seguridad
       });
 
-      // Redirigir a la página de autorización del proveedor
+      // Abrir popup centrado en la pantalla (estilo PCComponentes)
       if (typeof window !== 'undefined') {
-        window.location.href = authUrl;
+        const width = 500;
+        const height = 600;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        
+        const popup = window.open(
+          authUrl,
+          `oauth_${provider}`,
+          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+        );
+
+        // Verificar si el popup se abrió correctamente
+        if (!popup || popup.closed) {
+          // Si el popup fue bloqueado, redirigir normalmente
+          secureLogger.warn('Popup bloqueado, redirigiendo normalmente...');
+          window.location.href = authUrl;
+          return null;
+        }
+        
+        return popup;
       }
+      return null;
     } catch (error) {
-      console.error('Error initiating OAuth login:', error);
+      secureLogger.error('Error initiating OAuth login:', error);
       throw {
         code: 'oauth-failed',
         message: 'Error al iniciar autenticación con ' + provider,
@@ -782,14 +846,12 @@ class AuthService {
         throw new Error('No user data received');
       }
 
-      // Guardar el access token en localStorage
-      const accessToken = response.data.data.tokens?.accessToken || response.data.data.token;
-      if (accessToken && typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', accessToken);
-        console.log('✅ Access token saved to localStorage (OAuth)');
-      }
+      // ✅ SEGURIDAD: NO almacenar tokens en localStorage
+      // El token viene en una httpOnly cookie que el navegador maneja automáticamente
+      // localStorage es vulnerable a ataques XSS
 
-      return response.data.data.user;
+      // Transformar datos del backend (snake_case) al frontend (camelCase)
+      return transformUserFromBackend(response.data.data.user);
     } catch (error) {
       throw handleAuthError(error);
     }

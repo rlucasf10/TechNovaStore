@@ -1,5 +1,5 @@
 # Build base image first: docker build -f docker/base/Dockerfile.service-base -t service-base .
-FROM service-base:latest
+FROM technovastore-base:latest
 
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json
@@ -27,6 +27,7 @@ COPY domains/customer/user-service/api ./api
 COPY domains/customer/user-service/shared ./shared
 COPY domains/customer/user-service/register-user ./register-user
 COPY domains/customer/user-service/authenticate-user ./authenticate-user
+COPY domains/customer/user-service/logout-user ./logout-user
 COPY domains/customer/user-service/refresh-token ./refresh-token
 COPY domains/customer/user-service/request-password-reset ./request-password-reset
 COPY domains/customer/user-service/confirm-password-reset ./confirm-password-reset
@@ -40,6 +41,9 @@ COPY domains/customer/user-service/export-personal-data ./export-personal-data
 COPY domains/customer/user-service/request-account-deletion ./request-account-deletion
 COPY domains/customer/user-service/cancel-account-deletion ./cancel-account-deletion
 COPY domains/customer/user-service/manage-consent ./manage-consent
+COPY domains/customer/user-service/get-wishlist ./get-wishlist
+COPY domains/customer/user-service/add-to-wishlist ./add-to-wishlist
+COPY domains/customer/user-service/remove-from-wishlist ./remove-from-wishlist
 COPY domains/customer/user-service/scripts ./scripts
 COPY domains/customer/user-service/jest.config.js ./jest.config.js
 

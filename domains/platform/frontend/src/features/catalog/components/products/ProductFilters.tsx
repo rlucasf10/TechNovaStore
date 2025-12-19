@@ -142,8 +142,8 @@ export function ProductFilters({
           <h3 className="text-sm font-medium text-gray-900 mb-3">Rango de Precio</h3>
           <div className="space-y-3">
             <Input
-              id="price-min"
-              name="priceMin"
+              id="filters-price-min"
+              name="filters-price-min"
               type="number"
               placeholder="Precio mínimo"
               value={priceRange.min}
@@ -153,8 +153,8 @@ export function ProductFilters({
               aria-label="Precio mínimo"
             />
             <Input
-              id="price-max"
-              name="priceMax"
+              id="filters-price-max"
+              name="filters-price-max"
               type="number"
               placeholder="Precio máximo"
               value={priceRange.max}
@@ -220,10 +220,10 @@ export function ProductFilters({
         {/* Availability Filter */}
         <div>
           <h3 className="text-sm font-medium text-gray-900 mb-3">Disponibilidad</h3>
-          <label className="flex items-center">
+          <label htmlFor="filters-availability" className="flex items-center">
             <input
-              id="filter-availability"
-              name="availability"
+              id="filters-availability"
+              name="filters-availability"
               type="checkbox"
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               defaultChecked

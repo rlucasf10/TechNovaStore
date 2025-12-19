@@ -85,10 +85,14 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
                   src={currentProduct.images[0]}
                   alt={currentProduct.name}
                   fill
+                  sizes="64px"
                   className="object-cover"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = '/placeholder-product.png'
+                    target.src = '/placeholder-product.svg'
                   }}
                 />
               ) : (

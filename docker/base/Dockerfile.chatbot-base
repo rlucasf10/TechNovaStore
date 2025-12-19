@@ -1,0 +1,33 @@
+# =============================================================================
+# Imagen base para el chatbot con Python y spaCy pre-instalados
+# 
+# Construir una vez:
+#   docker build -f docker/base/Dockerfile.chatbot-base -t technovastore-chatbot-base:latest .
+#
+# Esta imagen contiene todas las dependencias pesadas (Python, spaCy, modelo español)
+# que casi nunca cambian, haciendo los builds del chatbot mucho más rápidos.
+# =============================================================================
+
+FROM node:20-bullseye
+
+# Actualizar npm
+RUN npm install -g npm@latest
+
+# Instalar Python y dependencias de spaCy
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear symlink para comando python
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Instalar spaCy y modelo español
+RUN pip3 install spacy && \
+    python -m spacy download es_core_news_sm
+
+# Directorio de trabajo base
+WORKDIR /workspace

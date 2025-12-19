@@ -7,12 +7,19 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Sidebar } from '@/layout/Sidebar';
-import { useAuth } from '@/customer/hooks/useAuth';
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de useAuth
+const mockUseAuth = jest.fn();
+jest.mock('@/customer/hooks/useAuth', () => ({
+  useAuth: () => mockUseAuth(),
+}));
 
 // Mock de next/navigation
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+  })),
   usePathname: jest.fn(() => '/'),
 }));
 
@@ -21,6 +28,15 @@ describe('Sidebar Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Configurar mock por defecto de useAuth (usuario no autenticado)
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      login: jest.fn(),
+      logout: jest.fn(),
+      register: jest.fn(),
+    });
   });
 
   // ============================================================================
@@ -159,13 +175,14 @@ describe('Sidebar Component', () => {
 
     it('debe mostrar información del usuario cuando está autenticado', () => {
       // Configurar mock para usuario autenticado
-      (useAuth as jest.Mock).mockReturnValueOnce({
+      mockUseAuth.mockReturnValue({
         user: {
           firstName: 'Juan',
           lastName: 'Pérez',
           email: 'juan@example.com',
         },
         isAuthenticated: true,
+        isLoading: false,
         logout: jest.fn(),
       });
 
@@ -176,13 +193,14 @@ describe('Sidebar Component', () => {
     });
 
     it('debe mostrar enlaces de cuenta cuando está autenticado', () => {
-      (useAuth as jest.Mock).mockReturnValueOnce({
+      mockUseAuth.mockReturnValue({
         user: {
           firstName: 'Juan',
           lastName: 'Pérez',
           email: 'juan@example.com',
         },
         isAuthenticated: true,
+        isLoading: false,
         logout: jest.fn(),
       });
 
@@ -195,13 +213,14 @@ describe('Sidebar Component', () => {
     });
 
     it('debe mostrar botón de cerrar sesión cuando está autenticado', () => {
-      (useAuth as jest.Mock).mockReturnValueOnce({
+      mockUseAuth.mockReturnValue({
         user: {
           firstName: 'Juan',
           lastName: 'Pérez',
           email: 'juan@example.com',
         },
         isAuthenticated: true,
+        isLoading: false,
         logout: jest.fn(),
       });
 
@@ -212,13 +231,14 @@ describe('Sidebar Component', () => {
 
     it('debe llamar logout al hacer clic en cerrar sesión', async () => {
       const mockLogout = jest.fn().mockResolvedValue(undefined);
-      (useAuth as jest.Mock).mockReturnValueOnce({
+      mockUseAuth.mockReturnValue({
         user: {
           firstName: 'Juan',
           lastName: 'Pérez',
           email: 'juan@example.com',
         },
         isAuthenticated: true,
+        isLoading: false,
         logout: mockLogout,
       });
 

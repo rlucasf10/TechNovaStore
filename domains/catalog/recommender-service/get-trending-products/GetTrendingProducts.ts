@@ -6,6 +6,7 @@
  */
 
 import { HybridRecommender, RecommendationResult } from '../shared/algorithms/HybridRecommender';
+import { logger } from '../shared/utils/logger';
 
 export interface GetTrendingProductsResponse {
   recommendations: RecommendationResult[];
@@ -41,7 +42,9 @@ export class GetTrendingProducts {
         }
       };
     } catch (error) {
-      console.error('Error getting trending products:', error);
+      logger.error('Error getting trending products', { 
+        error: error instanceof Error ? error.message : error
+      });
       throw error;
     }
   }

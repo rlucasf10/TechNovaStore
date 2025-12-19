@@ -151,26 +151,26 @@ export function Tabs({
 
     // Clases para cada variante
     const getTabClasses = (tab: TabItem, isActive: boolean) => {
-        const baseClasses = 'inline-flex items-center gap-2 px-4 py-2.5 font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+        const baseClasses = 'inline-flex items-center gap-2 px-4 py-2.5 font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed'
 
         const variantClasses = {
             default: cn(
                 'border-b-2 rounded-t-lg',
                 isActive
-                    ? 'border-primary-600 text-primary-600 bg-primary-50'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'border-primary-600 text-primary-600 bg-primary-50 dark:bg-primary-900/30 dark:text-primary-400'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800'
             ),
             pills: cn(
                 'rounded-full',
                 isActive
                     ? 'bg-primary-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600 hover:text-gray-900 dark:hover:text-gray-100'
             ),
             underline: cn(
                 'border-b-2',
                 isActive
-                    ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-primary-600 text-primary-600 dark:text-primary-400 dark:border-primary-400'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-slate-600'
             ),
         }
 
@@ -189,8 +189,8 @@ export function Tabs({
                 aria-label="Navegación por pestañas"
                 className={cn(
                     tabListClasses,
-                    variant === 'default' && 'border-b border-gray-200',
-                    variant === 'underline' && 'border-b border-gray-200'
+                    variant === 'default' && 'border-b border-gray-200 dark:border-slate-700',
+                    variant === 'underline' && 'border-b border-gray-200 dark:border-slate-700'
                 )}
             >
                 {tabs.map((tab, index) => {

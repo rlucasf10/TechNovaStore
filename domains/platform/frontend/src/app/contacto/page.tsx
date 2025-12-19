@@ -1,45 +1,55 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Header } from '@/layout'
 import { Button, Input } from '@/ui'
+import { contactSchema, type ContactFormData } from '@/shared/lib/form-schemas'
 
 export default function ContactoPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    
-    // Simular envío
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setIsSubmitting(false)
-    setSubmitted(true)
-    setFormData({ name: '', email: '', subject: '', message: '' })
-    
-    setTimeout(() => setSubmitted(false), 5000)
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+    },
+    mode: 'onBlur', // Validar al perder foco
+  })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      // TODO: Integrar con API real
+      console.log('Datos del formulario:', data)
+      
+      // Simular envío
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      setSubmitted(true)
+      reset() // Limpiar formulario
+      
+      // Ocultar mensaje de éxito después de 5 segundos
+      setTimeout(() => setSubmitted(false), 5000)
+    } catch (error) {
+      console.error('Error al enviar formulario:', error)
+      // TODO: Mostrar mensaje de error
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-[88px]">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Contacto</h1>
           <p className="text-gray-600 mb-8">
@@ -113,67 +123,67 @@ export default function ContactoPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="Tu nombre"
-                  />
-                </div>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <Input
+                  {...register('name')}
+                  label="Nombre *"
+                  placeholder="Tu nombre"
+                  error={errors.name?.message}
+                  autoComplete="name"
+                />
+
+                <Input
+                  {...register('email')}
+                  label="Email *"
+                  type="email"
+                  placeholder="tu@email.com"
+                  error={errors.email?.message}
+                  autoComplete="email"
+                />
+
+                <Input
+                  {...register('subject')}
+                  label="Asunto *"
+                  placeholder="¿En qué podemos ayudarte?"
+                  error={errors.subject?.message}
+                />
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="tu@email.com"
-                    autoComplete="email"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                    Asunto
-                  </label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    type="text"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    placeholder="¿En qué podemos ayudarte?"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                    Mensaje
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                    Mensaje *
                   </label>
                   <textarea
+                    {...register('message')}
                     id="message"
-                    name="message"
                     rows={4}
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
                     placeholder="Escribe tu mensaje aquí..."
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                    className={`block w-full rounded-md border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 py-2.5 px-3 text-base ${
+                      errors.message
+                        ? 'border-error focus:border-error focus:ring-error/20'
+                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/20'
+                    }`}
+                    aria-invalid={errors.message ? 'true' : 'false'}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
                   />
+                  {errors.message && (
+                    <div className="flex items-start gap-1 mt-1.5">
+                      <svg 
+                        className="w-4 h-4 text-error mt-0.5 flex-shrink-0" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                      >
+                        <path 
+                          fillRule="evenodd" 
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                          clipRule="evenodd" 
+                        />
+                      </svg>
+                      <p id="message-error" className="text-sm text-error">
+                        {errors.message.message}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <Button

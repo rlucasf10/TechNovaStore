@@ -17,7 +17,7 @@
  * ```tsx
  * <AdminRoute 
  *   loginRedirect="/login?from=/admin"
- *   unauthorizedRedirect="/dashboard"
+ *   unauthorizedRedirect="/dashboard/usuario"
  * >
  *   <AdminDashboardPage />
  * </AdminRoute>

@@ -53,10 +53,10 @@ module.exports = {
           900: '#111827',
           950: '#030712',
         },
-        // Colores Semánticos
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444',
+        // Colores Semánticos (ajustados para WCAG 2.1 AA - contraste mínimo 4.5:1)
+        success: '#047857', // Verde oscuro - Contraste 4.77:1 ✅
+        warning: '#b45309', // Naranja oscuro - Contraste 4.58:1 ✅
+        error: '#dc2626',   // Rojo - Contraste 4.83:1 ✅
         info: '#3b82f6',
         // Tema Oscuro
         dark: {
@@ -64,10 +64,12 @@ module.exports = {
             primary: '#0f172a',
             secondary: '#1e293b',
             tertiary: '#334155',
+            hover: '#475569',
           },
           text: {
             primary: '#f1f5f9',
             secondary: '#cbd5e1',
+            tertiary: '#94a3b8',
           },
         },
       },
@@ -113,17 +115,29 @@ module.exports = {
         xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
       },
       animation: {
+        'spin': 'spin 1s linear infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
+        'fade-out': 'fadeOut 0.3s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
+        'slide-in-left': 'slideInLeft 0.3s ease-out',
+        'slide-out-left': 'slideOutLeft 0.3s ease-in',
         'slide-in-right': 'slideInRight 0.3s ease-out',
         'pulse-subtle': 'pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'shimmer': 'shimmer 2s linear infinite',
       },
       keyframes: {
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
         },
         slideUp: {
           '0%': { transform: 'translateY(10px)', opacity: '0' },
@@ -132,6 +146,14 @@ module.exports = {
         slideDown: {
           '0%': { transform: 'translateY(-10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideOutLeft: {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(-100%)', opacity: '0' },
         },
         slideInRight: {
           '0%': { transform: 'translateX(100%)', opacity: '0' },

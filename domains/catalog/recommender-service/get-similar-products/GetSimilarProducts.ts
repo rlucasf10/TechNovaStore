@@ -7,6 +7,7 @@
 
 import { ContentBasedFiltering } from '../shared/algorithms/ContentBasedFiltering';
 import { RecommendationResult } from '../shared/algorithms/HybridRecommender';
+import { logger } from '../shared/utils/logger';
 
 export interface GetSimilarProductsRequest {
   productSku: string;
@@ -84,7 +85,10 @@ export class GetSimilarProducts {
         }
       };
     } catch (error) {
-      console.error('Error getting similar products:', error);
+      logger.error('Error getting similar products', { 
+        error: error instanceof Error ? error.message : error,
+        productSku
+      });
       throw error;
     }
   }

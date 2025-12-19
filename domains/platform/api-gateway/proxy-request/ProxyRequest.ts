@@ -28,10 +28,21 @@ export class ProxyRequest {
         res.status(503).json({ error: `${config.serviceName} service unavailable` });
       },
       onProxyReq: (proxyReq: any, req: any) => {
-        // Reenviar información del usuario si está disponible
+        // Reenviar header Authorization si existe
+        if (req.headers.authorization) {
+          proxyReq.setHeader('Authorization', req.headers.authorization);
+        }
+
+        // Reenviar información del usuario si está disponible (desde authMiddleware)
         if (req.user) {
-          proxyReq.setHeader('X-User-ID', req.user.id);
+          proxyReq.setHeader('X-User-ID', req.user.id.toString());
           proxyReq.setHeader('X-User-Role', req.user.role);
+        }
+
+        // También verificar si los headers ya vienen en req.headers (establecidos por AuthenticateRequest)
+        if (!req.user && req.headers['x-user-id']) {
+          proxyReq.setHeader('X-User-ID', req.headers['x-user-id']);
+          proxyReq.setHeader('X-User-Role', req.headers['x-user-role'] || 'customer');
         }
 
         // Reenviar body si existe (para POST/PUT/PATCH)

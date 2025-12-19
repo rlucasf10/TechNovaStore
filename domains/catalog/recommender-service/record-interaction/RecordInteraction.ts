@@ -6,6 +6,7 @@
  */
 
 import { HybridRecommender } from '../shared/algorithms/HybridRecommender';
+import { logger } from '../shared/utils/logger';
 
 export interface RecordInteractionRequest {
   userId: string;
@@ -32,7 +33,12 @@ export class RecordInteraction {
       // Invalidate related caches
       await this.invalidateUserCaches(userId);
     } catch (error) {
-      console.error('Error recording interaction:', error);
+      logger.error('Error recording interaction', { 
+        error: error instanceof Error ? error.message : error,
+        userId,
+        productSku,
+        interactionType
+      });
       throw error;
     }
   }
@@ -54,7 +60,10 @@ export class RecordInteraction {
         }
       }
     } catch (error) {
-      console.error('Error invalidating caches:', error);
+      logger.error('Error invalidating caches', { 
+        error: error instanceof Error ? error.message : error,
+        userId
+      });
     }
   }
 }

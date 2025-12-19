@@ -1,74 +1,83 @@
 import { Order } from '../models/Order';
 import { TrackingInfo } from '../types/tracking';
+import { userNotificationClient } from './UserNotificationClient';
+import { logger } from '../utils/logger';
 
 export class NotificationService {
   async sendShipmentUpdate(order: Order, trackingInfo: TrackingInfo): Promise<void> {
     try {
-      // This would integrate with the notification service
-      // For now, we'll log the notification
-      console.log(`Sending shipment update notification for order ${order.orderNumber}`);
-      
-      const notification = {
-        type: 'shipment_update',
-        orderId: order.id,
+      logger.info('Sending shipment update notification', { 
         orderNumber: order.orderNumber,
-        userId: order.userId,
         status: trackingInfo.status,
-        trackingNumber: trackingInfo.trackingNumber,
-        provider: trackingInfo.provider,
-        estimatedDelivery: trackingInfo.estimatedDeliveryDate,
-        message: this.getStatusMessage(trackingInfo.status),
-        timestamp: new Date()
-      };
-
-      // TODO: Integrate with actual notification service
-      // await notificationService.send(notification);
+        trackingNumber: trackingInfo.trackingNumber
+      });
       
-      console.log('Shipment notification sent:', notification);
+      // Crear notificación en la base de datos para el dashboard del usuario
+      await userNotificationClient.notifyShipmentUpdate(
+        order.userId,
+        order.orderNumber,
+        trackingInfo.status,
+        trackingInfo.trackingNumber
+      );
+
+      // Si el pedido fue entregado, enviar notificación especial
+      if (trackingInfo.status === 'delivered') {
+        await userNotificationClient.notifyOrderDelivered(
+          order.userId,
+          order.orderNumber
+        );
+      }
+      
+      logger.info('Shipment notification sent successfully', { 
+        orderNumber: order.orderNumber 
+      });
     } catch (error) {
-      console.error('Error sending shipment update notification:', error);
+      logger.error('Error sending shipment update notification', { 
+        orderNumber: order.orderNumber,
+        error: String(error) 
+      });
     }
   }
 
   async sendDelayNotification(order: Order, originalEstimate: Date, newEstimate: Date): Promise<void> {
     try {
-      console.log(`Sending delay notification for order ${order.orderNumber}`);
-      
-      const delayDays = Math.ceil((newEstimate.getTime() - originalEstimate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      const notification = {
-        type: 'delivery_delay',
-        orderId: order.id,
+      logger.info('Sending delay notification', { 
         orderNumber: order.orderNumber,
-        userId: order.userId,
-        originalEstimate,
-        newEstimate,
-        delayDays,
-        message: `Your order delivery has been delayed by ${delayDays} day(s). New estimated delivery: ${newEstimate.toLocaleDateString()}`,
-        timestamp: new Date()
-      };
-
-      // TODO: Integrate with actual notification service
-      // await notificationService.send(notification);
+        originalEstimate: originalEstimate.toISOString(),
+        newEstimate: newEstimate.toISOString()
+      });
       
-      console.log('Delay notification sent:', notification);
+      // Crear notificación de retraso en la base de datos
+      await userNotificationClient.notifyDeliveryDelay(
+        order.userId,
+        order.orderNumber,
+        originalEstimate,
+        newEstimate
+      );
+      
+      logger.info('Delay notification sent successfully', { 
+        orderNumber: order.orderNumber 
+      });
     } catch (error) {
-      console.error('Error sending delay notification:', error);
+      logger.error('Error sending delay notification', { 
+        orderNumber: order.orderNumber,
+        error: String(error) 
+      });
     }
   }
 
   private getStatusMessage(status: string): string {
     const messages: { [key: string]: string } = {
-      'label_created': 'Your order has been processed and a shipping label has been created.',
-      'picked_up': 'Your order has been picked up by the carrier.',
-      'in_transit': 'Your order is on its way to you.',
-      'out_for_delivery': 'Your order is out for delivery and should arrive today.',
-      'delivered': 'Your order has been delivered successfully.',
-      'exception': 'There was an issue with your shipment. We are working to resolve it.',
-      'returned': 'Your order is being returned to the sender.',
-      'cancelled': 'Your shipment has been cancelled.'
+      'label_created': 'Se ha creado la etiqueta de envío para tu pedido.',
+      'picked_up': 'El transportista ha recogido tu pedido.',
+      'in_transit': 'Tu pedido está en camino.',
+      'out_for_delivery': 'Tu pedido saldrá para entrega hoy.',
+      'delivered': 'Tu pedido ha sido entregado correctamente.',
+      'exception': 'Hay un problema con tu envío. Estamos trabajando para resolverlo.',
+      'returned': 'Tu pedido está siendo devuelto al remitente.',
+      'cancelled': 'El envío ha sido cancelado.'
     };
 
-    return messages[status] || 'Your order status has been updated.';
+    return messages[status] || 'El estado de tu pedido ha sido actualizado.';
   }
 }

@@ -12,6 +12,8 @@ export * from './components/products/RelatedProducts'
 export * from './components/products/ProductReviews'
 export * from './components/products/ProductQA'
 export * from './components/products/PriceComparator'
+export * from './components/products/TechnicalComparator'
+export * from './components/products/ComparisonFloatingButton'
 
 // Export ProductFilters component (avoiding conflict with ProductFilters interface)
 export { ProductFilters } from './components/products/ProductFilters'
@@ -29,6 +31,7 @@ export {
 export * from './hooks/useProducts'
 export * from './hooks/useCategories'
 export * from './hooks/useSearch'
+export * from './hooks/useInfiniteProducts'
 
 // Services
 export { 

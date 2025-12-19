@@ -1,6 +1,6 @@
 'use client'
 
-import React, {
+import {
     HTMLAttributes,
     forwardRef,
     ReactNode,
@@ -368,9 +368,8 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
 
         // Clonar children para agregar prop de cierre
         const childrenWithProps = Children.map(children, (child) => {
-            if (isValidElement(child) && closeOnItemClick) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                return cloneElement(child as React.ReactElement<any>, {
+            if (isValidElement<{ onClick?: (e: MouseEvent) => void }>(child) && closeOnItemClick) {
+                return cloneElement(child, {
                     onClick: (e: MouseEvent) => {
                         child.props.onClick?.(e)
                         if (!e.defaultPrevented) {

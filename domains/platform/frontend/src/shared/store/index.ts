@@ -12,3 +12,7 @@ export type { Theme } from './theme.store';
 
 export { useNotificationStore } from './notification.store';
 export type { Notification, NotificationType } from './notification.store';
+
+export { useComparisonStore } from './comparison.store';
+
+export { useWishlistStore } from './wishlist.store';

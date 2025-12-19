@@ -9,6 +9,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { recommenderService } from '@/shared/services/recommenderService';
 
 export interface CartItem {
   id: string;
@@ -51,6 +52,11 @@ export const useCartStore = create<CartState>()(
       addItem: (item: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
         const items = get().items;
         const existingItem = items.find((i: CartItem) => i.productId === item.productId);
+        
+        // Registrar interacción para el sistema de recomendaciones (usar SKU)
+        if (item.sku) {
+          recommenderService.recordInteraction(item.sku, 'add_to_cart');
+        }
         
         if (existingItem) {
           // Si ya existe, incrementar cantidad

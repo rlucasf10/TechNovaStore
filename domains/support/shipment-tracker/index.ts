@@ -6,6 +6,7 @@
 import express from 'express';
 import cron from 'node-cron';
 import { connectPostgreSQL } from './config/database';
+import { apiRateLimiter } from './shared/middleware/rateLimiter';
 
 // Importar providers
 import {
@@ -34,6 +35,9 @@ import { createTrackingRoutes } from './api/routes';
 // Importar middleware
 import { errorHandler } from './shared/middleware/errorHandler';
 
+// Importar logger
+import { logger } from './shared/utils/logger';
+
 const app = express();
 const PORT = process.env.PORT || 3006;
 
@@ -45,9 +49,12 @@ app.use(express.urlencoded({ extended: true }));
 async function initializeDatabase() {
   try {
     await connectPostgreSQL();
-    console.log('Database initialized successfully');
+    logger.info('Database initialized successfully', { service: 'shipment-tracker' });
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    logger.error('Failed to initialize database', { 
+      error: error instanceof Error ? error.message : String(error),
+      service: 'shipment-tracker'
+    });
     process.exit(1);
   }
 }
@@ -87,6 +94,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'shipment-tracker' });
 });
 
+// Rate limiting para todas las rutas /api/
+// Configuración: 100 requests por 15 minutos por IP
+// Requirements: 7.1, 7.2, 7.3, 7.4
+app.use('/api', apiRateLimiter);
+
 // Mount tracking routes
 const trackingRoutes = createTrackingRoutes(trackingController);
 app.use('/api/tracking', trackingRoutes);
@@ -96,12 +108,16 @@ app.use(errorHandler);
 
 // Schedule automatic tracking updates every 6 hours (LÓGICA ORIGINAL)
 cron.schedule('0 */6 * * *', async () => {
-  console.log('Starting scheduled tracking update...');
+  logger.info('Starting scheduled tracking update', { service: 'shipment-tracker', component: 'cron' });
   try {
     await updateAllActiveShipments.execute();
-    console.log('Scheduled tracking update completed');
+    logger.info('Scheduled tracking update completed', { service: 'shipment-tracker', component: 'cron' });
   } catch (error) {
-    console.error('Error in scheduled tracking update:', error);
+    logger.error('Error in scheduled tracking update', { 
+      error: error instanceof Error ? error.message : String(error),
+      service: 'shipment-tracker',
+      component: 'cron'
+    });
   }
 });
 
@@ -111,11 +127,17 @@ async function startServer() {
     await initializeDatabase();
     
     app.listen(PORT, () => {
-      console.log(`Shipment Tracker service running on port ${PORT}`);
-      console.log('Screaming Architecture: Organized by use cases');
+      logger.info('Shipment Tracker service running', { 
+        port: PORT,
+        service: 'shipment-tracker',
+        architecture: 'Screaming Architecture: Organized by use cases'
+      });
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', { 
+      error: error instanceof Error ? error.message : String(error),
+      service: 'shipment-tracker'
+    });
     process.exit(1);
   }
 }

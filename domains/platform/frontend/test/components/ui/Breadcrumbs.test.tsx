@@ -3,15 +3,9 @@
  * Verifica navegación jerárquica, separadores, truncado y responsive
  */
 
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { Breadcrumbs, ChevronSeparator, HomeIcon, type BreadcrumbItem } from '@/ui/Breadcrumbs'
-
-// Mock de Next.js Link
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => {
-    return <a href={href}>{children}</a>
-  }
-})
 
 describe('Breadcrumbs Component', () => {
   // Datos de prueba
@@ -24,7 +18,7 @@ describe('Breadcrumbs Component', () => {
 
   const itemsWithIcon: BreadcrumbItem[] = [
     { label: 'Inicio', href: '/', icon: <HomeIcon /> },
-    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Dashboard', href: '/dashboard/usuario' },
     { label: 'Pedidos' },
   ]
 
@@ -59,7 +53,7 @@ describe('Breadcrumbs Component', () => {
   describe('Links', () => {
     it('renderiza links para elementos con href', () => {
       render(<Breadcrumbs items={basicItems} />)
-      const inicioLink = screen.getByRole('link', { name: 'Inicio' })
+      const inicioLink = screen.getByRole('link', { name: 'Navegar a Inicio' })
       expect(inicioLink).toHaveAttribute('href', '/')
     })
 
@@ -77,7 +71,7 @@ describe('Breadcrumbs Component', () => {
 
     it('los elementos intermedios no tienen aria-current', () => {
       render(<Breadcrumbs items={basicItems} />)
-      const productosLink = screen.getByRole('link', { name: 'Productos' })
+      const productosLink = screen.getByRole('link', { name: 'Navegar a Productos' })
       expect(productosLink).not.toHaveAttribute('aria-current')
     })
   })
@@ -216,7 +210,7 @@ describe('Breadcrumbs Component', () => {
 
     it('los links tienen estilos de hover', () => {
       render(<Breadcrumbs items={basicItems} />)
-      const link = screen.getByRole('link', { name: 'Inicio' })
+      const link = screen.getByRole('link', { name: 'Navegar a Inicio' })
       // Verificar que el link existe y tiene contenido
       expect(link).toBeInTheDocument()
       expect(link).toHaveTextContent('Inicio')
@@ -255,7 +249,7 @@ describe('Breadcrumbs Component', () => {
 
     it('los links tienen focus visible', () => {
       render(<Breadcrumbs items={basicItems} />)
-      const link = screen.getByRole('link', { name: 'Inicio' })
+      const link = screen.getByRole('link', { name: 'Navegar a Inicio' })
       // Verificar que el link es interactivo
       expect(link).toBeInTheDocument()
       expect(link).toHaveAttribute('href', '/')

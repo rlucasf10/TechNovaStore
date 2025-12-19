@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../utils/logger';
 
 export class MigrationRunner {
   private pool: Pool;
@@ -34,18 +35,18 @@ export class MigrationRunner {
         .filter(file => file.endsWith('.sql'))
         .sort();
 
-      console.log(`Found ${migrationFiles.length} migration files`);
+      logger.info('Found migration files', { count: migrationFiles.length });
 
       // Run pending migrations
       for (const file of migrationFiles) {
         const version = path.basename(file, '.sql');
         
         if (appliedMigrations.has(version)) {
-          console.log(`Migration ${version} already applied, skipping`);
+          logger.info('Migration already applied, skipping', { version });
           continue;
         }
 
-        console.log(`Running migration ${version}...`);
+        logger.info('Running migration', { version });
         
         const migrationPath = path.join(migrationsDir, file);
         const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
@@ -66,16 +67,16 @@ export class MigrationRunner {
           // Commit transaction
           await client.query('COMMIT');
           
-          console.log(`Migration ${version} completed successfully`);
+          logger.info('Migration completed successfully', { version });
         } catch (error) {
           // Rollback on error
           await client.query('ROLLBACK');
-          console.error(`Migration ${version} failed:`, error);
+          logger.error('Migration failed', { version, error: error instanceof Error ? error.message : error });
           throw error;
         }
       }
 
-      console.log('All migrations completed successfully');
+      logger.info('All migrations completed successfully');
     } finally {
       client.release();
     }
@@ -142,12 +143,12 @@ export class MigrationRunner {
       `);
 
       if (lastMigrationResult.rows.length === 0) {
-        console.log('No migrations to rollback');
+        logger.info('No migrations to rollback');
         return;
       }
 
       const lastVersion = lastMigrationResult.rows[0].version;
-      console.log(`Rolling back migration ${lastVersion}...`);
+      logger.info('Rolling back migration', { version: lastVersion });
 
       // Check if rollback file exists
       const rollbackPath = path.join(__dirname, 'migrations', `${lastVersion}_rollback.sql`);
@@ -174,11 +175,11 @@ export class MigrationRunner {
         // Commit transaction
         await client.query('COMMIT');
         
-        console.log(`Migration ${lastVersion} rolled back successfully`);
+        logger.info('Migration rolled back successfully', { version: lastVersion });
       } catch (error) {
         // Rollback on error
         await client.query('ROLLBACK');
-        console.error(`Rollback of ${lastVersion} failed:`, error);
+        logger.error('Rollback failed', { version: lastVersion, error: error instanceof Error ? error.message : error });
         throw error;
       }
     } finally {

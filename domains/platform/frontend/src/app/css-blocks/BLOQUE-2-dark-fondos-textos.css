@@ -1,0 +1,83 @@
+/* BLOQUE 2: Tema oscuro - Fondos, textos y bordes básicos */
+/* Si este bloque falla, el problema está en los selectores .dark básicos */
+
+@import '../styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  /* TEMA OSCURO - Estilos básicos */
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #f1f5f9;
+  }
+
+  .dark p {
+    color: #e2e8f0;
+  }
+
+  /* Fondos */
+  .dark .bg-white {
+    background-color: #1e293b !important;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: #0f172a !important;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: #1e293b !important;
+  }
+
+  .dark .bg-gray-200 {
+    background-color: #334155 !important;
+  }
+
+  /* Textos */
+  .dark .text-gray-900 {
+    color: #f8fafc !important;
+  }
+
+  .dark .text-gray-800 {
+    color: #f1f5f9 !important;
+  }
+
+  .dark .text-gray-700 {
+    color: #e2e8f0 !important;
+  }
+
+  .dark .text-gray-600 {
+    color: #cbd5e1 !important;
+  }
+
+  .dark .text-gray-500 {
+    color: #94a3b8 !important;
+  }
+
+  /* Bordes */
+  .dark .border-gray-100 {
+    border-color: #1e293b !important;
+  }
+
+  .dark .border-gray-200 {
+    border-color: #334155 !important;
+  }
+
+  .dark .border-gray-300 {
+    border-color: #475569 !important;
+  }
+}

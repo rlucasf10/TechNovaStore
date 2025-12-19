@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { safeRedirect } from '@/shared/utils/urlValidation'
 
 interface Notification {
   id: string
@@ -92,15 +93,15 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Centro de Notificaciones</h2>
-          <p className="text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Centro de Notificaciones</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {unreadCount > 0 ? `${unreadCount} notificación${unreadCount !== 1 ? 'es' : ''} sin leer` : 'Todas las notificaciones leídas'}
           </p>
         </div>
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="mt-4 sm:mt-0 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className="mt-4 sm:mt-0 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium"
           >
             Marcar todas como leídas
           </button>
@@ -108,15 +109,15 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Estado
           </label>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'all' | 'unread')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="all">Todas</option>
             <option value="unread">Sin leer ({unreadCount})</option>
@@ -124,13 +125,13 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
         </div>
 
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Tipo
           </label>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="all">Todos los tipos</option>
             <option value="order">Pedidos</option>
@@ -146,10 +147,10 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
       {filteredNotifications.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 text-6xl mb-4">🔔</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             {filter === 'unread' ? 'No hay notificaciones sin leer' : 'No hay notificaciones'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {filter === 'unread' 
               ? 'Todas tus notificaciones están al día'
               : 'Las notificaciones aparecerán aquí cuando tengas actividad en tu cuenta'
@@ -164,7 +165,7 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
               className={`
                 p-4 rounded-lg border transition-all cursor-pointer
                 ${notification.read 
-                  ? 'border-gray-200 bg-white hover:bg-gray-50' 
+                  ? 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700' 
                   : `${notificationColors[notification.type]} border-l-4`
                 }
               `}
@@ -173,7 +174,8 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
                   markAsRead(notification.id)
                 }
                 if (notification.action_url) {
-                  window.location.href = notification.action_url
+                  // Usar redirección segura para prevenir ataques de Open Redirect
+                  safeRedirect(notification.action_url, '/dashboard')
                 }
               }}
             >
@@ -187,12 +189,12 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h4 className={`text-sm font-medium ${
-                      notification.read ? 'text-gray-900' : 'text-gray-900 font-semibold'
+                      notification.read ? 'text-gray-900 dark:text-gray-100' : 'text-gray-900 dark:text-gray-100 font-semibold'
                     }`}>
                       {notification.title}
                     </h4>
                     <div className="flex items-center space-x-2">
-                      <time className="text-xs text-gray-500">
+                      <time className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(notification.timestamp)}
                       </time>
                       {!notification.read && (
@@ -202,7 +204,7 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
                   </div>
                   
                   <p className={`text-sm mt-1 ${
-                    notification.read ? 'text-gray-600' : 'text-gray-700'
+                    notification.read ? 'text-gray-600 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'
                   }`}>
                     {notification.message}
                   </p>
@@ -210,8 +212,8 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
                   {notification.order_id && (
                     <div className="mt-2">
                       <a
-                        href={`/dashboard?tab=orders&order=${notification.order_id}`}
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        href={`/dashboard/usuario?tab=orders&order=${notification.order_id}`}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Ver pedido #{notification.order_id}
@@ -227,7 +229,7 @@ export function NotificationCenter({ notifications }: NotificationCenterProps) {
 
       {/* Real-time indicator */}
       <div className="mt-6 text-center">
-        <div className="inline-flex items-center text-xs text-gray-500">
+        <div className="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
           <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
           Actualizaciones en tiempo real activadas
         </div>

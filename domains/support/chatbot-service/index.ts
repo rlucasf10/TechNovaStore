@@ -6,6 +6,7 @@
  */
 
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config';
@@ -26,16 +27,21 @@ import { ProductKnowledgeBase } from './shared/knowledge/ProductKnowledgeBase';
 import { KeywordExtractor } from './shared/rag/KeywordExtractor';
 import { NLPProcessor } from './shared/nlp/NLPProcessor';
 import { EscalationIntegration } from './shared/services/EscalationIntegration';
+import { MetricsCollector } from './shared/MetricsCollector';
 
 // API
 import { ChatbotController } from './api/ChatbotController';
 import { createRoutes } from './api/routes';
+import { SocketServer } from './api/SocketServer';
+
+// Logger
+import { logger } from './shared/utils/logger';
 
 /**
  * Inicializa todas las dependencias y casos de uso
  */
 function initializeDependencies() {
-  console.log('Inicializando dependencias del chatbot...');
+  logger.info('Inicializando dependencias del chatbot');
 
   // Infraestructura compartida
   const ollamaAdapter = new OllamaAdapter({
@@ -77,17 +83,19 @@ function initializeDependencies() {
 
   const manageSession = new ManageSession();
   const escalateToHuman = new EscalateToHuman(escalationService);
+  const metricsCollector = new MetricsCollector();
 
   // Controlador
   const controller = new ChatbotController(
     processMessage,
     manageSession,
-    escalateToHuman
+    escalateToHuman,
+    metricsCollector
   );
 
-  console.log('✓ Dependencias inicializadas correctamente');
+  logger.info('Dependencias inicializadas correctamente');
 
-  return { controller, escalationService };
+  return { controller, escalationService, processMessage, manageSession, metricsCollector };
 }
 
 /**
@@ -123,21 +131,38 @@ function setupServer(controller: ChatbotController) {
  * Inicia el servicio
  */
 function startService() {
-  console.log('=== Iniciando Chatbot Service ===');
-  console.log(`Modo: ${config.useOllama ? 'Ollama' : 'Fallback'}`);
+  logger.info('Iniciando Chatbot Service');
+  logger.info('Modo de operación', { mode: config.useOllama ? 'Ollama' : 'Fallback' });
 
   // Inicializar dependencias
-  const { controller, escalationService } = initializeDependencies();
+  const { controller, escalationService, processMessage, manageSession, metricsCollector } = initializeDependencies();
 
-  // Configurar servidor
+  // Configurar servidor Express
   const app = setupServer(controller);
 
+  // Crear servidor HTTP
+  const httpServer = createServer(app);
+
+  // Configurar Socket.IO
+  const socketServer = new SocketServer(
+    httpServer,
+    processMessage,
+    manageSession,
+    config.frontendUrl,
+    metricsCollector
+  );
+
+  logger.info('Socket.IO configurado');
+
   // Iniciar servidor
-  const server = app.listen(config.port, () => {
-    console.log(`✓ Chatbot service running on port ${config.port}`);
-    console.log(`✓ Health check: http://localhost:${config.port}/health`);
-    console.log(`✓ Chat API: http://localhost:${config.port}/api/chat`);
-    console.log('=== Chatbot Service Ready ===');
+  const server = httpServer.listen(config.port, () => {
+    logger.info('Chatbot service iniciado', { 
+      port: config.port,
+      healthCheck: `http://localhost:${config.port}/health`,
+      httpApi: `http://localhost:${config.port}/api/chat`,
+      socketApi: `ws://localhost:${config.port}`
+    });
+    logger.info('Chatbot Service Ready');
   });
 
   // Limpieza periódica de conversaciones antiguas
@@ -147,9 +172,9 @@ function startService() {
 
   // Manejo de señales de terminación
   const gracefulShutdown = () => {
-    console.log('\nReceived shutdown signal, closing server gracefully...');
+    logger.info('Señal de apagado recibida, cerrando servidor...');
     server.close(() => {
-      console.log('Server closed');
+      logger.info('Servidor cerrado');
       process.exit(0);
     });
   };
@@ -159,12 +184,12 @@ function startService() {
 
   // Manejo de errores no capturados
   process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
+    logger.error('Excepción no capturada', { error: error.message, stack: error.stack });
     gracefulShutdown();
   });
 
   process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    logger.error('Promesa rechazada no manejada', { reason, promise });
     gracefulShutdown();
   });
 }

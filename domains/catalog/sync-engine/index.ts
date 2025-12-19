@@ -5,7 +5,10 @@
  */
 
 import express from 'express';
+import { createLogger } from '@technovastore/shared-config';
 import { SyncScheduler } from './shared/scheduler/SyncScheduler';
+
+const logger = createLogger('sync-engine');
 import { JobQueue } from './shared/queue/JobQueue';
 import { SyncWorker } from './shared/workers/SyncWorker';
 import { DataNormalizer } from './shared/normalizer/DataNormalizer';
@@ -152,11 +155,11 @@ class SyncEngineService {
 
   async start(): Promise<void> {
     if (this.isRunning) {
-      console.log('Sync Engine is already running');
+      logger.info('Sync Engine is already running');
       return;
     }
 
-    console.log('Starting TechNovaStore Sync Engine...');
+    logger.info('Starting TechNovaStore Sync Engine...');
     this.isRunning = true;
 
     try {
@@ -167,24 +170,24 @@ class SyncEngineService {
       if (this.config.enabled) {
         this.scheduler.start();
       } else {
-        console.log('Scheduler disabled in configuration');
+        logger.info('Scheduler disabled in configuration');
       }
 
       // Iniciar workers si está habilitado
       if (this.config.enabled) {
         await this.startWorkers();
       } else {
-        console.log('Workers disabled in configuration');
+        logger.info('Workers disabled in configuration');
       }
 
       // Iniciar motor de pricing dinámico
       this.dynamicPricingEngine.start();
 
-      console.log('✅ Sync Engine started successfully');
-      console.log(`📊 Configuration: ${this.config.maxConcurrentJobs} workers, ${Object.keys(this.config.schedules).length} scheduled tasks`);
+      logger.info('Sync Engine started successfully');
+      logger.info('Configuration', { workers: this.config.maxConcurrentJobs, scheduledTasks: Object.keys(this.config.schedules).length });
 
     } catch (error) {
-      console.error('❌ Failed to start Sync Engine:', error);
+      logger.error('Failed to start Sync Engine', { error: error instanceof Error ? error.message : error });
       this.isRunning = false;
       throw error;
     }
@@ -192,11 +195,11 @@ class SyncEngineService {
 
   async stop(): Promise<void> {
     if (!this.isRunning) {
-      console.log('Sync Engine is not running');
+      logger.info('Sync Engine is not running');
       return;
     }
 
-    console.log('Stopping TechNovaStore Sync Engine...');
+    logger.info('Stopping TechNovaStore Sync Engine...');
     this.isRunning = false;
 
     try {
@@ -212,16 +215,16 @@ class SyncEngineService {
       // Desconectar de Redis
       await this.priceCache.disconnect();
 
-      console.log('✅ Sync Engine stopped successfully');
+      logger.info('Sync Engine stopped successfully');
 
     } catch (error) {
-      console.error('❌ Error stopping Sync Engine:', error);
+      logger.error('Error stopping Sync Engine', { error: error instanceof Error ? error.message : error });
       throw error;
     }
   }
 
   async restart(): Promise<void> {
-    console.log('Restarting Sync Engine...');
+    logger.info('Restarting Sync Engine...');
     await this.stop();
     await this.start();
   }
@@ -241,22 +244,22 @@ class SyncEngineService {
       this.workers.push(worker);
     }
 
-    console.log(`Initialized ${this.workers.length} sync workers`);
+    logger.info('Initialized sync workers', { count: this.workers.length });
   }
 
   private async startWorkers(): Promise<void> {
     // Iniciar workers en segundo plano (no esperar ya que corren indefinidamente)
     this.workers.forEach(worker => {
       worker.start().catch(error => {
-        console.error(`Worker ${worker.getStatus().id} crashed:`, error);
+        logger.error('Worker crashed', { workerId: worker.getStatus().id, error: error instanceof Error ? error.message : error });
       });
     });
-    console.log(`Started ${this.workers.length} sync workers`);
+    logger.info('Started sync workers', { count: this.workers.length });
   }
 
   private async stopWorkers(): Promise<void> {
     this.workers.forEach(worker => worker.stop());
-    console.log(`Stopped ${this.workers.length} sync workers`);
+    logger.info('Stopped sync workers', { count: this.workers.length });
   }
 
   private initializeProviders(): void {
@@ -275,9 +278,9 @@ class SyncEngineService {
         };
 
         AdapterFactory.createAdapter(type, providerConfig);
-        console.log(`✅ Initialized provider: ${config.name}`);
+        logger.info('Initialized provider', { provider: config.name });
       } catch (error) {
-        console.warn(`⚠️  Failed to initialize provider ${config.name}:`, error);
+        logger.warn('Failed to initialize provider', { provider: config.name, error: error instanceof Error ? error.message : error });
       }
     }
   }
@@ -296,7 +299,7 @@ app.use('/', routes);
 
 // Middleware de manejo de errores
 app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', error);
+  logger.error('Unhandled error', { error: error.message, stack: error.stack });
   res.status(500).json({
     error: 'Internal server error',
     message: error.message
@@ -308,44 +311,44 @@ const PORT = process.env.PORT || 3000;
 
 async function startService() {
   try {
-    console.log('🚀 Starting TechNovaStore Sync Engine...');
+    logger.info('Starting TechNovaStore Sync Engine...');
 
     // Iniciar el sync engine
     await syncEngine.start();
 
     // Iniciar el servidor HTTP
     app.listen(PORT, () => {
-      console.log(`🌐 Sync Engine API server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`📈 Status: http://localhost:${PORT}/status`);
-      console.log(`📋 Metrics: http://localhost:${PORT}/metrics`);
+      logger.info('Sync Engine API server running', { port: PORT });
+      logger.info('Health check endpoint', { url: `http://localhost:${PORT}/health` });
+      logger.info('Status endpoint', { url: `http://localhost:${PORT}/status` });
+      logger.info('Metrics endpoint', { url: `http://localhost:${PORT}/metrics` });
     });
 
   } catch (error) {
-    console.error('❌ Failed to start Sync Engine service:', error);
+    logger.error('Failed to start Sync Engine service', { error: error instanceof Error ? error.message : error });
     process.exit(1);
   }
 }
 
 // Apagado graceful
 process.on('SIGINT', async () => {
-  console.log('\n🛑 Received SIGINT, shutting down gracefully...');
+  logger.info('Received SIGINT, shutting down gracefully...');
   try {
     await syncEngine.stop();
     process.exit(0);
   } catch (error) {
-    console.error('Error during shutdown:', error);
+    logger.error('Error during shutdown', { error: error instanceof Error ? error.message : error });
     process.exit(1);
   }
 });
 
 process.on('SIGTERM', async () => {
-  console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
+  logger.info('Received SIGTERM, shutting down gracefully...');
   try {
     await syncEngine.stop();
     process.exit(0);
   } catch (error) {
-    console.error('Error during shutdown:', error);
+    logger.error('Error during shutdown', { error: error instanceof Error ? error.message : error });
     process.exit(1);
   }
 });

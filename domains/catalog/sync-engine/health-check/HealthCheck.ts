@@ -14,6 +14,9 @@ import { PriceCache } from '../shared/pricing/PriceCache';
 import { SyncWorker } from '../shared/workers/SyncWorker';
 import { SyncScheduler } from '../shared/scheduler/SyncScheduler';
 import { AdapterFactory } from '../shared/adapters/AdapterFactory';
+import { createLogger } from '@technovastore/shared-config';
+
+const logger = createLogger('sync-engine-health');
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -34,7 +37,7 @@ export class HealthCheck {
    * @returns Resultado de la verificación de salud
    */
   async execute(): Promise<HealthCheckResult> {
-    console.log('Running health check...');
+    logger.info('Running health check...');
 
     const components: Record<string, boolean> = {};
 
@@ -79,7 +82,7 @@ export class HealthCheck {
         message = `Only ${healthyComponents}/${totalComponents} components healthy`;
       }
 
-      console.log(`Health check completed: ${status}`);
+      logger.info('Health check completed', { status, healthyComponents, totalComponents });
 
       return {
         status,
@@ -89,7 +92,7 @@ export class HealthCheck {
       };
 
     } catch (error) {
-      console.error('Health check failed:', error);
+      logger.error('Health check failed', { error: error instanceof Error ? error.message : error });
 
       return {
         status: 'unhealthy',

@@ -9,15 +9,16 @@ import { io, Socket } from 'socket.io-client';
 // URL del servidor de chatbot
 const CHATBOT_URL = process.env.NEXT_PUBLIC_CHATBOT_URL || 'http://localhost:3009';
 
-// Configuración del socket
+// Configuración del socket con reconexión automática mejorada
 const socketConfig = {
   autoConnect: false, // No conectar automáticamente
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  timeout: 20000,
-  transports: ['websocket', 'polling'], // Preferir websocket
+  reconnection: true, // Habilitar reconexión automática
+  reconnectionAttempts: Infinity, // Intentos infinitos (el usuario puede cerrar el chat si quiere)
+  reconnectionDelay: 1000, // Delay inicial de 1 segundo
+  reconnectionDelayMax: 5000, // Delay máximo de 5 segundos
+  timeout: 20000, // Timeout de 20 segundos
+  transports: ['websocket', 'polling'], // Preferir websocket, fallback a polling
+  randomizationFactor: 0.5, // Factor de aleatorización para evitar reconexiones simultáneas
 };
 
 // Instancia del socket (singleton)
@@ -113,6 +114,7 @@ export interface ChatMessagePayload {
     categoryId?: string;
     orderId?: string;
   };
+  aiProvider?: 'gemini' | 'fallback';
 }
 
 export interface ChatStreamChunkPayload {

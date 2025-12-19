@@ -47,10 +47,14 @@ export const ProductRecommendations: React.FC<ProductRecommendationsProps> = ({
                     src={product.images[0]}
                     alt={product.name}
                     fill
+                    sizes="48px"
                     className="object-cover"
+                    loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
-                      target.src = '/placeholder-product.png'
+                      target.src = '/placeholder-product.svg'
                     }}
                   />
                 ) : (

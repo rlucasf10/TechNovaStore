@@ -33,14 +33,14 @@ export function ProductToolbar({
   showFiltersButton = false
 }: ProductToolbarProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
       {/* Contador de productos */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
           {totalProducts} {totalProducts === 1 ? 'producto' : 'productos'}
         </span>
         {totalProducts > 0 && (
-          <span className="text-xs text-gray-500">encontrados</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">encontrados</span>
         )}
       </div>
 
@@ -77,15 +77,16 @@ export function ProductToolbar({
         <div className="flex items-center gap-2 flex-1 sm:flex-initial">
           <label
             htmlFor="sort-select"
-            className="text-sm text-gray-600 whitespace-nowrap hidden sm:inline"
+            className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap hidden sm:inline"
           >
             Ordenar por:
           </label>
           <select
             id="sort-select"
+            name="sort-select"
             value={currentSort}
             onChange={(e) => onSortChange(e.target.value)}
-            className="flex-1 sm:flex-initial rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500 py-2 px-3"
+            className="flex-1 sm:flex-initial rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm focus:border-primary-500 focus:ring-primary-500 py-2 px-3"
             aria-label="Ordenar productos"
           >
             <option value="name">Nombre A-Z</option>
@@ -100,7 +101,7 @@ export function ProductToolbar({
 
         {/* Toggle de vista (grid/list) */}
         <div
-          className="flex items-center bg-gray-100 rounded-md p-1"
+          className="flex items-center bg-gray-100 dark:bg-slate-700 rounded-md p-1"
           role="group"
           aria-label="Modo de vista"
         >
@@ -108,8 +109,8 @@ export function ProductToolbar({
             onClick={() => onViewModeChange('grid')}
             className={`p-2 rounded transition-colors ${
               viewMode === 'grid'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
             aria-label="Vista en cuadrícula"
             aria-pressed={viewMode === 'grid'}
@@ -134,8 +135,8 @@ export function ProductToolbar({
             onClick={() => onViewModeChange('list')}
             className={`p-2 rounded transition-colors ${
               viewMode === 'list'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
             aria-label="Vista en lista"
             aria-pressed={viewMode === 'list'}

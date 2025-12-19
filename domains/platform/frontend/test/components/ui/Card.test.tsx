@@ -3,6 +3,7 @@
  * Verifica renderizado, variantes, estados y accesibilidad
  */
 
+import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { 
   Card, 

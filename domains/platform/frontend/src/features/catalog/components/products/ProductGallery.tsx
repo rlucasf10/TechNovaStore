@@ -93,7 +93,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         {/* Main Image */}
         <div 
           ref={imageRef}
-          className="aspect-square overflow-hidden rounded-lg bg-gray-100 relative cursor-pointer group"
+          className="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-slate-800 relative cursor-pointer group"
           onClick={handleImageClick}
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setIsZoomed(false)}
@@ -106,6 +106,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             className="h-full w-full object-cover object-center transition-opacity duration-200 group-hover:opacity-90"
             priority={selectedImage === 0}
             loading={selectedImage === 0 ? 'eager' : 'lazy'}
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg=="
           />
           
           {/* Zoom Indicator */}
@@ -159,7 +161,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
           <div className="relative">
             <div 
               ref={thumbnailContainerRef}
-              className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pb-2"
+              className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600 scrollbar-track-gray-100 dark:scrollbar-track-slate-800 pb-2"
               style={{ scrollbarWidth: 'thin' }}
             >
               {displayImages.map((image, index) => (
@@ -169,10 +171,10 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     setSelectedImage(index)
                     setIsZoomed(false)
                   }}
-                  className={`flex-shrink-0 w-20 h-20 overflow-hidden rounded-md bg-gray-100 border-2 transition-all ${
+                  className={`flex-shrink-0 w-20 h-20 overflow-hidden rounded-md bg-gray-100 dark:bg-slate-800 border-2 transition-all ${
                     selectedImage === index 
-                      ? 'border-primary-500 ring-2 ring-primary-200' 
-                      : 'border-transparent hover:border-gray-300'
+                      ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800' 
+                      : 'border-transparent hover:border-gray-300 dark:hover:border-slate-600'
                   }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 >
@@ -183,6 +185,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     height={80}
                     className="h-full w-full object-cover object-center"
                     loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                   />
                 </button>
               ))}
@@ -266,6 +270,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     : undefined
                 }
                 priority
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjEyMDAiIGZpbGw9IiNmM2Y0ZjYiLz48L3N2Zz4="
               />
             </div>
 
@@ -326,6 +332,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                       height={64}
                       className="h-full w-full object-cover object-center"
                       loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                     />
                   </button>
                 ))}

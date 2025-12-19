@@ -158,10 +158,10 @@ export function ProductFilterSidebar({
   }
 
   return (
-    <aside className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-fit sticky top-4">
+    <aside className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6 h-fit sticky top-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Filtros</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filtros</h2>
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -176,9 +176,9 @@ export function ProductFilterSidebar({
       </div>
 
       {/* Contador de productos */}
-      <div className="mb-6 p-3 bg-gray-50 rounded-md">
-        <p className="text-sm text-gray-700">
-          <span className="font-semibold text-gray-900">{totalProducts}</span> productos encontrados
+      <div className="mb-6 p-3 bg-gray-50 dark:bg-slate-700 rounded-md">
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          <span className="font-semibold text-gray-900 dark:text-gray-100">{totalProducts}</span> productos encontrados
         </p>
       </div>
 
@@ -186,24 +186,27 @@ export function ProductFilterSidebar({
         {/* Categorías */}
         {categories.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Categorías</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Categorías</h3>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {categories.map((category) => (
                 <label
                   key={category.id}
-                  className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                  htmlFor={`filter-category-${category.slug}`}
+                  className="flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 p-2 rounded-md transition-colors"
                 >
                   <div className="flex items-center flex-1">
                     <input
+                      id={`filter-category-${category.slug}`}
+                      name={`filter-category-${category.slug}`}
                       type="checkbox"
                       checked={filters.categories.includes(category.slug)}
                       onChange={() => handleCategoryToggle(category.slug)}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                      className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 cursor-pointer bg-white dark:bg-slate-700"
                       aria-label={`Filtrar por categoría ${category.name}`}
                     />
-                    <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
                   </div>
-                  <span className="text-xs text-gray-500 ml-2">({category.count})</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({category.count})</span>
                 </label>
               ))}
             </div>
@@ -213,12 +216,14 @@ export function ProductFilterSidebar({
         {/* Marcas con búsqueda */}
         {brands.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Marcas</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Marcas</h3>
             
             {/* Búsqueda de marcas */}
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
+                id="sidebar-brand-search"
+                name="sidebar-brand-search"
                 type="text"
                 placeholder="Buscar marca..."
                 value={brandSearch}
@@ -240,26 +245,33 @@ export function ProductFilterSidebar({
             {/* Lista de marcas */}
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {filteredBrands.length > 0 ? (
-                filteredBrands.map((brand) => (
-                  <label
-                    key={brand.name}
-                    className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
-                  >
-                    <div className="flex items-center flex-1">
-                      <input
-                        type="checkbox"
-                        checked={filters.brands.includes(brand.name)}
-                        onChange={() => handleBrandToggle(brand.name)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
-                        aria-label={`Filtrar por marca ${brand.name}`}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{brand.name}</span>
-                    </div>
-                    <span className="text-xs text-gray-500 ml-2">({brand.count})</span>
-                  </label>
-                ))
+                filteredBrands.map((brand) => {
+                  // Crear un ID seguro para el nombre de la marca
+                  const brandId = brand.name.toLowerCase().replace(/[^a-z0-9]/g, '-')
+                  return (
+                    <label
+                      key={brand.name}
+                      htmlFor={`filter-brand-${brandId}`}
+                      className="flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 p-2 rounded-md transition-colors"
+                    >
+                      <div className="flex items-center flex-1">
+                        <input
+                          id={`filter-brand-${brandId}`}
+                          name={`filter-brand-${brandId}`}
+                          type="checkbox"
+                          checked={filters.brands.includes(brand.name)}
+                          onChange={() => handleBrandToggle(brand.name)}
+                          className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 cursor-pointer bg-white dark:bg-slate-700"
+                          aria-label={`Filtrar por marca ${brand.name}`}
+                        />
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{brand.name}</span>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({brand.count})</span>
+                    </label>
+                  )
+                })
               ) : (
-                <p className="text-sm text-gray-500 text-center py-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
                   No se encontraron marcas
                 </p>
               )}
@@ -269,16 +281,17 @@ export function ProductFilterSidebar({
 
         {/* Rango de Precio con Slider Dual */}
         <div>
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Rango de Precio</h3>
+          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Rango de Precio</h3>
           
           {/* Inputs numéricos */}
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div>
-              <label htmlFor="price-min" className="text-xs text-gray-600 mb-1 block">
+              <label htmlFor="sidebar-price-min" className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">
                 Mínimo
               </label>
               <Input
-                id="price-min"
+                id="sidebar-price-min"
+                name="sidebar-price-min"
                 type="number"
                 value={localPriceRange[0]}
                 onChange={(e) => handlePriceRangeChange(0, Number(e.target.value))}
@@ -290,11 +303,12 @@ export function ProductFilterSidebar({
               />
             </div>
             <div>
-              <label htmlFor="price-max" className="text-xs text-gray-600 mb-1 block">
+              <label htmlFor="sidebar-price-max" className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">
                 Máximo
               </label>
               <Input
-                id="price-max"
+                id="sidebar-price-max"
+                name="sidebar-price-max"
                 type="number"
                 value={localPriceRange[1]}
                 onChange={(e) => handlePriceRangeChange(1, Number(e.target.value))}
@@ -323,6 +337,8 @@ export function ProductFilterSidebar({
 
             {/* Min slider */}
             <input
+              id="sidebar-price-slider-min"
+              name="sidebar-price-slider-min"
               type="range"
               min={priceRange[0]}
               max={priceRange[1]}
@@ -337,6 +353,8 @@ export function ProductFilterSidebar({
 
             {/* Max slider */}
             <input
+              id="sidebar-price-slider-max"
+              name="sidebar-price-slider-max"
               type="range"
               min={priceRange[0]}
               max={priceRange[1]}
@@ -351,7 +369,7 @@ export function ProductFilterSidebar({
           </div>
 
           {/* Valores actuales */}
-          <div className="flex justify-between text-xs text-gray-600">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
             <span>€{localPriceRange[0].toFixed(2)}</span>
             <span>€{localPriceRange[1].toFixed(2)}</span>
           </div>
@@ -360,46 +378,53 @@ export function ProductFilterSidebar({
         {/* Especificaciones Técnicas (Acordeón) */}
         {specs.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Especificaciones Técnicas</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Especificaciones Técnicas</h3>
             <div className="space-y-2">
               {specs.map((spec) => (
-                <div key={spec.category} className="border border-gray-200 rounded-md">
+                <div key={spec.category} className="border border-gray-200 dark:border-slate-600 rounded-md">
                   {/* Acordeón header */}
                   <button
                     onClick={() => toggleSpecAccordion(spec.category)}
-                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                     aria-expanded={expandedSpecs[spec.category]}
                     aria-controls={`spec-${spec.category}`}
                   >
-                    <span className="text-sm font-medium text-gray-700">{spec.label}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{spec.label}</span>
                     {expandedSpecs[spec.category] ? (
-                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                      <ChevronUp className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                     )}
                   </button>
 
                   {/* Acordeón content */}
                   {expandedSpecs[spec.category] && (
                     <div id={`spec-${spec.category}`} className="p-3 pt-0 space-y-2">
-                      {spec.options.map((option) => (
-                        <label
-                          key={option.value}
-                          className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
-                        >
-                          <div className="flex items-center flex-1">
-                            <input
-                              type="checkbox"
-                              checked={(filters.specs[spec.category] || []).includes(option.value)}
-                              onChange={() => handleSpecToggle(spec.category, option.value)}
-                              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
-                              aria-label={`Filtrar por ${spec.label}: ${option.label}`}
-                            />
-                            <span className="ml-2 text-sm text-gray-700">{option.label}</span>
-                          </div>
-                          <span className="text-xs text-gray-500 ml-2">({option.count})</span>
-                        </label>
-                      ))}
+                      {spec.options.map((option) => {
+                        // Crear un ID seguro para la opción
+                        const optionId = `${spec.category}-${option.value}`.toLowerCase().replace(/[^a-z0-9]/g, '-')
+                        return (
+                          <label
+                            key={option.value}
+                            htmlFor={`filter-spec-${optionId}`}
+                            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 p-2 rounded-md transition-colors"
+                          >
+                            <div className="flex items-center flex-1">
+                              <input
+                                id={`filter-spec-${optionId}`}
+                                name={`filter-spec-${optionId}`}
+                                type="checkbox"
+                                checked={(filters.specs[spec.category] || []).includes(option.value)}
+                                onChange={() => handleSpecToggle(spec.category, option.value)}
+                                className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 cursor-pointer bg-white dark:bg-slate-700"
+                                aria-label={`Filtrar por ${spec.label}: ${option.label}`}
+                              />
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+                            </div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({option.count})</span>
+                          </label>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -410,21 +435,23 @@ export function ProductFilterSidebar({
 
         {/* Solo en Stock */}
         <div>
-          <label className="flex items-center cursor-pointer hover:bg-gray-50 p-3 rounded-md transition-colors">
+          <label htmlFor="sidebar-in-stock" className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 p-3 rounded-md transition-colors">
             <input
+              id="sidebar-in-stock"
+              name="sidebar-in-stock"
               type="checkbox"
               checked={filters.inStock}
               onChange={handleInStockToggle}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+              className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 cursor-pointer bg-white dark:bg-slate-700"
               aria-label="Solo mostrar productos en stock"
             />
-            <span className="ml-2 text-sm font-medium text-gray-700">Solo en stock</span>
+            <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Solo en stock</span>
           </label>
         </div>
       </div>
 
       {/* Botones de acción */}
-      <div className="mt-6 pt-6 border-t border-gray-200 space-y-2">
+      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-700 space-y-2">
         <Button
           onClick={onApplyFilters}
           className="w-full"

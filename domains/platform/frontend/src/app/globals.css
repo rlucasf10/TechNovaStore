@@ -9,26 +9,1130 @@
     scroll-behavior: smooth;
   }
 
+  /* Prevenir overflow horizontal en toda la aplicación */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
     font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Tema oscuro */
+  /* Asegurar que todos los elementos respeten el ancho del viewport */
+  * {
+    box-sizing: border-box;
+  }
+
+  *,
+  *::before,
+  *::after {
+    max-width: 100%;
+  }
+
+  /* ============================================ */
+  /* TEMA OSCURO - Estilos completos */
+  /* ============================================ */
+  
+  .dark {
+    color-scheme: dark;
+  }
+
+  /* Fondo principal del body */
   .dark body {
-    @apply bg-dark-bg-primary text-dark-text-primary;
+    background-color: #0f172a;
+    color: #f1f5f9;
   }
 
-  /* Mejoras de accesibilidad */
+  /* Encabezados */
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #f1f5f9;
+  }
+
+
+  /* Párrafos y texto general */
+  .dark p {
+    color: #e2e8f0;
+  }
+
+  /* ============================================ */
+  /* Fondos - bg-* */
+  /* ============================================ */
+  
+  .dark .bg-white {
+    background-color: #1e293b !important;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: #0f172a !important;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: #1e293b !important;
+  }
+
+  .dark .bg-gray-200 {
+    background-color: #334155 !important;
+  }
+
+  /* Fondos con gradientes */
+  .dark .bg-gradient-to-r,
+  .dark .bg-gradient-to-br,
+  .dark .bg-gradient-to-b {
+    --tw-gradient-from: #1e293b;
+    --tw-gradient-to: #0f172a;
+  }
+
+  .dark .from-primary-50 {
+    --tw-gradient-from: #1e3a5f !important;
+  }
+
+  .dark .to-primary-100 {
+    --tw-gradient-to: #1e293b !important;
+  }
+
+  /* ============================================ */
+  /* Cards y contenedores */
+  /* ============================================ */
+  
+  .dark .card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark [class*="rounded-lg"][class*="shadow"],
+  .dark [class*="rounded-xl"][class*="shadow"],
+  .dark [class*="rounded-2xl"][class*="shadow"] {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+
+  /* ============================================ */
+  /* Bordes */
+  /* ============================================ */
+  
+  .dark .border-gray-100 {
+    border-color: #1e293b !important;
+  }
+
+  .dark .border-gray-200 {
+    border-color: #334155 !important;
+  }
+
+  .dark .border-gray-300 {
+    border-color: #475569 !important;
+  }
+
+  .dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Textos - Contraste mejorado para legibilidad */
+  /* ============================================ */
+  
+  .dark .text-gray-900 {
+    color: #f8fafc !important;
+  }
+
+  .dark .text-gray-800 {
+    color: #f1f5f9 !important;
+  }
+
+  .dark .text-gray-700 {
+    color: #e2e8f0 !important;
+  }
+
+  .dark .text-gray-600 {
+    color: #cbd5e1 !important;
+  }
+
+  .dark .text-gray-500 {
+    color: #94a3b8 !important;
+  }
+
+  .dark .text-gray-400 {
+    color: #94a3b8 !important;
+  }
+
+  .dark .text-gray-300 {
+    color: #cbd5e1 !important;
+  }
+
+  /* Texto negro a blanco */
+  .dark .text-black {
+    color: #f8fafc !important;
+  }
+
+  /* Asegurar que todo span, label y texto tenga buen contraste */
+  .dark span:not([class*="text-"]):not([class*="bg-"]) {
+    color: #e2e8f0;
+  }
+
+  .dark label {
+    color: #e2e8f0 !important;
+  }
+
+  .dark small {
+    color: #94a3b8 !important;
+  }
+
+  /* Texto en elementos con fondo oscuro */
+  .dark .bg-gray-100 *,
+  .dark .bg-gray-200 *,
+  .dark .bg-gray-50 * {
+    color: inherit;
+  }
+
+
+  /* ============================================ */
+  /* Inputs, Textareas, Selects */
+  /* ============================================ */
+  
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .dark textarea,
+  .dark select {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Checkboxes y radios */
+  .dark input[type="checkbox"],
+  .dark input[type="radio"] {
+    background-color: #1e293b;
+    border-color: #475569;
+  }
+
+  .dark input[type="checkbox"]:checked,
+  .dark input[type="radio"]:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  /* ============================================ */
+  /* Botones */
+  /* ============================================ */
+  
+  .dark .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+
+  .dark .btn-secondary:hover {
+    background-color: #475569;
+  }
+
+  /* ELIMINADO: Selectores button.bg-gray-* y a.bg-gray-* causan error en Tailwind v4 + Turbopack */
+  /* Usar dark:bg-slate-700 dark:hover:bg-slate-600 directamente en los componentes */
+
+  /* ============================================ */
+  /* Header y navegación */
+  /* ============================================ */
+  
+  .dark header,
+  .dark nav {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark header a,
+  .dark nav a {
+    color: #e2e8f0;
+  }
+
+  .dark header a:hover,
+  .dark nav a:hover {
+    color: #3b82f6;
+  }
+
+  /* ============================================ */
+  /* Footer */
+  /* ============================================ */
+  
+  .dark footer {
+    background-color: #0f172a;
+    border-color: #1e293b;
+  }
+
+  /* ============================================ */
+  /* Dropdowns y menús */
+  /* ============================================ */
+  
+  .dark [role="menu"],
+  .dark [role="listbox"],
+  .dark .dropdown-menu {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+  }
+
+  .dark [role="menuitem"],
+  .dark [role="option"] {
+    color: #e2e8f0;
+  }
+
+  .dark [role="menuitem"]:hover,
+  .dark [role="option"]:hover {
+    background-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Modales */
+  /* ============================================ */
+  
+  .dark [role="dialog"] {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Overlay de modal */
+  .dark .bg-black\/50,
+  .dark .bg-black\/60,
+  .dark .bg-opacity-50 {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+
+  /* ============================================ */
+  /* Tablas */
+  /* ============================================ */
+  
+  .dark table {
+    background-color: #1e293b;
+  }
+
+  .dark th {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    border-color: #334155;
+  }
+
+  .dark td {
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .dark tr:hover {
+    background-color: #334155;
+  }
+
+  .dark tbody tr:nth-child(even) {
+    background-color: #1e293b;
+  }
+
+  .dark tbody tr:nth-child(odd) {
+    background-color: #0f172a;
+  }
+
+  /* ============================================ */
+  /* Badges y etiquetas */
+  /* ============================================ */
+  
+  .dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+  }
+
+  .dark .text-green-800 {
+    color: #4ade80 !important;
+  }
+
+  .dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+  }
+
+  .dark .text-red-800 {
+    color: #f87171 !important;
+  }
+
+  .dark .bg-yellow-100 {
+    background-color: rgba(234, 179, 8, 0.2) !important;
+  }
+
+  .dark .text-yellow-800 {
+    color: #facc15 !important;
+  }
+
+  .dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+  }
+
+  .dark .text-blue-800 {
+    color: #60a5fa !important;
+  }
+
+  .dark .bg-purple-100 {
+    background-color: rgba(168, 85, 247, 0.2) !important;
+  }
+
+  .dark .text-purple-800 {
+    color: #c084fc !important;
+  }
+
+  /* ============================================ */
+  /* Sombras */
+  /* ============================================ */
+  
+  .dark .shadow,
+  .dark .shadow-sm,
+  .dark .shadow-md,
+  .dark .shadow-lg,
+  .dark .shadow-xl {
+    --tw-shadow-color: rgba(0, 0, 0, 0.5);
+  }
+
+  /* ============================================ */
+  /* Sidebar y paneles laterales */
+  /* ============================================ */
+  
+  .dark aside,
+  .dark .sidebar {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+
+  /* ============================================ */
+  /* Tooltips */
+  /* ============================================ */
+  
+  .dark [role="tooltip"] {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+
+  /* ============================================ */
+  /* Alertas y notificaciones */
+  /* ============================================ */
+  
+  .dark .alert,
+  .dark [role="alert"] {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Breadcrumbs */
+  /* ============================================ */
+  
+  .dark nav[aria-label="breadcrumb"] a {
+    color: #cbd5e1;
+  }
+
+  .dark nav[aria-label="breadcrumb"] a:hover {
+    color: #60a5fa;
+  }
+
+  .dark nav[aria-label="breadcrumb"] span {
+    color: #94a3b8;
+  }
+
+  /* ============================================ */
+  /* Paginación */
+  /* ============================================ */
+  
+  .dark .pagination button,
+  .dark .pagination a {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .dark .pagination button:hover,
+  .dark .pagination a:hover {
+    background-color: #334155;
+  }
+
+  .dark .pagination button[aria-current="page"],
+  .dark .pagination a[aria-current="page"] {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  /* ============================================ */
+  /* Tabs */
+  /* ============================================ */
+  
+  .dark [role="tablist"] {
+    border-color: #334155;
+  }
+
+  .dark [role="tab"] {
+    color: #cbd5e1;
+  }
+
+  .dark [role="tab"]:hover {
+    color: #f1f5f9;
+  }
+
+  .dark [role="tab"][aria-selected="true"] {
+    color: #60a5fa;
+    border-color: #3b82f6;
+  }
+
+  .dark [role="tabpanel"] {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Acordeones */
+  /* ============================================ */
+  
+  .dark details {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark summary {
+    color: #f1f5f9;
+  }
+
+  .dark summary:hover {
+    background-color: #334155;
+  }
+
+
+  /* ============================================ */
+  /* Sliders y rangos */
+  /* ============================================ */
+  
+  .dark input[type="range"] {
+    background-color: #334155;
+  }
+
+  .dark input[type="range"]::-webkit-slider-thumb {
+    background-color: #3b82f6;
+  }
+
+  .dark input[type="range"]::-moz-range-thumb {
+    background-color: #3b82f6;
+  }
+
+  /* ============================================ */
+  /* Progress bars */
+  /* ============================================ */
+  
+  .dark progress {
+    background-color: #334155;
+  }
+
+  .dark progress::-webkit-progress-bar {
+    background-color: #334155;
+  }
+
+  .dark progress::-webkit-progress-value {
+    background-color: #3b82f6;
+  }
+
+  .dark progress::-moz-progress-bar {
+    background-color: #3b82f6;
+  }
+
+  /* ============================================ */
+  /* Skeleton loaders */
+  /* ============================================ */
+  
+  .dark .skeleton,
+  .dark .animate-pulse {
+    background-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Código y pre */
+  /* ============================================ */
+  
+  .dark code {
+    background-color: #334155;
+    color: #f472b6;
+  }
+
+  .dark pre {
+    background-color: #0f172a;
+    border-color: #334155;
+  }
+
+  /* ============================================ */
+  /* Links */
+  /* ============================================ */
+  
+  .dark a:not([class]) {
+    color: #60a5fa;
+  }
+
+  .dark a:not([class]):hover {
+    color: #93c5fd;
+  }
+
+  /* ============================================ */
+  /* Placeholders en tema oscuro */
+  /* ============================================ */
+  
+  .dark ::placeholder {
+    color: #94a3b8;
+  }
+
+  /* ============================================ */
+  /* Focus states en tema oscuro */
+  /* ============================================ */
+  
+  .dark *:focus-visible {
+    outline-color: #3b82f6;
+  }
+
+  .dark .ring-primary-500 {
+    --tw-ring-color: rgba(59, 130, 246, 0.5);
+  }
+
+  /* ============================================ */
+  /* Iconos */
+  /* ============================================ */
+  
+  .dark svg {
+    color: inherit;
+  }
+
+  .dark .text-gray-400 svg,
+  .dark .text-gray-500 svg {
+    color: #94a3b8;
+  }
+
+
+  /* ============================================ */
+  /* Específico para componentes de la app */
+  /* ============================================ */
+
+  /* ProductCard */
+  .dark .product-card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark .product-card:hover {
+    border-color: #3b82f6;
+  }
+
+  /* ChatWidget */
+  .dark .chat-widget {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark .chat-message-bot {
+    background-color: #334155;
+    color: #f1f5f9;
+  }
+
+  .dark .chat-message-user {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  /* UserProfileDropdown */
+  .dark .user-dropdown {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Filtros del catálogo */
+  .dark .filter-sidebar {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Carrito */
+  .dark .cart-item {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Dashboard */
+  .dark .dashboard-card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark .dashboard-stat {
+    background-color: #0f172a;
+  }
+
+  /* ============================================ */
+  /* Reglas adicionales de contraste */
+  /* ============================================ */
+
+  /* ============================================ */
+  /* TEXTO OSCURO sobre FONDOS CLAROS en tema oscuro */
+  /* Para mantener contraste cuando hay elementos con fondo claro */
+  /* ============================================ */
+
+  /* Badges y elementos con fondo de color claro */
+  .dark .bg-primary-50 {
+    background-color: #1e3a5f !important;
+    color: #e2e8f0 !important;
+  }
+
+  .dark .bg-primary-100 {
+    background-color: #1e3a5f !important;
+    color: #e2e8f0 !important;
+  }
+
+  .dark .bg-primary-50 *,
+  .dark .bg-primary-100 * {
+    color: inherit;
+  }
+
+
+  /* Fondos amarillos/warning - texto oscuro para contraste */
+  .dark .bg-yellow-50,
+  .dark .bg-amber-50 {
+    background-color: rgba(251, 191, 36, 0.2) !important;
+    color: #fef3c7 !important;
+  }
+
+  .dark .bg-yellow-100,
+  .dark .bg-amber-100 {
+    background-color: rgba(251, 191, 36, 0.25) !important;
+    color: #fef3c7 !important;
+  }
+
+  /* Fondos verdes/success */
+  .dark .bg-green-50,
+  .dark .bg-emerald-50 {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+    color: #bbf7d0 !important;
+  }
+
+  .dark .bg-green-100,
+  .dark .bg-emerald-100 {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    color: #bbf7d0 !important;
+  }
+
+  /* Fondos rojos/error */
+  .dark .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #fecaca !important;
+  }
+
+  .dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #fecaca !important;
+  }
+
+  /* Fondos azules/info */
+  .dark .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #bfdbfe !important;
+  }
+
+  .dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #bfdbfe !important;
+  }
+
+  /* Fondos púrpura */
+  .dark .bg-purple-50,
+  .dark .bg-violet-50 {
+    background-color: rgba(168, 85, 247, 0.15) !important;
+    color: #e9d5ff !important;
+  }
+
+  .dark .bg-purple-100,
+  .dark .bg-violet-100 {
+    background-color: rgba(168, 85, 247, 0.2) !important;
+    color: #e9d5ff !important;
+  }
+
+  /* Fondos naranja */
+  .dark .bg-orange-50 {
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    color: #fed7aa !important;
+  }
+
+  .dark .bg-orange-100 {
+    background-color: rgba(249, 115, 22, 0.2) !important;
+    color: #fed7aa !important;
+  }
+
+  /* Fondos cyan/teal */
+  .dark .bg-cyan-50,
+  .dark .bg-teal-50 {
+    background-color: rgba(6, 182, 212, 0.15) !important;
+    color: #a5f3fc !important;
+  }
+
+  .dark .bg-cyan-100,
+  .dark .bg-teal-100 {
+    background-color: rgba(6, 182, 212, 0.2) !important;
+    color: #a5f3fc !important;
+  }
+
+  /* Fondos indigo */
+  .dark .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #c7d2fe !important;
+  }
+
+  .dark .bg-indigo-100 {
+    background-color: rgba(99, 102, 241, 0.2) !important;
+    color: #c7d2fe !important;
+  }
+
+  /* Fondos pink/rose */
+  .dark .bg-pink-50,
+  .dark .bg-rose-50 {
+    background-color: rgba(236, 72, 153, 0.15) !important;
+    color: #fbcfe8 !important;
+  }
+
+  .dark .bg-pink-100,
+  .dark .bg-rose-100 {
+    background-color: rgba(236, 72, 153, 0.2) !important;
+    color: #fbcfe8 !important;
+  }
+
+
+  /* ============================================ */
+  /* Texto en elementos específicos */
+  /* ============================================ */
+
+  /* Texto en botones y elementos interactivos */
+  .dark button {
+    color: #e2e8f0;
+  }
+
+  .dark button:hover {
+    color: #f1f5f9;
+  }
+
+  /* Asegurar contraste en listas */
+  .dark li {
+    color: #e2e8f0;
+  }
+
+  /* Asegurar contraste en definiciones */
+  .dark dt {
+    color: #f1f5f9;
+  }
+
+  .dark dd {
+    color: #cbd5e1;
+  }
+
+  /* Asegurar contraste en figcaption */
+  .dark figcaption {
+    color: #94a3b8;
+  }
+
+  /* Asegurar contraste en blockquote */
+  .dark blockquote {
+    color: #cbd5e1;
+    border-color: #475569;
+  }
+
+  /* Asegurar contraste en hr */
+  .dark hr {
+    border-color: #334155;
+  }
+
+  /* Asegurar contraste en mark */
+  .dark mark {
+    background-color: rgba(250, 204, 21, 0.3);
+    color: #fef08a;
+  }
+
+  /* Texto en elementos con clase específica de color primario */
+  .dark .text-primary-600 {
+    color: #60a5fa !important;
+  }
+
+  .dark .text-primary-700 {
+    color: #3b82f6 !important;
+  }
+
+  /* Asegurar que los iconos de Lucide tengan buen contraste */
+  .dark [class*="lucide"] {
+    color: #cbd5e1;
+  }
+
+  /* Mejorar contraste en elementos disabled */
+  .dark :disabled,
+  .dark [aria-disabled="true"] {
+    color: #64748b !important;
+    opacity: 0.7;
+  }
+
+  /* Asegurar contraste en elementos con fondo de gradiente */
+  .dark .from-primary-50.to-primary-100 {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.1)) !important;
+  }
+
+  .dark .from-primary-50.to-primary-100 * {
+    color: #e2e8f0;
+  }
+
+
+  /* ============================================ */
+  /* Textos específicos que deben ser claros */
+  /* ============================================ */
+
+  /* Asegurar que text-white se mantenga blanco */
+  .dark .text-white {
+    color: #ffffff !important;
+  }
+
+  /* Textos en fondos de color sólido (botones primarios, etc.) */
+  .dark .bg-primary-500,
+  .dark .bg-primary-600,
+  .dark .bg-primary-700 {
+    color: #ffffff;
+  }
+
+  .dark .bg-primary-500 *,
+  .dark .bg-primary-600 *,
+  .dark .bg-primary-700 * {
+    color: #ffffff;
+  }
+
+  /* Textos en fondos de éxito */
+  .dark .bg-green-500,
+  .dark .bg-green-600,
+  .dark .bg-emerald-500,
+  .dark .bg-emerald-600 {
+    color: #ffffff;
+  }
+
+  /* Textos en fondos de error */
+  .dark .bg-red-500,
+  .dark .bg-red-600 {
+    color: #ffffff;
+  }
+
+  /* Textos en fondos de warning */
+  .dark .bg-yellow-500,
+  .dark .bg-amber-500 {
+    color: #1f2937;
+  }
+
+  /* Mejoras de accesibilidad - WCAG 2.1 AA */
+  
+  /* Focus visible mejorado para navegación por teclado */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary-500;
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+    border-radius: 4px;
+  }
+
+  /* Focus visible específico para botones */
+  button:focus-visible,
+  a[role="button"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600 ring-2 ring-primary-500 ring-offset-2;
+    outline-style: solid;
+  }
+
+  /* Focus visible para inputs */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 border-primary-500;
+  }
+
+  /* Focus visible para enlaces */
+  a:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+    text-decoration: underline;
+  }
+
+  /* Focus visible para elementos interactivos personalizados */
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+  }
+
+  /* Asegurar que el focus nunca se oculte */
+  *:focus {
+    outline: none;
+  }
+
+  /* Solo mostrar outline cuando se navega con teclado */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+
+  /* Asegurar que los botones tengan tamaño mínimo táctil (44x44px) */
+  button, 
+  a[role="button"],
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Asegurar contraste en placeholders - WCAG AA */
+  ::placeholder {
+    color: #4b5563;
+    opacity: 1;
+  }
+  
+  /* Mejorar contraste de enlaces */
+  a:not([class]) {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+  
+  a:not([class]):hover {
+    color: #1e40af;
+  }
+
+  /* Mejorar contraste en estados disabled */
+  :disabled,
+  [aria-disabled="true"] {
+    @apply opacity-60;
+    cursor: not-allowed;
+  }
+
+  /* Skip links para lectores de pantalla y navegación por teclado */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:z-[9999];
+    @apply bg-primary-600 text-white px-6 py-3 rounded-md font-medium;
+    @apply shadow-lg transition-all duration-200;
+    @apply focus:outline-2 focus:outline-offset-2 focus:outline-white;
+  }
+
+  .skip-to-main {
+    @apply skip-link focus:top-4 focus:left-4;
+  }
+
+  .skip-to-nav {
+    @apply skip-link focus:top-4 focus:left-[180px];
+  }
+
+  .skip-to-search {
+    @apply skip-link focus:top-4 focus:left-[340px];
+  }
+
+  .skip-to-footer {
+    @apply skip-link focus:top-4 focus:left-[500px];
+  }
+
+  /* Contenedor de skip links */
+  .skip-links-container {
+    @apply sr-only focus-within:not-sr-only;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .skip-links-container:focus-within {
+    display: flex;
   }
 
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
+
+  /* Reducir movimiento para usuarios con preferencias de accesibilidad */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Mejorar legibilidad de enlaces */
+  a:not([class]) {
+    text-decoration-skip-ink: auto;
+  }
+
+  /* Asegurar que las imágenes sean responsivas por defecto */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Mejorar tipografía para legibilidad */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  /* Asegurar jerarquía visual de encabezados */
+  h1 {
+    @apply text-4xl font-bold text-gray-900;
+  }
+
+  h2 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+
+  h4 {
+    @apply text-xl font-semibold text-gray-900;
+  }
+
+  h5 {
+    @apply text-lg font-medium text-gray-900;
+  }
+
+  h6 {
+    @apply text-base font-medium text-gray-900;
+  }
 }
+
 
 @layer components {
   .btn-primary {
@@ -46,7 +1150,57 @@
   .input-field {
     @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
   }
+
+  /* Clases de colores semánticos (WCAG 2.1 AA compliant) */
+  .text-success {
+    color: theme('colors.success');
+  }
+
+  .text-error {
+    color: theme('colors.error');
+  }
+
+  .text-warning {
+    color: theme('colors.warning');
+  }
+
+  .text-info {
+    color: theme('colors.info');
+  }
+
+  .bg-success {
+    background-color: theme('colors.success');
+  }
+
+  .bg-error {
+    background-color: theme('colors.error');
+  }
+
+  .bg-warning {
+    background-color: theme('colors.warning');
+  }
+
+  .bg-info {
+    background-color: theme('colors.info');
+  }
+
+  .border-success {
+    border-color: theme('colors.success');
+  }
+
+  .border-error {
+    border-color: theme('colors.error');
+  }
+
+  .border-warning {
+    border-color: theme('colors.warning');
+  }
+
+  .border-info {
+    border-color: theme('colors.info');
+  }
 }
+
 
 @layer utilities {
   .text-balance {
@@ -136,4 +1290,148 @@
   .scale-200 {
     transform: scale(2);
   }
+
+  /* Animación de checkmark para confirmación de pedido */
+  @keyframes draw-check {
+    0% {
+      stroke-dasharray: 0, 100;
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dasharray: 100, 0;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-draw-check {
+    animation: draw-check 0.6s ease-in-out forwards;
+  }
+
+
+  /* Animaciones para ChatWidget flotante */
+  @keyframes pulse-subtle {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.02);
+      opacity: 0.95;
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 1s ease-in-out infinite;
+  }
+
+  @keyframes ping-slow {
+    0% {
+      transform: scale(1);
+      opacity: 0.75;
+    }
+    75%, 100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  .animate-ping-slow {
+    animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* Animaciones para reconexión del chat */
+  @keyframes slide-down {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out forwards;
+  }
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-in forwards;
+  }
+
+  /* Animación para UserProfileDropdown */
+  @keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown 0.2s ease-out forwards;
+  }
+
+  /* Animación de panel deslizante desde la derecha (móvil) */
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out forwards;
+  }
+
+  /* Animación de panel deslizante desde la izquierda (menú categorías desktop) */
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.2s ease-out forwards;
+  }
+}
+
+/* Ajuste de posición para React Query Devtools - Moverlo más a la izquierda para evitar conflicto con Next.js y ChatWidget */
+[class*="tsqd-parent-container"] {
+  left: 20px !important;
+  right: auto !important;
 }

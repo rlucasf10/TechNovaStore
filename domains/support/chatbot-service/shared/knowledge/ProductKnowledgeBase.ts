@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import { getProductModel } from '../models/Product';
+import { logger } from '../utils/logger';
 
 export interface ProductInfo {
   sku: string;
@@ -45,10 +47,10 @@ export class ProductKnowledgeBase {
         const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/technovastore';
         await mongoose.connect(mongoUri);
         this.isConnected = true;
-        console.log('Connected to MongoDB for Product Knowledge Base');
+        logger.info('Conectado a MongoDB para Product Knowledge Base');
       }
     } catch (error) {
-      console.error('Failed to connect to MongoDB:', error);
+      logger.error('Error al conectar a MongoDB', { error: error instanceof Error ? error.message : error });
       throw error;
     }
   }
@@ -57,7 +59,7 @@ export class ProductKnowledgeBase {
     await this.initializeConnection();
     
     try {
-      const Product = mongoose.model('Product');
+      const Product = getProductModel();
       const mongoQuery: any = {};
 
       if (query.category) {
@@ -92,9 +94,9 @@ export class ProductKnowledgeBase {
         .sort({ our_price: 1 })
         .lean();
 
-      return products.map(this.mapToProductInfo);
+      return products.map((product) => this.mapToProductInfo(product));
     } catch (error) {
-      console.error('Error searching products:', error);
+      logger.error('Error al buscar productos', { error: error instanceof Error ? error.message : error });
       return [];
     }
   }
@@ -103,12 +105,12 @@ export class ProductKnowledgeBase {
     await this.initializeConnection();
     
     try {
-      const Product = mongoose.model('Product');
+      const Product = getProductModel();
       const product = await Product.findOne({ sku }).lean();
       
       return product ? this.mapToProductInfo(product) : null;
     } catch (error) {
-      console.error('Error getting product by SKU:', error);
+      logger.error('Error al obtener producto por SKU', { error: error instanceof Error ? error.message : error });
       return null;
     }
   }
@@ -125,7 +127,7 @@ export class ProductKnowledgeBase {
     await this.initializeConnection();
     
     try {
-      const Product = mongoose.model('Product');
+      const Product = getProductModel();
       const recommendations: ProductRecommendation[] = [];
 
       const query: any = { is_active: true };
@@ -192,7 +194,7 @@ export class ProductKnowledgeBase {
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
     } catch (error) {
-      console.error('Error getting recommendations:', error);
+      logger.error('Error al obtener recomendaciones', { error: error instanceof Error ? error.message : error });
       return [];
     }
   }
@@ -201,7 +203,7 @@ export class ProductKnowledgeBase {
     await this.initializeConnection();
     
     try {
-      const Product = mongoose.model('Product');
+      const Product = getProductModel();
       
       const products = await Product.find({
         $and: [
@@ -220,9 +222,9 @@ export class ProductKnowledgeBase {
       .sort({ our_price: 1 })
       .lean();
 
-      return products.map(this.mapToProductInfo);
+      return products.map((product) => this.mapToProductInfo(product));
     } catch (error) {
-      console.error('Error searching by text:', error);
+      logger.error('Error al buscar por texto', { error: error instanceof Error ? error.message : error });
       return [];
     }
   }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { User } from '@/types'
-import api from '@/lib/api'
+import { authService, type User } from '@/customer'
 
 interface UseUserReturn {
   user: User | null
@@ -19,16 +18,33 @@ export function useUser(): UseUserReturn {
       setLoading(true)
       setError(null)
       
-      const token = localStorage.getItem('auth_token')
-      if (!token) {
+      // ✅ SEGURIDAD: Usar authService.getCurrentUser() que maneja httpOnly cookies correctamente
+      // NO verificamos tokens en localStorage
+      // La autenticación se maneja automáticamente mediante httpOnly cookies
+      // Si hay cookie válida, el backend responde con usuario
+      // Si no hay cookie o es inválida, el backend responde 401 (manejado silenciosamente)
+      const currentUser = await authService.getCurrentUser()
+      setUser(currentUser)
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { status?: number; data?: { message?: string } } }
+      
+      // Si el error es 401 (no autenticado), es un estado esperado
+      // NO mostrar error ni loguear, simplemente establecer user como null
+      if (axiosError?.response?.status === 401) {
         setUser(null)
+        setError(null) // No hay error, el usuario simplemente no está autenticado
         return
       }
-
-      const response = await api.get('/users/profile')
-      setUser(response.data.data)
-    } catch (err: unknown) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar el perfil de usuario'
+      
+      // Si el error es 500, también puede ser un token inválido
+      if (axiosError?.response?.status === 500) {
+        setUser(null)
+        setError(null) // No mostrar error para tokens inválidos
+        return
+      }
+      
+      // Para otros errores, sí mostrar el mensaje
+      const errorMessage = axiosError?.response?.data?.message || 'Error al cargar el perfil de usuario'
       setError(errorMessage)
       setUser(null)
     } finally {

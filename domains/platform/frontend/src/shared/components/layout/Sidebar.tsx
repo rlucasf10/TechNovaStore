@@ -103,25 +103,25 @@ const QUICK_LINKS: NavItem[] = [
 const USER_LINKS: NavItem[] = [
   {
     label: 'Mi Perfil',
-    href: '/dashboard/perfil',
+    href: '/dashboard/usuario/perfil',
     icon: User,
     requiresAuth: true,
   },
   {
     label: 'Mis Pedidos',
-    href: '/dashboard/pedidos',
+    href: '/dashboard/usuario/pedidos',
     icon: Package,
     requiresAuth: true,
   },
   {
     label: 'Lista de Deseos',
-    href: '/dashboard/wishlist',
+    href: '/dashboard/usuario/wishlist',
     icon: Heart,
     requiresAuth: true,
   },
   {
     label: 'Configuración',
-    href: '/dashboard/configuracion',
+    href: '/dashboard/usuario/configuracion',
     icon: Settings,
     requiresAuth: true,
   },
@@ -252,7 +252,7 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
       
       <div
         ref={sidebarRef}
-        className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl z-50 animate-slide-in-right"
+        className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-slate-800 shadow-2xl z-50 animate-slide-in-right"
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
@@ -263,12 +263,12 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
           {/* Header del Sidebar */}
           {/* ============================================================ */}
           
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-primary-50">
-            <span className="text-lg font-semibold text-gray-900">Menú</span>
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-700 bg-primary-50 dark:bg-slate-900">
+            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Menú</span>
             <button
               ref={firstFocusableRef}
               onClick={onClose}
-              className="p-2 text-gray-700 hover:text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+              className="p-2 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               aria-label="Cerrar menú"
             >
               <X className="w-6 h-6" />
@@ -285,12 +285,12 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
             {/* Sección de Usuario */}
             {/* ============================================================ */}
             
-            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-white">
+            <div className="p-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-primary-50 to-white dark:from-slate-900 dark:to-slate-800">
               {isAuthenticated && user ? (
                 <Link
-                  href="/dashboard"
+                  href="/dashboard/usuario"
                   onClick={handleLinkClick}
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:shadow-sm transition-all"
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm transition-all"
                 >
                   {user.avatar ? (
                     <img
@@ -306,10 +306,10 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {user.firstName} {user.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">Ver mi perfil</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Ver mi perfil</p>
                   </div>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </Link>
@@ -338,8 +338,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
             {/* Enlaces Rápidos */}
             {/* ============================================================ */}
             
-            <div className="p-4 border-b border-gray-200">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                 Navegación
               </h3>
               <nav className="space-y-1">
@@ -356,8 +356,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
                         flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
                         ${
                           isActive
-                            ? 'bg-primary-50 text-primary-600 shadow-sm'
-                            : 'text-gray-700 hover:bg-gray-50'
+                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm'
+                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
                         }
                       `}
                     >
@@ -376,8 +376,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
             {/* Categorías */}
             {/* ============================================================ */}
             
-            <div className="p-4 border-b border-gray-200">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                 Categorías
               </h3>
               <nav className="space-y-1">
@@ -395,8 +395,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
                         flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
                         ${
                           isActive
-                            ? 'bg-primary-50 text-primary-600 shadow-sm'
-                            : 'text-gray-700 hover:bg-gray-50'
+                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm'
+                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
                         }
                       `}
                     >
@@ -414,8 +414,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
             {/* ============================================================ */}
             
             {isAuthenticated && (
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                   Mi Cuenta
                 </h3>
                 <nav className="space-y-1">
@@ -432,8 +432,8 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
                           flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
                           ${
                             isActive
-                              ? 'bg-primary-50 text-primary-600 shadow-sm'
-                              : 'text-gray-700 hover:bg-gray-50'
+                              ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm'
+                              : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
                           }
                         `}
                       >
@@ -455,10 +455,10 @@ export function Sidebar({ isOpen, onClose, categories = DEFAULT_CATEGORIES }: Si
           {/* ============================================================ */}
           
           {isAuthenticated && (
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="p-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-error hover:bg-error hover:bg-opacity-10 transition-all"
+                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-error dark:text-red-400 hover:bg-error hover:bg-opacity-10 dark:hover:bg-red-900/20 transition-all"
               >
                 <LogOut className="w-5 h-5 flex-shrink-0" />
                 <span>Cerrar Sesión</span>

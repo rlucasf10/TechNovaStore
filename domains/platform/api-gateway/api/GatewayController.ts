@@ -3,6 +3,8 @@ import { AuthenticateRequest } from '../authenticate-request/AuthenticateRequest
 import { ValidateCsrfToken } from '../validate-csrf-token/ValidateCsrfToken';
 import { SanitizeInput } from '../sanitize-input/SanitizeInput';
 import { securityMonitor } from '../shared/utils/securityMonitor';
+import { GetAdminMetrics } from '../get-admin-metrics/GetAdminMetrics';
+import { GetAdminAnalytics } from '../get-admin-metrics/GetAdminAnalytics';
 
 /**
  * Controlador del API Gateway
@@ -13,11 +15,15 @@ export class GatewayController {
   private authenticateRequest: AuthenticateRequest;
   private validateCsrfToken: ValidateCsrfToken;
   private sanitizeInput: SanitizeInput;
+  private getAdminMetrics: GetAdminMetrics;
+  private getAdminAnalytics: GetAdminAnalytics;
 
   constructor() {
     this.authenticateRequest = new AuthenticateRequest();
     this.validateCsrfToken = new ValidateCsrfToken();
     this.sanitizeInput = new SanitizeInput();
+    this.getAdminMetrics = new GetAdminMetrics();
+    this.getAdminAnalytics = new GetAdminAnalytics();
   }
 
   /**
@@ -58,14 +64,21 @@ export class GatewayController {
   /**
    * Endpoint para obtener token CSRF
    */
-  getCsrfToken(req: Request, res: Response): void {
-    const sessionId = req.headers['x-session-id'] as string || 'anonymous';
-    const token = this.validateCsrfToken.generateToken(sessionId);
+  async getCsrfToken(req: Request, res: Response): Promise<void> {
+    try {
+      const sessionId = req.headers['x-session-id'] as string || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const token = await this.validateCsrfToken.generateToken(sessionId);
 
-    res.json({
-      csrfToken: token,
-      sessionId: sessionId
-    });
+      res.json({
+        csrfToken: token,
+        sessionId: sessionId
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to generate CSRF token',
+        code: 'CSRF_GENERATION_ERROR'
+      });
+    }
   }
 
   /**
@@ -100,6 +113,168 @@ export class GatewayController {
       });
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch suspicious IP data' });
+    }
+  }
+
+  // ============================================================================
+  // Endpoints de Métricas de Admin (Requisitos: 15.1, 15.2, 15.3, 15.4)
+  // ============================================================================
+
+  /**
+   * Endpoint para métricas del Chatbot
+   * Requisitos: 15.2
+   */
+  async getChatbotMetrics(_req: Request, res: Response): Promise<void> {
+    try {
+      const metrics = await this.getAdminMetrics.getChatbotMetrics();
+      res.json({
+        success: true,
+        data: metrics,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener métricas del chatbot' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener logs del Chatbot
+   */
+  async getChatbotLogs(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const data = await this.getAdminMetrics.getChatbotLogs(limit);
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener logs del chatbot' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para reiniciar el Chatbot
+   */
+  async restartChatbot(_req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.getAdminMetrics.restartChatbot();
+      res.json({
+        success: result.success,
+        data: result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al reiniciar el chatbot' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para métricas del Recommender
+   * Requisitos: 15.2
+   */
+  async getRecommenderMetrics(_req: Request, res: Response): Promise<void> {
+    try {
+      const metrics = await this.getAdminMetrics.getRecommenderMetrics();
+      res.json({
+        success: true,
+        data: metrics,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener métricas del recommender' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para métricas de Automatización
+   * Requisitos: 15.3
+   */
+  async getAutomationMetrics(_req: Request, res: Response): Promise<void> {
+    try {
+      const metrics = await this.getAdminMetrics.getAutomationMetrics();
+      res.json({
+        success: true,
+        data: metrics,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener métricas de automatización' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para métricas del Sistema
+   * Requisitos: 15.4
+   */
+  async getSystemMetrics(_req: Request, res: Response): Promise<void> {
+    try {
+      const metrics = await this.getAdminMetrics.getSystemMetrics();
+      res.json({
+        success: true,
+        data: metrics,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener métricas del sistema' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para KPIs de negocio
+   * Requisitos: 15.1
+   */
+  async getBusinessKPIs(_req: Request, res: Response): Promise<void> {
+    try {
+      const kpis = await this.getAdminMetrics.getBusinessKPIs();
+      res.json({
+        success: true,
+        data: kpis,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener KPIs de negocio' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para estado de salud de todos los servicios
+   */
+  async getAllServicesHealth(_req: Request, res: Response): Promise<void> {
+    try {
+      const services = await this.getAdminMetrics.getAllServicesHealth();
+      res.json({
+        success: true,
+        data: services,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener estado de servicios' 
+      });
     }
   }
 
@@ -146,5 +321,132 @@ export class GatewayController {
       },
       services,
     });
+  }
+
+  // ============================================================================
+  // Endpoints de Analíticas (Requisito: 15.1)
+  // ============================================================================
+
+  /**
+   * Endpoint para obtener datos de ventas por día
+   */
+  async getSalesData(req: Request, res: Response): Promise<void> {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await this.getAdminAnalytics.getSalesData(days);
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener datos de ventas' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener productos más vendidos
+   */
+  async getTopProducts(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const data = await this.getAdminAnalytics.getTopProducts(limit);
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener productos más vendidos' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener datos de categorías
+   */
+  async getCategoriesData(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await this.getAdminAnalytics.getCategoriesData();
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener datos de categorías' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener embudo de conversión
+   */
+  async getConversionFunnel(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await this.getAdminAnalytics.getConversionFunnel();
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener embudo de conversión' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener datos de tendencia
+   */
+  async getTrendData(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await this.getAdminAnalytics.getTrendData();
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener datos de tendencia' 
+      });
+    }
+  }
+
+  /**
+   * Endpoint para obtener actividad reciente
+   */
+  async getRecentActivity(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const data = await this.getAdminAnalytics.getRecentActivity(limit);
+      
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al obtener actividad reciente' 
+      });
+    }
   }
 }

@@ -38,29 +38,41 @@ const resolveTheme = (theme: Theme): 'light' | 'dark' => {
 
 export const useThemeStore = create<ThemeState>()(
   persist(
-    (set, get) => ({
-      // Estado inicial
-      theme: 'system',
-      resolvedTheme: 'light',
+    (set, get) => {
+      // Inicializar con el tema del sistema si no hay preferencia guardada
+      const initialTheme: Theme = 'system';
+      const initialResolved = resolveTheme(initialTheme);
       
-      // Acciones
-      setTheme: (theme: Theme) => {
-        const resolved = resolveTheme(theme);
-        set({ theme, resolvedTheme: resolved });
+      return {
+        // Estado inicial
+        theme: initialTheme,
+        resolvedTheme: initialResolved,
         
-        // Aplicar clase al documento
-        if (typeof document !== 'undefined') {
-          document.documentElement.classList.remove('light', 'dark');
-          document.documentElement.classList.add(resolved);
-        }
-      },
-      
-      toggleTheme: () => {
-        const currentResolved = get().resolvedTheme;
-        const newTheme = currentResolved === 'light' ? 'dark' : 'light';
-        get().setTheme(newTheme);
-      },
-    }),
+        // Acciones
+        setTheme: (theme: Theme) => {
+          const resolved = resolveTheme(theme);
+          set({ theme, resolvedTheme: resolved });
+          
+          // Aplicar clase al documento
+          if (typeof document !== 'undefined') {
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(resolved);
+            
+            // Actualizar meta theme-color para navegadores móviles
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            if (metaThemeColor) {
+              metaThemeColor.setAttribute('content', resolved === 'dark' ? '#0f172a' : '#ffffff');
+            }
+          }
+        },
+        
+        toggleTheme: () => {
+          const currentResolved = get().resolvedTheme;
+          const newTheme = currentResolved === 'light' ? 'dark' : 'light';
+          get().setTheme(newTheme);
+        },
+      };
+    },
     {
       name: 'theme-storage',
       onRehydrateStorage: () => (state: ThemeState | undefined) => {
@@ -69,6 +81,12 @@ export const useThemeStore = create<ThemeState>()(
           const resolved = resolveTheme(state.theme);
           document.documentElement.classList.remove('light', 'dark');
           document.documentElement.classList.add(resolved);
+          
+          // Actualizar meta theme-color
+          const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+          if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', resolved === 'dark' ? '#0f172a' : '#ffffff');
+          }
         }
       },
     }

@@ -3,6 +3,7 @@
  * Verifica todas las variantes, estados, labels flotantes, iconos y validación
  */
 
+import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Input } from '@/ui/Input'
 

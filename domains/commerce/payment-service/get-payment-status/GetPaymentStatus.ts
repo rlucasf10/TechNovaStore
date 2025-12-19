@@ -13,13 +13,9 @@ export interface PaymentStatusInfo {
 }
 
 export class GetPaymentStatus {
-  private orderServiceClient: OrderServiceClient;
-
-  constructor(orderServiceClient?: OrderServiceClient) {
-    this.orderServiceClient = orderServiceClient || new OrderServiceClient();
-  }
-
-  async execute(orderId: number): Promise<PaymentStatusInfo | null> {
-    return await this.orderServiceClient.getPaymentStatus(orderId);
+  async execute(orderId: number, authHeaders?: Record<string, string>): Promise<PaymentStatusInfo | null> {
+    // Crear cliente con headers de autenticación si se proporcionan
+    const orderServiceClient = new OrderServiceClient(undefined, authHeaders);
+    return await orderServiceClient.getPaymentStatus(orderId);
   }
 }

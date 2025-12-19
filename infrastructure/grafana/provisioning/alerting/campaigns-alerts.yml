@@ -1,0 +1,160 @@
+# Configuración de alertas de Grafana para Campaign Manager Service
+# Requirement 16.7: Alertas cuando una campaña falla al activarse o desactivarse
+# Requirement 16.8: Integración con Alertmanager para notificaciones de cron job
+
+apiVersion: 1
+
+# Grupos de alertas para Campaign Manager
+groups:
+  - orgId: 1
+    name: Campaign Manager Alerts
+    folder: TechNovaStore
+    interval: 1m
+    rules:
+      # Alerta: Servicio de Campaign Manager caído
+      - uid: campaign-service-down
+        title: Campaign Manager Service Down
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: up{job="campaign-manager-service"} == 0
+              instant: true
+              refId: A
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: "Campaign Manager Service está caído"
+          description: "El servicio Campaign Manager no está respondiendo. Las campañas no se activarán/desactivarán automáticamente."
+        labels:
+          severity: critical
+          service: campaign-manager
+
+      # Alerta: Fallo en activación de campaña
+      - uid: campaign-activation-failure
+        title: Campaign Activation Failure
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: increase(http_requests_total{job="campaign-manager-service", path=~".*apply-discounts.*", status=~"5.."}[10m]) > 0
+              instant: true
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: "Fallo en activación de campaña"
+          description: "La aplicación de descuentos de campaña ha fallado. Revisar logs para más detalles."
+        labels:
+          severity: critical
+          service: campaign-manager
+
+      # Alerta: Fallo en desactivación de campaña
+      - uid: campaign-deactivation-failure
+        title: Campaign Deactivation Failure
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: increase(http_requests_total{job="campaign-manager-service", path=~".*remove-discounts.*", status=~"5.."}[10m]) > 0
+              instant: true
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: "Fallo en desactivación de campaña"
+          description: "La remoción de descuentos de campaña ha fallado. Revisar logs para más detalles."
+        labels:
+          severity: critical
+          service: campaign-manager
+
+      # Alerta: Procesamiento de descuentos lento
+      - uid: campaign-processing-slow
+        title: Campaign Discount Processing Slow
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, rate(campaign_discount_application_duration_seconds_bucket[5m])) > 30
+              instant: true
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          summary: "Procesamiento de descuentos lento"
+          description: "El tiempo de procesamiento de descuentos (p95) supera los 30 segundos."
+        labels:
+          severity: warning
+          service: campaign-manager
+
+      # Alerta: Fallo en cron job de campañas
+      - uid: campaign-cron-failure
+        title: Campaign Cron Job Failure
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: increase(http_requests_total{job="campaign-manager-service", path=~".*/cron/.*", status=~"5.."}[1h]) > 0
+              instant: true
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: "Fallo en cron job de campañas"
+          description: "El scheduler de campañas ha fallado. La activación/desactivación automática puede no estar funcionando."
+        labels:
+          severity: critical
+          service: campaign-manager
+
+# Políticas de notificación
+policies:
+  - orgId: 1
+    receiver: alertmanager
+    group_by:
+      - alertname
+      - service
+    routes:
+      - receiver: alertmanager
+        object_matchers:
+          - - service
+            - =
+            - campaign-manager
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+
+# Puntos de contacto (Contact Points)
+contactPoints:
+  - orgId: 1
+    name: alertmanager
+    receivers:
+      - uid: alertmanager-receiver
+        type: alertmanager
+        settings:
+          url: http://alertmanager:9093
+        disableResolveMessage: false

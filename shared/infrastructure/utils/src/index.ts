@@ -66,3 +66,6 @@ export * from './advanced-health-check';
 
 // Error handling utilities
 export * from './error-handler';
+
+// Cookie utilities
+export * from './cookie.utils';

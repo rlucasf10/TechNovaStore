@@ -1,4 +1,7 @@
 import { QueryInterface } from 'sequelize';
+import { createLogger } from '@technovastore/shared-config';
+
+const logger = createLogger('migration-runner');
 
 // Migration interface
 export interface Migration {
@@ -25,9 +28,15 @@ export class MigrationRunner {
     for (const migration of migrations) {
       try {
         await migration.up(this.queryInterface);
-        console.log(`Migration ${migration.constructor.name} completed successfully`);
+        logger.info('Migration completed successfully', { 
+          migration: migration.constructor.name 
+        });
       } catch (error) {
-        console.error(`Migration ${migration.constructor.name} failed:`, error);
+        logger.error('Migration failed', { 
+          migration: migration.constructor.name,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         throw error;
       }
     }
@@ -40,9 +49,15 @@ export class MigrationRunner {
     for (const migration of reversedMigrations) {
       try {
         await migration.down(this.queryInterface);
-        console.log(`Rollback ${migration.constructor.name} completed successfully`);
+        logger.info('Rollback completed successfully', { 
+          migration: migration.constructor.name 
+        });
       } catch (error) {
-        console.error(`Rollback ${migration.constructor.name} failed:`, error);
+        logger.error('Rollback failed', { 
+          migration: migration.constructor.name,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         throw error;
       }
     }

@@ -6,6 +6,7 @@
 
 import { TicketRepository } from '../shared/repositories/TicketRepository';
 import { ISatisfactionSurvey, CreateSatisfactionSurveyRequest } from '../shared/types';
+import { logger } from '../shared/utils/logger';
 
 export class CreateSatisfactionSurvey {
   constructor(private ticketRepository: TicketRepository) {}
@@ -52,7 +53,7 @@ export class CreateSatisfactionSurvey {
     // Check for very low ratings (LÓGICA ORIGINAL)
     if (survey.rating <= 2) {
       // In a real implementation, this would trigger notifications to management
-      console.log(`Low satisfaction alert: Ticket ${survey.ticket_id} received rating ${survey.rating}/5`);
+      logger.warn('Low satisfaction alert', { ticketId: survey.ticket_id, rating: survey.rating });
       
       // Add urgent flag to ticket or escalate to management (LÓGICA ORIGINAL)
       await this.ticketRepository.addMessage(survey.ticket_id, {

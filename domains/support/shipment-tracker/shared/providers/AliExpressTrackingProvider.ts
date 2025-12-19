@@ -1,5 +1,6 @@
 import { BaseTrackingProvider } from './BaseTrackingProvider';
 import { ProviderTrackingResponse, DeliveryEstimate, TrackingInfo, TrackingEvent } from '../types/tracking';
+import { logger } from '../utils/logger';
 
 export class AliExpressTrackingProvider extends BaseTrackingProvider {
   constructor(apiKey?: string) {
@@ -45,7 +46,11 @@ export class AliExpressTrackingProvider extends BaseTrackingProvider {
         trackingInfo
       };
     } catch (error: any) {
-      console.error(`AliExpress tracking error for ${trackingNumber}:`, error.message);
+      logger.error('AliExpress tracking error', { 
+        trackingNumber, 
+        error: error.message,
+        provider: 'AliExpress'
+      });
       
       if (error.message.includes('Rate limit')) {
         return {

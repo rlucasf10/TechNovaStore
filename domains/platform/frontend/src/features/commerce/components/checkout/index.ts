@@ -1,5 +1,7 @@
 export { CheckoutSteps } from './CheckoutSteps'
 export { ShippingForm } from './ShippingForm'
 export { PaymentForm } from './PaymentForm'
+export { ReviewStep } from './ReviewStep'
 export { OrderSummary } from './OrderSummary'
 export { OrderConfirmation } from './OrderConfirmation'
+export { CardIcon, AcceptedCards, SecurityBadges } from './CardIcons'

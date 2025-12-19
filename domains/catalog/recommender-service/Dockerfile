@@ -1,11 +1,15 @@
 # Build base image first: docker build -f docker/base/Dockerfile.service-base -t service-base .
-FROM service-base:latest
+FROM technovastore-base:latest
 
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json
 
 # Copy shared packages first (needed for npm install)
 COPY shared /workspace/shared
+
+# Install shared-config dependencies (includes secure-json-parse for winston-elasticsearch)
+WORKDIR /workspace/shared/infrastructure/config
+RUN npm install --legacy-peer-deps
 
 # Set working directory
 WORKDIR /workspace/domains/catalog/recommender-service

@@ -14,7 +14,7 @@
 
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNotificationStore, type Notification } from '@/store/notification.store'
 
 // Iconos para cada tipo de notificación
@@ -41,39 +41,39 @@ const icons = {
   ),
 }
 
-// Estilos por tipo de notificación
+// Estilos por tipo de notificación (ajustados para WCAG 2.1 AA)
 const styles = {
   success: {
-    container: 'bg-green-50 border-green-200',
-    icon: 'text-green-600',
-    title: 'text-green-900',
-    message: 'text-green-700',
-    progress: 'bg-green-600',
-    button: 'text-green-700 hover:text-green-900',
+    container: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700',
+    icon: 'text-success dark:text-green-400', // Usa color semántico ajustado (#047857)
+    title: 'text-green-900 dark:text-green-100',
+    message: 'text-success dark:text-green-300', // Usa color semántico ajustado para mejor contraste
+    progress: 'bg-success',
+    button: 'text-success dark:text-green-400 hover:text-green-900 dark:hover:text-green-200',
   },
   error: {
-    container: 'bg-red-50 border-red-200',
-    icon: 'text-red-600',
-    title: 'text-red-900',
-    message: 'text-red-700',
-    progress: 'bg-red-600',
-    button: 'text-red-700 hover:text-red-900',
+    container: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700',
+    icon: 'text-error dark:text-red-400', // Usa color semántico ajustado (#dc2626)
+    title: 'text-red-900 dark:text-red-100',
+    message: 'text-error dark:text-red-300', // Usa color semántico ajustado para mejor contraste
+    progress: 'bg-error',
+    button: 'text-error dark:text-red-400 hover:text-red-900 dark:hover:text-red-200',
   },
   warning: {
-    container: 'bg-yellow-50 border-yellow-200',
-    icon: 'text-yellow-600',
-    title: 'text-yellow-900',
-    message: 'text-yellow-700',
-    progress: 'bg-yellow-600',
-    button: 'text-yellow-700 hover:text-yellow-900',
+    container: 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700',
+    icon: 'text-warning dark:text-yellow-400', // Usa color semántico ajustado (#b45309)
+    title: 'text-yellow-900 dark:text-yellow-100',
+    message: 'text-warning dark:text-yellow-300', // Usa color semántico ajustado para mejor contraste
+    progress: 'bg-warning',
+    button: 'text-warning dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-200',
   },
   info: {
-    container: 'bg-blue-50 border-blue-200',
-    icon: 'text-blue-600',
-    title: 'text-blue-900',
-    message: 'text-blue-700',
-    progress: 'bg-blue-600',
-    button: 'text-blue-700 hover:text-blue-900',
+    container: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700',
+    icon: 'text-info dark:text-blue-400', // Usa color semántico (#3b82f6)
+    title: 'text-blue-900 dark:text-blue-100',
+    message: 'text-info dark:text-blue-300', // Usa color semántico para mejor contraste
+    progress: 'bg-info',
+    button: 'text-info dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200',
   },
 }
 
@@ -125,6 +125,8 @@ function ToastItem({ notification, onClose }: ToastItemProps) {
       `}
       role="alert"
       aria-live="polite"
+      aria-atomic="true"
+      aria-relevant="additions text"
     >
       {/* Contenido */}
       <div className="p-4">
@@ -159,7 +161,7 @@ function ToastItem({ notification, onClose }: ToastItemProps) {
           {/* Botón cerrar */}
           <button
             onClick={handleClose}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Cerrar notificación"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -171,7 +173,7 @@ function ToastItem({ notification, onClose }: ToastItemProps) {
       
       {/* Barra de progreso */}
       {notification.duration && notification.duration > 0 && (
-        <div className="h-1 bg-gray-200">
+        <div className="h-1 bg-gray-200 dark:bg-slate-700">
           <div
             className={`h-full transition-all duration-50 ease-linear ${style.progress}`}
             style={{ width: `${progress}%` }}
@@ -196,6 +198,8 @@ export function ToastContainer() {
   return (
     <div
       className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"
+      role="region"
+      aria-label="Notificaciones"
       aria-live="polite"
       aria-atomic="false"
     >

@@ -37,24 +37,24 @@ export function PriceComparator({ providers, ourPrice }: PriceComparatorProps) {
   const ourSavings = bestProvider ? (bestProvider.price + bestProvider.shipping_cost) - ourPrice : 0
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
       {/* Header expandible/colapsable */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between hover:bg-gray-100 transition-colors"
+        className="w-full bg-gray-50 dark:bg-slate-700/50 px-6 py-4 border-b border-gray-200 dark:border-slate-600 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
         aria-expanded={isExpanded}
         aria-controls="price-comparator-content"
       >
         <div className="text-left">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             Comparador de Precios
             {ourSavings > 0 && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
                 Ahorras {formatPrice(ourSavings)}
               </span>
             )}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Comparamos precios de diferentes proveedores para ofrecerte el mejor valor
           </p>
         </div>
@@ -112,12 +112,12 @@ export function PriceComparator({ providers, ourPrice }: PriceComparatorProps) {
 
           {/* Tabla de Comparación de Proveedores */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-gray-900 text-lg mb-4">
+            <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mb-4">
               Comparación con proveedores externos
             </h4>
             
             {sortedProviders.length === 0 ? (
-              <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-700/50 rounded-lg border border-gray-200 dark:border-slate-600">
                 <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
@@ -129,12 +129,12 @@ export function PriceComparator({ providers, ourPrice }: PriceComparatorProps) {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-gray-100 border-b-2 border-gray-300">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Proveedor</th>
-                        <th className="text-right py-3 px-4 font-semibold text-gray-700">Precio</th>
-                        <th className="text-right py-3 px-4 font-semibold text-gray-700">Envío</th>
-                        <th className="text-right py-3 px-4 font-semibold text-gray-700">Total</th>
-                        <th className="text-center py-3 px-4 font-semibold text-gray-700">Entrega</th>
+                      <tr className="bg-gray-100 dark:bg-slate-700 border-b-2 border-gray-300 dark:border-slate-600">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Proveedor</th>
+                        <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Precio</th>
+                        <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Envío</th>
+                        <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Total</th>
+                        <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Entrega</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -153,38 +153,38 @@ export function PriceComparator({ providers, ourPrice }: PriceComparatorProps) {
                           >
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">{provider.name}</span>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">{provider.name}</span>
                                 {isBestOffer && (
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-600 text-white shadow-sm">
                                     ⭐ Mejor oferta
                                   </span>
                                 )}
                               </div>
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Actualizado: {formatDate(provider.last_updated)}
                               </div>
                             </td>
-                            <td className="py-4 px-4 text-right font-medium text-gray-900">
+                            <td className="py-4 px-4 text-right font-medium text-gray-900 dark:text-gray-100">
                               {formatPrice(provider.price)}
                             </td>
                             <td className="py-4 px-4 text-right">
                               {provider.shipping_cost > 0 ? (
-                                <span className="text-gray-900">{formatPrice(provider.shipping_cost)}</span>
+                                <span className="text-gray-900 dark:text-gray-100">{formatPrice(provider.shipping_cost)}</span>
                               ) : (
-                                <span className="text-green-600 font-medium">Gratis</span>
+                                <span className="text-green-600 dark:text-green-400 font-medium">Gratis</span>
                               )}
                             </td>
                             <td className={`py-4 px-4 text-right font-bold text-lg ${
-                              isBestOffer ? 'text-green-700' : 'text-gray-900'
+                              isBestOffer ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'
                             }`}>
                               {formatPrice(totalCost)}
                             </td>
                             <td className="py-4 px-4 text-center">
                               <div className="flex items-center justify-center gap-1">
-                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-gray-700">{provider.delivery_time} días</span>
+                                <span className="text-gray-700 dark:text-gray-300">{provider.delivery_time} días</span>
                               </div>
                             </td>
                           </tr>
@@ -277,9 +277,9 @@ export function PriceComparator({ providers, ourPrice }: PriceComparatorProps) {
           )}
 
           {/* Disclaimer */}
-          <div className="mt-6 text-xs text-gray-600 bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="mt-6 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-200 dark:border-slate-600">
             <div className="flex items-start gap-2">
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p>

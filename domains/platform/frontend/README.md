@@ -201,6 +201,16 @@ npm run lint
 npm run format
 ```
 
+### Dataset de Localidades
+
+```bash
+# Generar dataset de códigos postales de España
+npm run generate-postal-codes
+
+# El dataset se genera en: data/spain-postal-codes.csv
+# Contiene: 8,100+ municipios, 50 provincias, 8,000+ códigos postales
+```
+
 ## Variables de Entorno
 
 Crear archivo `.env.local`:

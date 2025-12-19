@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { Button } from './Button'
 import { Card, CardHeader, CardTitle, CardContent } from './Card'

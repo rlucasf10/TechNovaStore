@@ -172,6 +172,9 @@ export function SearchBar({ onSearch, initialValue = '', placeholder = 'Buscar p
                       width={40}
                       height={40}
                       className="w-10 h-10 object-cover rounded"
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                     />
                   </div>
                   <div className="flex-1 min-w-0">

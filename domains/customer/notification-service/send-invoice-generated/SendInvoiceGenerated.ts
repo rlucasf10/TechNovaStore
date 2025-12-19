@@ -5,6 +5,7 @@
 
 import { EmailService } from '../shared/email/EmailService';
 import { TemplateService } from '../shared/templates/TemplateService';
+import { logger } from '../shared/utils/logger';
 
 export interface InvoiceGeneratedData {
   orderId: string;
@@ -35,9 +36,9 @@ export class SendInvoiceGenerated {
       const template = this.templateService.getTemplate('invoice_generated', notificationData);
       await this.emailService.sendEmail(data.customerEmail, template);
       
-      console.log(`Invoice notification sent to ${data.customerEmail} for order ${data.orderId}`);
+      logger.info('Invoice notification sent', { customerEmail: data.customerEmail, orderId: data.orderId });
     } catch (error) {
-      console.error(`Failed to send invoice notification for ${data.orderId}:`, error);
+      logger.error('Failed to send invoice notification', { orderId: data.orderId, error: error instanceof Error ? error.message : error });
       throw error;
     }
   }

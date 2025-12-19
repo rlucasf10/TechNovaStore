@@ -148,6 +148,7 @@ graph TB
         OS["Order Service<br/>Port: 3002<br/>Order Processing<br/>State Management"]
         PY["Payment Service<br/>Port: 3004<br/>Stripe • PayPal<br/>Transaction Management"]
         AP["Auto Purchase Service<br/>Port: 3007<br/>Smart Restocking<br/>Provider Selection<br/>Cost Optimization"]
+        CM["Campaign Manager<br/>Port: 3011<br/>Promotional Campaigns<br/>Auto Discounts • Analytics"]
     end
     
     subgraph "👥 Customer Domain"
@@ -184,8 +185,10 @@ graph TB
     end
     
     FE --> GW
-    GW --> PS & US & OS & PY & NS & TS
+    GW --> PS & US & OS & PY & NS & TS & CM
     GW --> CB & RC
+    
+    CM --> PS & PG
     
     CB --> OL
     CB --> TS
@@ -225,7 +228,8 @@ TechNovaStore/
 │   ├── commerce/                      # 💰 Comercio y Transacciones
 │   │   ├── order-service/             # Gestión de pedidos
 │   │   ├── payment-service/           # Procesamiento de pagos
-│   │   └── auto-purchase-service/     # Compras automáticas
+│   │   ├── auto-purchase-service/     # Compras automáticas
+│   │   └── campaign-manager-service/  # Gestión de campañas promocionales
 │   ├── customer/                      # 👥 Gestión de Clientes
 │   │   ├── user-service/              # Autenticación y usuarios
 │   │   └── notification-service/      # Notificaciones multi-canal
@@ -484,7 +488,7 @@ docker-compose -f docker-compose.optimized.yml up -d api-gateway
 
 | Servicio | URL | Credenciales | Descripción |
 |----------|-----|--------------|-------------|
-| **🌐 Frontend** | http://localhost:3011 | - | Aplicación Web Principal |
+| **🌐 Frontend** | http://localhost:3020 | - | Aplicación Web Principal |
 | **🚪 API Gateway** | http://localhost:3000 | - | API REST Principal |
 | **📚 API Docs** | http://localhost:3000/docs | - | Swagger UI Interactivo |
 | **📊 Grafana** | http://localhost:3013 | admin / REDACTED_GRAFANA_PASSWORD | Dashboards y Métricas |
@@ -493,6 +497,7 @@ docker-compose -f docker-compose.optimized.yml up -d api-gateway
 | **🚨 AlertManager** | http://localhost:9093 | - | Gestión de Alertas |
 | **🤖 Chatbot** | http://localhost:3009 | - | IA Assistant API |
 | **🎯 Recommender** | http://localhost:3010 | - | ML Recommendations API |
+| **📢 Campaign Manager** | http://localhost:3011 | - | Gestión de Campañas API |
 | **🧠 Ollama** | http://localhost:11434 | - | LLM Local Runtime |
 
 ---
@@ -676,6 +681,12 @@ JWT_SECRET=your_super_secure_jwt_secret_key
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 NEXT_PUBLIC_APP_URL=http://localhost:3011
 NEXT_PUBLIC_CHATBOT_URL=http://localhost:3009
+FRONTEND_URL=http://localhost:3020
+
+# Cookie Configuration (HttpOnly Cookies)
+# Para desarrollo: dejar vacío para máxima portabilidad
+# Esto permite que funcione con localhost, 127.0.0.1, y cualquier IP sin cambios
+COOKIE_DOMAIN=
 
 # OAuth (opcional)
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=
@@ -713,9 +724,34 @@ ALIEXPRESS_API_KEY=your-aliexpress-api-key
 - ✅ Nunca commitear archivos con credenciales reales
 - ✅ Usar secrets managers en producción (AWS Secrets Manager, Azure Key Vault)
 
+### 🍪 Configuración de HttpOnly Cookies
+
+TechNovaStore utiliza **httpOnly cookies** para autenticación segura:
+
+```bash
+# Desarrollo (RECOMENDADO - máxima portabilidad)
+COOKIE_DOMAIN=  # Vacío = funciona con localhost, IPs, cualquier dominio
+FRONTEND_URL=http://localhost:3020
+
+# Producción
+COOKIE_DOMAIN=technovastore.com  # Sin 'www' para subdominios
+FRONTEND_URL=https://technovastore.com
+```
+
+**Ventajas de COOKIE_DOMAIN vacío en desarrollo**:
+- ✅ Funciona con `localhost`, `127.0.0.1`, y cualquier IP automáticamente
+- ✅ **Portabilidad total**: El proyecto funciona en cualquier equipo sin cambios
+- ✅ No necesitas actualizar la configuración si cambias de red o IP
+- ✅ Ideal para desarrollo en equipo y testing en múltiples dispositivos
+
+**Importante**:
+- ✅ En producción, especificar el dominio real sin `www`
+- ✅ Ver documentación completa: `docs/security/HTTPONLY_COOKIES_CONFIGURATION.md`
+
 ### 📚 Documentación Completa
 
 Para más detalles sobre todas las variables disponibles:
+- Ver: `docs/security/HTTPONLY_COOKIES_CONFIGURATION.md` - Configuración de cookies httpOnly
 - Ver: `ENV_CONSOLIDATION_STRATEGY.md` - Estrategia completa de configuración
 - Ver: `.env.docker.example` - Todas las variables de desarrollo
 - Ver: `.env.shared.example` - Todas las variables compartidas
@@ -805,6 +841,32 @@ Para más detalles sobre todas las variables disponibles:
 - 📊 Métricas SLA
 - 📝 Audit trail completo
 - 📈 Análisis de satisfacción
+
+### 🎯 Campaign Manager Service
+**Puerto:** 3011 | **Tech:** Node.js + PostgreSQL + TypeScript
+
+- 📢 Gestión completa de campañas promocionales
+- 💰 Aplicación automática de descuentos (por producto, categoría o global)
+- ⏰ Scheduler con cron jobs para activación/desactivación automática
+- 📊 Analytics y reportes de rendimiento de campañas
+- 🔄 Integración con Product Service para sincronización de precios
+- 🎨 Configuración de frontend dinámico (banners, hero sections)
+- 📈 Métricas de Prometheus para monitoreo
+- 📝 Logs estructurados JSON para ELK Stack
+
+**Características principales:**
+- Reglas de descuento flexibles (porcentaje o cantidad fija)
+- Prioridad entre campañas para resolver conflictos
+- Preservación de precios originales (round-trip garantizado)
+- Procesamiento en lotes de 100 productos
+- Reintentos automáticos con backoff exponencial
+- Notificaciones automáticas al equipo
+
+**Endpoints principales:**
+- `POST /api/campaigns` - Crear campaña
+- `GET /api/campaigns/active` - Obtener campaña activa
+- `POST /api/campaigns/:id/apply-discounts` - Aplicar descuentos
+- `GET /api/campaigns/:id/analytics` - Obtener métricas
 
 
 ---
@@ -1504,6 +1566,7 @@ docker run --rm -v /backups:/backups postgres:15 \
 - **Order Service:** `/domains/commerce/order-service/README.md`
 - **Payment Service:** `/domains/commerce/payment-service/README.md`
 - **Auto Purchase:** `/domains/commerce/auto-purchase-service/README.md`
+- **Campaign Manager:** `/domains/commerce/campaign-manager-service/README.md`
 
 **Dominio Customer:**
 - **User Service:** `/domains/customer/user-service/README.md`

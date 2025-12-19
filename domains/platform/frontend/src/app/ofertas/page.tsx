@@ -1,31 +1,50 @@
-'use client'
-
+import { Suspense } from 'react'
 import { Header, Footer } from '@/layout'
-import { ProductCard } from '@/catalog'
-import { useProducts } from '@/catalog'
+import { Metadata } from 'next'
+import OfertasClient from './OfertasClient'
 
+/**
+ * Metadata estática para SEO
+ */
+export const metadata: Metadata = {
+  title: 'Ofertas Especiales | TechNovaStore',
+  description: 'Descubre nuestras ofertas especiales en productos de tecnología e informática. Los mejores precios en productos seleccionados.',
+  openGraph: {
+    title: 'Ofertas Especiales | TechNovaStore',
+    description: 'Los mejores precios en productos de tecnología',
+    type: 'website',
+  },
+}
+
+/**
+ * Configuración de revalidación para ISR
+ * Las ofertas se regeneran cada 30 segundos para mostrar precios actualizados
+ */
+export const revalidate = 30
+
+/**
+ * Configuración de generación
+ * 'force-dynamic' asegura que siempre se ejecute en el servidor
+ * para obtener las ofertas más recientes
+ */
+export const dynamic = 'force-dynamic'
+
+/**
+ * Página de ofertas con optimizaciones de Next.js
+ * 
+ * Optimizaciones implementadas:
+ * 1. Server-Side Rendering (SSR): Renderiza en el servidor
+ * 2. ISR (revalidate: 30): Regenera cada 30 segundos
+ * 3. Metadata estática para SEO
+ * 4. Suspense para carga progresiva
+ */
 export default function OfertasPage() {
-  const { data: response, isLoading } = useProducts()
-  
-  // Extraer productos del response paginado
-  const products = response?.data || []
-  
-  // Filtrar productos con descuento o precio especial
-  const ofertas = products.filter((product: any) => {
-    // Verificar si hay proveedores con precios más altos que nuestro precio
-    const minProviderPrice = product.providers.length > 0 
-      ? Math.min(...product.providers.map((p: any) => p.price))
-      : product.our_price
-    const hasDiscount = product.our_price < minProviderPrice
-    return hasDiscount
-  })
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-600 to-orange-600 text-white">
+      {/* Hero Section - pt-[72px] compensa el header fixed */}
+      <section className="bg-gradient-to-r from-red-600 to-orange-600 text-white pt-[72px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -40,7 +59,7 @@ export default function OfertasPage() {
 
       {/* Ofertas Grid */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {isLoading ? (
+        <Suspense fallback={
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-white rounded-lg shadow-sm p-4 animate-pulse">
@@ -50,35 +69,11 @@ export default function OfertasPage() {
               </div>
             ))}
           </div>
-        ) : ofertas.length > 0 ? (
-          <>
-            <div className="mb-6">
-              <p className="text-gray-600">
-                Mostrando <span className="font-semibold">{ofertas.length}</span> ofertas disponibles
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {ofertas.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No hay ofertas disponibles
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Vuelve pronto para ver nuestras próximas ofertas especiales
-            </p>
-          </div>
-        )}
+        }>
+          <OfertasClient />
+        </Suspense>
       </div>
+      
       <Footer />
     </div>
   )

@@ -1,5 +1,6 @@
 import { BaseTrackingProvider } from './BaseTrackingProvider';
 import { ProviderTrackingResponse, DeliveryEstimate, TrackingInfo, TrackingEvent } from '../types/tracking';
+import { logger } from '../utils/logger';
 
 export class NeweggTrackingProvider extends BaseTrackingProvider {
     constructor(apiKey?: string) {
@@ -47,7 +48,11 @@ export class NeweggTrackingProvider extends BaseTrackingProvider {
                 trackingInfo
             };
         } catch (error: any) {
-            console.error(`Newegg tracking error for ${trackingNumber}:`, error.message);
+            logger.error('Newegg tracking error', { 
+                trackingNumber, 
+                error: error.message,
+                provider: 'Newegg'
+            });
 
             if (error.message.includes('Rate limit')) {
                 return {

@@ -688,7 +688,7 @@
   - Mostrar imagen del producto (100x100px)
   - Agregar nombre con link a detalle
   - Mostrar SKU y marca
-  - Implementar selector de cantidad (- [input] +)
+  - Implementar selector de cantidad (- input +)
   - Mostrar precio unitario y subtotal
   - Agregar botón eliminar
   - Implementar animación al agregar/eliminar
@@ -730,20 +730,36 @@
 
 ## Fase 9: Proceso de Checkout
 
-- [ ] 23. Crear servicio de checkout
+- [x] 23. Crear servicio de checkout
   - Crear CheckoutService con métodos: createOrder, processPayment
   - Crear PaymentService con integración de Stripe/PayPal
   - Implementar tipos TypeScript: Order, OrderItem, PaymentMethod
   - _Requisitos: 10.1, 10.3, 22.3_
 
-- [ ] 24. Crear página de Checkout multi-paso
-  - [ ] 24.1 Implementar navegación de pasos
+- [x] 24. Crear página de Checkout multi-paso
+
+
+
+
+  - [x] 24.1 Implementar navegación de pasos
+
+
+
+
+
+
     - Crear indicador de progreso: ① Envío → ② Pago → ③ Revisión
     - Implementar navegación entre pasos
     - Validar cada paso antes de avanzar
     - _Requisitos: 10.1_
 
-  - [ ] 24.2 Crear Paso 1: Información de Envío
+  - [x] 24.2 Crear Paso 1: Información de Envío
+
+
+
+
+
+
     - Implementar formulario con React Hook Form
     - Agregar validación con Zod
     - Implementar autocompletado de dirección (Google Places API)
@@ -752,7 +768,11 @@
     - Mostrar estimación de tiempo de entrega
     - _Requisitos: 10.1, 10.2_
 
-  - [ ] 24.3 Crear Paso 2: Método de Pago
+  - [x] 24.3 Crear Paso 2: Método de Pago
+
+
+
+
     - Implementar formulario de tarjeta de crédito
     - Agregar validación de número de tarjeta (Luhn algorithm)
     - Implementar campos enmascarados (CVV, número)
@@ -762,7 +782,13 @@
     - Mostrar badges de seguridad (SSL, PCI DSS)
     - _Requisitos: 10.1, 10.2, 22.3_
 
-  - [ ] 24.4 Crear Paso 3: Revisión Final
+  - [x] 24.4 Crear Paso 3: Revisión Final
+
+
+
+
+
+
     - Mostrar resumen de productos
     - Mostrar dirección de envío (editable)
     - Mostrar método de pago (editable)
@@ -772,7 +798,12 @@
     - Agregar indicador de procesamiento
     - _Requisitos: 10.1, 10.4_
 
-  - [ ] 24.5 Crear Paso 4: Confirmación
+  - [x] 24.5 Crear Paso 4: Confirmación
+
+
+
+
+
     - Mostrar icono de éxito animado
     - Mostrar número de pedido
     - Mostrar fecha estimada de entrega
@@ -780,7 +811,15 @@
     - Enviar confirmación por email
     - _Requisitos: 10.1_
 
-- [ ] 25. Implementar resumen lateral del pedido
+- [x] 25. Implementar resumen lateral del pedido
+
+
+
+
+
+
+
+
   - Mostrar productos del carrito
   - Mostrar subtotal, envío, impuestos, total
   - Mantener visible en todos los pasos
@@ -788,7 +827,8 @@
 
 ## Fase 10: ChatWidget con Streaming
 
-- [ ] 26. Crear servicio de chat
+- [x] 26. Crear servicio de chat
+
   - Configurar Socket.IO client
   - Crear ChatService con métodos: createSession, sendMessage, connectSocket
   - Implementar tipos TypeScript: ChatSession, ChatMessage, ChatContext
@@ -796,378 +836,543 @@
   - _Requisitos: 2.1, 2.2_
 
 - [ ] 27. Crear componente ChatWidget
-  - [ ] 27.1 Crear botón flotante
+  - [x] 27.1 Crear botón flotante
+
+
+
+
+
+
+
+
+    - mira primero si esto está implementado antes
     - Implementar botón circular con icono de chat
     - Posicionar fixed bottom-right (20px desde bordes)
     - Agregar badge de notificación
     - Implementar animación de pulso sutil
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.5_
 
-  - [ ] 27.2 Crear ventana de chat expandida
+  - [x] 27.2 Crear ventana de chat expandida
+
+
+
+
+
     - Implementar tamaño: 400x600px (desktop), full screen (móvil)
     - Crear header con título, estado de conexión, botones minimizar/cerrar
     - Implementar body con lista de mensajes y scroll automático
     - Crear footer con input de texto y botón enviar
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.5_
 
-  - [ ] 27.3 Implementar indicadores visuales
+  - [x] 27.3 Implementar indicadores visuales
+
+
+
+
+
     - Crear typing indicator (tres puntos animados)
     - Implementar streaming de texto con cursor parpadeante
     - Agregar badge "Modo Básico" cuando usingFallback es true
     - Implementar indicador de estado de conexión (verde/amarillo/rojo)
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 27.4 Integrar Socket.IO
+  - [x] 27.4 Integrar Socket.IO
+
+
+
+
+
+
+
     - Conectar al servidor de chatbot al abrir widget
     - Escuchar evento bot_typing para mostrar indicador
     - Escuchar evento chat_stream_chunk para mostrar texto progresivamente
     - Escuchar evento chat_stream_end para finalizar mensaje
     - Manejar evento chat_stream_error
     - Emitir evento chat_message_stream al enviar mensaje
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.1, 2.2, 2.3_
 
-  - [ ] 27.5 Implementar productos recomendados en chat
+  - [x] 27.5 Implementar productos recomendados en chat
+
+
+
     - Mostrar cards compactas cuando el bot menciona productos
     - Cada card: Imagen, nombre, precio, botón "Ver detalles"
     - Implementar scroll horizontal si hay más de 3 productos
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.2_
 
-  - [ ] 27.6 Implementar reconexión automática
+  - [x] 27.6 Implementar reconexión automática
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     - Detectar desconexión de Socket.IO
     - Intentar reconexión automática
     - Mostrar estado de reconexión al usuario
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 2.1_
 
 ## Fase 11: Página de Inicio
+- [x] 28. Crear Hero Section
 
-- [ ] 28. Crear Hero Section
+
+
+
   - Implementar full width con altura 500px (desktop), 400px (móvil)
   - Agregar imagen de fondo con overlay oscuro
   - Mostrar título, subtítulo y CTA prominente
   - Implementar animación fade-in al cargar
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 6.1_
 
-- [ ] 29. Crear Product Recommender Widget
+- [x] 29. Crear Product Recommender Widget
+
+
+
+
+
   - Integrar con Product_Recommender service
   - Mostrar grid de productos (4 columnas desktop, 2 móvil)
   - Usar ProductCard component
   - Implementar skeleton loading
   - Agregar título "Recomendado para ti"
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 6.2, 22.5_
 
-- [ ] 30. Crear sección de Categorías Destacadas
+- [x] 30. Crear sección de Categorías Destacadas
+
+
+
+
+
+
+
   - Implementar grid de 6 categorías (3x2 desktop, 2x3 móvil)
   - Crear CategoryCard con imagen de fondo y overlay
   - Agregar hover con zoom sutil
   - Mostrar contador de productos por categoría
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 6.1_
 
-- [ ] 31. Crear sección de Ofertas del Día
+- [x] 31. Crear sección de Ofertas del Día
+
+
+
+
   - Mostrar productos con mejor descuento
   - Usar ProductCard component
   - Agregar countdown timer si aplica
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 6.1_
 
-- [ ] 32. Ensamblar Home Page completa
+- [x] 32. Ensamblar Home Page completa
+
+
+
+
+
+
   - Integrar todas las secciones en orden
   - Agregar sección de Newsletter Signup
   - Implementar lazy loading de secciones
   - Optimizar para Core Web Vitals
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 6.1, 6.5_
 
 ## Fase 12: Dashboard de Usuario
 
-- [ ] 33. Crear layout del Dashboard de Usuario
+- [x] 33. Crear layout del Dashboard de Usuario (Ya existe pero me gustaria mejorarlo, hacer mas profesional y/o añadir mas funciones utiles sin perder el estilo)
+
+
+
+
+
+
+
   - Implementar sidebar de navegación (20% ancho)
   - Crear área de contenido principal (80% ancho)
   - Hacer responsive (sidebar colapsable en móvil)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 11.1_
 
-- [ ] 34. Crear Sidebar de Navegación
+- [x] 34. Crear Sidebar de Navegación
+
+
+
+
+
+
   - Implementar lista de navegación con iconos
   - Agregar badges para notificaciones
   - Highlight del item activo
   - Implementar navegación con Next.js Link
   - Secciones: Resumen, Pedidos, Seguimiento, Lista de Deseos, Perfil, Direcciones, Métodos de Pago, Notificaciones, Soporte
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 11.1_
 
-- [ ] 35. Crear vista de Resumen (Overview)
-  - [ ] 35.1 Crear tarjeta de Bienvenida
+- [x] 35. Crear vista de Resumen (Overview) (ya están implementadas la mayoria de vistas, solo faltan algunas, no crees paginas separas, están bien así integradas en el userDasboard, solo implementa lo que falta)
+
+
+
+
+
+  - [x] 35.1 Crear tarjeta de Bienvenida
+
+
+
     - Mostrar saludo personalizado
     - Mostrar fecha de registro
     - Agregar nivel de usuario si aplica
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.1, 11.2_
 
-  - [ ] 35.2 Crear tarjeta de Pedidos Recientes
+
+  - [x] 35.2 Crear tarjeta de Pedidos Recientes
+
     - Mostrar últimos 3 pedidos
     - Mostrar estado de cada pedido
     - Agregar link "Ver todos los pedidos"
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.2_
 
-  - [ ] 35.3 Crear tarjeta de Estadísticas
+
+
+  - [x] 35.3 Crear tarjeta de Estadísticas
+
     - Mostrar total gastado este año
     - Mostrar número de pedidos completados
     - Mostrar productos en lista de deseos
     - Agregar mini gráfico de gastos mensuales
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.5_
 
-  - [ ] 35.4 Crear tarjeta de Recomendaciones
+
+  - [x] 35.4 Crear tarjeta de Recomendaciones
+
     - Integrar con Product_Recommender
     - Mostrar 4 productos recomendados
     - Usar ProductCard component
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.1_
 
-  - [ ] 35.5 Crear tarjeta de Notificaciones
+
+
+
+  - [x] 35.5 Crear tarjeta de Notificaciones
+
     - Mostrar últimas 5 notificaciones
     - Agregar link "Ver todas"
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.3_
 
-  - [ ] 35.6 Crear tarjeta de Acciones Rápidas
+
+  - [x] 35.6 Crear tarjeta de Acciones Rápidas
+
     - Agregar botones: "Rastrear pedido", "Contactar soporte", "Ver ofertas"
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.4_
 
-- [ ] 35.7 Crear vista completa de Notificaciones
-  - [ ] 35.7.1 Crear NotificationDropdown en Header
+- [x] 35.7 Crear vista completa de Notificaciones
+
+
+
+  - [x] 35.7.1 Crear NotificationDropdown en Header
+
     - Implementar dropdown que se abre al hacer clic en campanita (desktop)
     - Mostrar últimas 5 notificaciones con iconos por tipo
     - Agregar badge con contador de no leídas
     - Implementar botón "Ver todas las notificaciones"
     - Cerrar con ESC o click fuera
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.3_
 
-  - [ ] 35.7.2 Crear página /notificaciones
+
+  - [x] 35.7.2 Crear página /notificaciones
+
     - Implementar vista completa del historial de notificaciones
     - Agregar filtros: Todas, Sin leer, Por tipo (Pedido, Envío, Pago, Sistema, Promoción)
     - Mostrar notificaciones con iconos, colores y tiempo relativo
     - Implementar botón "Marcar todas como leídas"
     - Agregar acciones individuales: Marcar como leída, Eliminar
     - Hacer responsive (filtros en dropdown en móvil)
+    - **Implementar en la página real que tenemos**
     - Implementar estados vacíos con mensajes amigables
     - _Requisitos: 11.3_
 
-  - [ ] 35.7.3 Implementar acciones de notificaciones (requiere backend)
+
+  - [x] 35.7.3 Implementar acciones de notificaciones (requiere backend)- Revisa el servicio notification-service, que es para esto
+
+
+
     - Conectar con endpoint PUT /api/notifications/:id/read para marcar como leída
     - Conectar con endpoint DELETE /api/notifications/:id para eliminar
     - Conectar con endpoint PUT /api/notifications/mark-all-read para marcar todas
     - Actualizar estado local después de cada acción
     - Mostrar toast de confirmación
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 11.3_
     - **NOTA**: Los métodos están marcados como TODO porque requieren endpoints del backend que aún no están implementados
 
-- [ ] 36. Crear vista de Mis Pedidos
+- [x] 36. Crear vista de Mis Pedidos
   - Implementar filtros: Estado, Rango de fechas, Búsqueda
   - Crear tabla/lista de pedidos
   - Mostrar: Número, Fecha, Estado (badge), Total, Productos (thumbnails)
   - Agregar acciones: Ver detalles, Rastrear, Descargar factura
   - Implementar paginación
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 13.1, 13.2, 13.3, 13.5_
 
-- [ ] 37. Crear vista de Seguimiento de Pedidos
-  - [ ] 37.1 Crear componente OrderTimeline
+- [x] 37. Crear vista de Seguimiento de Pedidos
+  - [x] 37.1 Crear componente OrderTimeline
     - Implementar timeline vertical con iconos
     - Mostrar estados: Confirmado, Procesando, Enviado, En reparto, Entregado
     - Diferenciar estados completados (círculo lleno) y pendientes (círculo vacío)
     - Agregar animación al actualizar estado
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 12.1, 12.2_
 
-  - [ ] 37.2 Integrar con Shipment_Tracker
+  - [x] 37.2 Integrar con Shipment_Tracker
     - Consumir datos del servicio de seguimiento
     - Mostrar tracking_number del proveedor
     - Agregar link para rastrear en sitio del carrier
     - Implementar actualización automática cada 30 segundos
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 12.2, 12.4_
 
-  - [ ] 37.3 Mostrar información del pedido
+  - [x] 37.3 Mostrar información del pedido
     - Mostrar número de pedido y estado actual
     - Mostrar fecha estimada de entrega prominente
     - Mostrar dirección de envío
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 12.1, 12.3_
 
-  - [ ] 37.4 Implementar notificaciones de cambio de estado
+  - [x] 37.4 Implementar notificaciones de cambio de estado
     - Enviar notificación cuando el estado cambie
     - Integrar con sistema de notificaciones
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 12.5_
 
-- [ ] 38. Crear vista de Historial de Pedidos
+- [x] 38. Crear vista de Historial de Pedidos
   - Reutilizar componente de Mis Pedidos
   - Agregar filtros adicionales
   - Implementar botón "Reordenar" para pedidos anteriores
   - Agregar acceso rápido a facturas
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 13.1, 13.2, 13.3, 13.4_
 
-- [ ] 39. Crear vista de Gestión de Perfil
-  - [ ] 39.1 Crear sección de Información Personal
+- [x] 39. Crear vista de Gestión de Perfil (REVISA TODO PRIMERO PARA EVITAR DUPLICADOS, YA QUE HAY COSAS CREADAS)
+  - [x] 39.1 Crear sección de Información Personal
     - Implementar formulario editable
     - Agregar upload de avatar
     - Implementar validación
     - Agregar botón "Guardar cambios"
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 14.1_
 
-  - [ ] 39.2 Crear sección de Seguridad
+  - [x] 39.2 Crear sección de Seguridad
     - Implementar formulario de cambio de contraseña
     - Agregar opción de autenticación de dos factores (2FA)
     - Mostrar sesiones activas
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 14.2_
 
-  - [ ] 39.3 Crear sección de Preferencias
+  - [x] 39.3 Crear sección de Preferencias
     - Agregar selector de idioma
     - Agregar selector de moneda
     - Implementar toggles para notificaciones por email
     - Agregar toggle para newsletter
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 14.3_
 
-  - [ ] 39.4 Crear sección de Privacidad
+  - [x] 39.4 Crear sección de Privacidad
     - Agregar botón "Descargar mis datos" (GDPR)
     - Implementar botón "Eliminar cuenta" con confirmación
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 14.4, 14.5_
 
-  - [ ] 39.5 Crear sección de Métodos de Inicio de Sesión
-    - [ ] 39.5.1 Crear componente AuthMethodsManagement
+  - [x] 39.5 Crear sección de Métodos de Inicio de Sesión
+    - [x] 39.5.1 Crear componente AuthMethodsManagement
       - Mostrar lista de métodos de autenticación disponibles
       - Indicar métodos vinculados (✓) y no vinculados (○)
       - Mostrar fecha de vinculación para métodos activos
       - Mostrar última vez usado (opcional)
+      - **Implementar en la página real que tenemos**
       - _Requisitos: 24.5, 24.7_
 
-    - [ ] 39.5.2 Implementar vinculación de métodos OAuth
+    - [x] 39.5.2 Implementar vinculación de métodos OAuth
       - Botón "Vincular Google" si no está vinculado
       - Botón "Vincular GitHub" si no está vinculado
       - Iniciar flujo OAuth al hacer clic
       - Después de OAuth exitoso, actualizar lista de métodos
       - Mostrar confirmación: "✓ {Provider} vinculado exitosamente"
+      - **Implementar en la página real que tenemos**
       - _Requisitos: 24.7, 24.8_
 
-    - [ ] 39.5.3 Implementar desvinculación de métodos
+    - [x] 39.5.3 Implementar desvinculación de métodos
       - Botón "Desvincular" para cada método vinculado
       - Modal de confirmación antes de desvincular
       - Validar que no sea el único método activo
       - Mostrar advertencia si intenta desvincular único método
       - Enviar DELETE /api/auth/unlink-method
       - Actualizar lista después de desvincular
+      - **Implementar en la página real que tenemos**
       - _Requisitos: 24.8, 24.9_
 
-    - [ ] 39.5.4 Implementar gestión de contraseña local
+    - [x] 39.5.4 Implementar gestión de contraseña local
       - Mostrar "Contraseña" en lista de métodos
       - Si tiene contraseña: Botón "Cambiar Contraseña"
       - Si NO tiene contraseña: Botón "Establecer Contraseña"
       - Abrir modal SetPasswordModal al hacer clic
       - Actualizar lista después de establecer contraseña
+      - **Implementar en la página real que tenemos**
       - _Requisitos: 24.6, 24.7, 24.10_
 
-    - [ ] 39.5.5 Implementar indicadores visuales
+    - [x] 39.5.5 Implementar indicadores visuales
       - Iconos de proveedores (Google, GitHub)
       - Checkmarks para métodos vinculados
       - Badges de "Recomendado" para múltiples métodos
       - Tooltip explicativo: "Tener múltiples métodos aumenta la seguridad"
+      - **Implementar en la página real que tenemos**
       - _Requisitos: 24.7_
 
-- [ ] 40. Crear vista de Gestión de Direcciones
+- [x] 40. Crear vista de Gestión de Direcciones (Revisalo todo para evitar duplicados, ya que existe la seccion de direcciones lo que nose es si está todo implementado)
   - Mostrar lista de direcciones guardadas
   - Implementar formulario para agregar/editar dirección
   - Agregar opción de marcar como predeterminada
   - Implementar botón eliminar con confirmación
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 14.1_
 
 ## Fase 13: Dashboard de Administración
 
-- [ ] 41. Crear layout del Dashboard de Administración
+- [x] 41. Crear layout del Dashboard de Administración (Revisalo todo para evitar duplicados, ya que existe un panel de admin)
   - Implementar sidebar de navegación similar al de usuario
   - Proteger con AdminRoute
   - Crear área de contenido principal
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 15.5_
 
-- [ ] 42. Crear Sidebar de Navegación Admin
+- [x] 42. Crear Sidebar de Navegación Admin (ya existe tambien esto y con la seccion de campañas incluida)
   - Implementar lista de navegación con iconos
   - Secciones: Resumen General, Analíticas, Productos, Pedidos, Clientes, Tickets, Servicios de IA, Automatización, Configuración
   - Agregar badges para tickets pendientes
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 15.5_
 
-- [ ] 43. Crear servicio de Monitoreo Unificado
+- [x] 43. Crear servicio de Monitoreo Unificado
   - Crear AdminService con métodos para obtener métricas
   - Implementar endpoints: getChatbotMetrics, getRecommenderMetrics, getAutomationMetrics, getSystemMetrics
   - Configurar React Query hooks con polling cada 30 segundos
   - _Requisitos: 15.1, 15.2, 15.3, 15.4_
-  - **NOTA**: Requiere implementación de servicio de Monitoreo Unificado en backend
+  - **Implementar en la página real que tenemos**
+  - **NOTA**: Requiere implementación de servicio de Monitoreo Unificado en backend (DEBES HACERLO SI NO ESTÁ IMPLEMENTADO)
 
-- [ ] 44. Crear vista de Resumen General
-  - [ ] 44.1 Crear tarjetas de KPIs
+
+- [x] 44. Crear vista de Resumen General (Está implementado pero revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales)
+
+  - [x] 44.1 Crear tarjetas de KPIs
     - Implementar tarjeta de Ventas del Día
     - Crear tarjeta de Pedidos Activos
     - Implementar tarjeta de Margen de Beneficio
     - Crear tarjeta de Tickets Abiertos
     - Agregar comparación con período anterior
     - Agregar mini gráficos de tendencia
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.1_
 
-  - [ ] 44.2 Crear gráficos de analíticas
+  - [x] 44.2 Crear gráficos de analíticas 
     - Implementar gráfico de Ventas por Día (últimos 30 días)
     - Crear gráfico de Productos Más Vendidos (top 10)
     - Implementar gráfico de Categorías Más Populares
     - Crear embudo de Tasa de Conversión
     - Usar librería de gráficos (Chart.js o Recharts)
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.1_
 
-- [ ] 45. Crear vista de Servicios de IA
-  - [ ] 45.1 Crear tarjeta de monitoreo del Chatbot
+- [x] 45. Crear vista de Servicios de IA (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario)
+  - [x] 45.1 Crear tarjeta de monitoreo del Chatbot
     - Mostrar estado de salud (healthy/degraded/down)
     - Mostrar estado de Ollama (conectado/desconectado)
     - Indicar si modelo está cargado
     - Mostrar si está usando fallback
     - Mostrar métricas: Solicitudes, Tasa de éxito, Tiempo promedio, Uso de fallback
     - Agregar botones: Ver Logs, Reiniciar Servicio
+    - **Implementar en la página real que tenemos** 
     - _Requisitos: 15.2_
 
-  - [ ] 45.2 Crear tarjeta de monitoreo del Recommender
+  - [x] 45.2 Crear tarjeta de monitoreo del Recommender 
     - Mostrar estado de salud
     - Mostrar métricas: Recomendaciones generadas, Tasa de clics, Conversión
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.2_
 
-- [ ] 46. Crear vista de Automatización
-  - [ ] 46.1 Crear tarjeta de Product Sync Engine
+- [x] 46. Crear vista de Automatización (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario, lo mismo que hemos hecho con los otros)
+  - [x] 46.1 Crear tarjeta de Product Sync Engine
     - Mostrar última sincronización
     - Mostrar productos sincronizados
     - Mostrar errores de sincronización
     - Mostrar proveedores activos
     - Agregar botones: Pausar, Reanudar, Configurar
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.3_
 
-  - [ ] 46.2 Crear tarjeta de Auto Purchase System
+  - [x] 46.2 Crear tarjeta de Auto Purchase System
     - Mostrar compras automáticas hoy
     - Mostrar tasa de éxito
     - Mostrar pedidos pendientes
     - Mostrar errores recientes
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.3_
 
-  - [ ] 46.3 Crear tarjeta de Shipment Tracker
+  - [x] 46.3 Crear tarjeta de Shipment Tracker
     - Mostrar envíos rastreados
     - Mostrar actualizaciones hoy
     - Mostrar entregas completadas
     - Mostrar retrasos detectados
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 15.3_
 
-- [ ] 47. Crear vista de Gestión de Tickets
-  - [ ] 47.1 Crear lista de tickets
+- [x] 47. Crear vista de Gestión de Tickets (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario)
+  - [x] 47.1 Crear lista de tickets
     - Implementar tabla con filtros: Estado, Prioridad, Categoría, Asignado a
     - Agregar búsqueda por número de ticket o cliente
     - Implementar ordenamiento por fecha y prioridad
     - Mostrar: Número, Asunto, Cliente, Estado, Prioridad, Asignado a, Fecha
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 16.1, 16.2_
 
-  - [ ] 47.2 Crear vista de detalle del ticket
+  - [x] 47.2 Crear vista de detalle del ticket
     - Mostrar información completa del ticket
     - Implementar sistema de mensajería interno
     - Agregar opciones: Cambiar estado, Cambiar prioridad, Asignar a
     - Mostrar historial completo
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 16.4_
 
-  - [ ] 47.3 Integrar con Ticket_System
+  - [x] 47.3 Integrar con Ticket_System
     - Consumir datos del servicio de tickets
     - Implementar actualización en tiempo real
+    - **Implementar en la página real que tenemos**
     - _Requisitos: 16.5_
 
 ## Fase 14: Componentes Avanzados
 
-- [ ] 48. Crear Comparador Técnico
+- [x] 48. Crear Comparador Técnico (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario)
   - Implementar modal o página completa
   - Crear tabla horizontal con scroll
   - Mostrar especificaciones técnicas en filas
@@ -1176,127 +1381,146 @@
   - Agregar botón "Agregar al carrito" por producto
   - Permitir comparar hasta 5 productos
   - Agregar opción de exportar comparación (PDF o imagen)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 18.1, 18.2, 18.3, 18.4, 18.5_
 
-- [ ] 49. Crear sistema de Wishlist (Lista de Deseos)
+- [x] 49. Crear sistema de Wishlist (Lista de Deseos) (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario)
   - Crear WishlistService con métodos: getWishlist, addItem, removeItem
   - Implementar botón de "corazón" en ProductCard
   - Crear página de Wishlist con grid de productos
   - Agregar opción de mover a carrito
   - Implementar persistencia para usuarios autenticados
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 11.1_
 
-- [ ] 50. Crear componente de Reviews
+- [x] 50. Crear componente de Reviews (revisa si faltan cosas, recuerda que cada una de las subtareas debe estar implementada de manera real en la página, no debemos usar datos estáticos, mocks o de ejemplo, quiero los datos reales, usando el token de autenticacion jwt si es necesario)
   - Implementar formulario para escribir review
   - Agregar selector de rating (estrellas)
   - Permitir subir imágenes
   - Mostrar lista de reviews con paginación
   - Implementar filtros por rating
   - Agregar votos útiles (helpful/not helpful)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 8.1_
 
 ## Fase 15: Optimización y Performance
 
-- [ ] 51. Implementar optimizaciones de Next.js
+- [x] 51. Implementar optimizaciones de Next.js
   - Configurar Static Generation para páginas estáticas
   - Implementar Server-Side Rendering para páginas dinámicas
   - Configurar Incremental Static Regeneration (ISR)
   - Implementar generateStaticParams para rutas dinámicas
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.2_
 
-- [ ] 52. Optimizar imágenes
+- [x] 52. Optimizar imágenes
   - Usar Next.js Image component en todos los componentes
   - Configurar formatos modernos (WebP, AVIF)
   - Implementar lazy loading
   - Agregar blur placeholders
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.2_
 
-- [ ] 53. Implementar code splitting
+- [x] 53. Implementar code splitting
   - Usar dynamic imports para componentes pesados
   - Implementar lazy loading de rutas
   - Separar vendor bundles
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.2_
 
-- [ ] 54. Optimizar data fetching
+- [x] 54. Optimizar data fetching
   - Configurar staleTime y cacheTime en React Query
   - Implementar prefetching de datos
   - Usar infinite queries para paginación
   - Implementar optimistic updates
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.4_
 
-- [ ] 55. Implementar virtualización para listas largas
+- [x] 55. Implementar virtualización para listas largas
   - Usar react-window para catálogo de productos
   - Implementar virtualización en lista de pedidos
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.2_
 
-- [ ] 56. Optimizar bundle size
+- [x] 56. Optimizar bundle size (recuerda que ya lo creamos antes)
   - Analizar bundle con @next/bundle-analyzer
   - Eliminar dependencias no utilizadas
   - Implementar tree shaking
   - Optimizar imports (importar solo lo necesario)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.2_
 
-## Fase 16: Seguridad
+## Fase 16: Seguridad 
 
-- [ ] 57. Implementar medidas de seguridad XSS
+- [x] 57. Implementar medidas de seguridad XSS (NO TE CARGUES NADA PORFAVOR, de autenticacion ni nada y revisa todo bien antes de implementar las cosas para evitar duplicaciones o errores innecesarios)
   - Evitar dangerouslySetInnerHTML
   - Usar DOMPurify si es necesario renderizar HTML
   - Validar y sanitizar inputs de usuario
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 20.1_
 
-- [ ] 58. Implementar protección CSRF
+- [x] 58. Implementar protección CSRF (NO TE CARGUES NADA PORFAVOR, de autenticacion ni nada y revisa todo bien antes de implementar las cosas para evitar duplicaciones o errores innecesarios)
   - Configurar CSRF token en requests
   - Usar SameSite cookies
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 20.1_
 
-- [ ] 59. Configurar Content Security Policy
+- [x] 59. Configurar Content Security Policy (NO TE CARGUES NADA PORFAVOR, de autenticacion ni nada y revisa todo bien antes de implementar las cosas para evitar duplicaciones o errores innecesarios)
   - Implementar CSP headers en next.config.js
   - Configurar X-Frame-Options
   - Configurar X-Content-Type-Options
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 20.1_
 
-- [ ] 60. Implementar validación de inputs
+- [x] 60. Implementar validación de inputs (NO TE CARGUES NADA PORFAVOR, de autenticacion ni nada y revisa todo bien antes de implementar las cosas para evitar duplicaciones o errores innecesarios)
   - Usar Zod para validación de esquemas
   - Validar en cliente y servidor
   - Mostrar mensajes de error claros
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 20.1_
 
-- [ ] 61. Implementar manejo seguro de datos sensibles
+- [x] 61. Implementar manejo seguro de datos sensibles (NO TE CARGUES NADA PORFAVOR, de autenticacion ni nada y revisa todo bien antes de implementar las cosas para evitar duplicaciones o errores innecesarios)
   - No almacenar datos sensibles en localStorage
   - Enmascarar números de tarjeta
   - No loggear información sensible
-  - Usar variables de entorno para secrets
+  - Usar variables de entorno para secrets 
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 20.1, 20.2_
 
 ## Fase 17: Accesibilidad
 
-- [ ] 62. Implementar navegación por teclado
+- [x] 62. Implementar navegación por teclado
   - Asegurar que todos los elementos interactivos sean accesibles por teclado
   - Implementar focus visible en todos los componentes
   - Agregar skip links
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.2_
 
-- [ ] 63. Implementar etiquetas ARIA
+- [x] 63. Implementar etiquetas ARIA
   - Agregar roles ARIA apropiados
   - Implementar aria-label y aria-describedby
   - Agregar aria-live para contenido dinámico
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.3_
 
-- [ ] 64. Asegurar contraste de colores
+- [x] 64. Asegurar contraste de colores (revisa el contraste en el chatbot, pagina de incio, pagina de productos, dashboard de usaurio y panel de administrador tambien)
   - Verificar contraste mínimo 4.5:1 para texto normal
   - Verificar contraste mínimo 3:1 para texto grande
   - Usar herramientas de verificación de contraste
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.1_
 
-- [ ] 65. Implementar HTML semántico
+- [x] 65. Implementar HTML semántico
   - Usar elementos semánticos (header, nav, main, article, footer)
   - Implementar estructura de headings correcta
   - Agregar landmarks ARIA
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.4_
 
-- [ ] 66. Agregar textos alternativos
+- [x] 66. Agregar textos alternativos
   - Implementar alt text descriptivo para todas las imágenes
   - Agregar captions para videos
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.1_
 
 ## Fase 18: Testing
@@ -1306,6 +1530,7 @@
   - Configurar Playwright o Cypress para E2E
   - Instalar axe-core para tests de accesibilidad
   - Configurar coverage reports
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 68. Crear tests unitarios para componentes de UI
@@ -1314,12 +1539,14 @@
   - Testear Card component
   - Testear Modal component
   - Testear Rating component
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 69. Crear tests unitarios para custom hooks
   - Testear useAuth hook
   - Testear useCart hook
   - Testear useNotification hook
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 70. Crear tests de integración
@@ -1327,6 +1554,7 @@
   - Testear flujo de búsqueda
   - Testear flujo de filtrado de productos
   - Testear flujo de login/logout
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 71. Crear tests E2E
@@ -1334,32 +1562,37 @@
   - Testear flujo de seguimiento de pedido
   - Testear interacción con chatbot
   - Testear gestión de tickets (admin)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 72. Crear tests de accesibilidad
   - Testear componentes con axe-core
   - Verificar navegación por teclado
   - Verificar contraste de colores
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 5.1, 5.2, 5.3_
 
 - [ ] 73. Implementar tests de performance
   - Configurar Lighthouse CI
   - Medir Web Vitals (FCP, LCP, TTI, CLS, FID)
   - Establecer budgets de performance
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1, 3.2_
 
 ## Fase 19: Monitoreo y Analytics
 
-- [ ] 74. Implementar monitoreo de performance
+- [x] 74. Implementar monitoreo de performance
   - Integrar Web Vitals
   - Configurar Next.js Analytics
   - Implementar reportWebVitals
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 75. Implementar error tracking
   - Integrar Sentry
   - Configurar captura de errores
   - Implementar error boundaries
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 76. Implementar analytics de usuario
@@ -1367,6 +1600,7 @@
   - Implementar tracking de page views
   - Implementar tracking de eventos personalizados
   - Implementar e-commerce tracking
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 77. Implementar Real User Monitoring (RUM)
@@ -1374,12 +1608,12 @@
   - Rastrear errores de JavaScript
   - Rastrear llamadas API fallidas
   - Rastrear interacciones de usuario
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 ## Fase 20: Deployment y CI/CD
 
 - [ ] 78. Configurar variables de entorno
-  - Crear archivo .env.local para desarrollo
   - Crear archivo .env.production para producción
   - Documentar todas las variables necesarias:
     - NEXT_PUBLIC_API_URL
@@ -1390,25 +1624,29 @@
     - NEXT_PUBLIC_GITHUB_CLIENT_ID
     - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
     - NEXT_PUBLIC_SENTRY_DSN
+    - **Implementar en la página real que tenemos**
   - _Requisitos: 22.1, 22.2, 22.3, 22.4, 22.5, 24.1_
 
-- [ ] 79. Crear Dockerfile
+- [ ] 79. Crear Dockerfile (Revisalo porque ya existen dos el de produccion y el de desarrollo)
   - Implementar multi-stage build
   - Optimizar capas de Docker
   - Configurar healthcheck
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 22.1_
 
 - [ ] 80. Configurar CI/CD pipeline
   - Crear workflow de GitHub Actions
   - Implementar jobs: lint, type-check, test, build
   - Configurar deploy automático a producción
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 22.1_
 
 - [ ] 81. Configurar Docker Compose
   - Agregar servicio frontend a docker-compose.optimized.yml
-  - Configurar puerto 3011
+  - Configurar puerto 3021
   - Configurar variables de entorno
   - Configurar healthcheck
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 22.1_
 
 ## Fase 21: Documentación
@@ -1436,24 +1674,27 @@
 
 ## Fase 22: Refinamiento y Pulido
 
-- [ ] 85. Implementar tema oscuro
-  - Crear toggle de tema en header
+- [x] 85. Implementar tema oscuro en toda la pagina
+  - Crear toggle de tema en el user-menu-dropdown
   - Implementar variables CSS para tema oscuro
   - Persistir preferencia de tema
   - Respetar preferencia del sistema (prefers-color-scheme)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 21.4_
 
-- [ ] 86. Implementar animaciones y transiciones
+- [-] 86. Implementar animaciones y transiciones
   - Agregar animaciones con Framer Motion
   - Implementar transiciones suaves entre páginas
   - Agregar micro-interacciones
   - Optimizar para performance (usar transform y opacity)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 4.1_
 
 - [ ] 87. Implementar estados de carga
   - Agregar skeleton loaders en todas las páginas
   - Implementar spinners para acciones
   - Agregar progress bars para procesos largos
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 88. Implementar manejo de errores
@@ -1461,14 +1702,16 @@
   - Implementar error boundaries
   - Agregar mensajes de error amigables
   - Implementar retry logic
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1_
 
 - [ ] 89. Optimizar para SEO
   - Implementar metadata en todas las páginas
   - Agregar Open Graph tags
   - Implementar structured data (JSON-LD)
-  - Crear sitemap.xml
-  - Crear robots.txt
+  - Crear sitemap.xml (en la ubicacion correcta, recuerda screaming architecture, excepto en el frontend)
+  - Crear robots.txt (en la ubicacion correcta, recuerda screaming architecture, excepto en el frontend)
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 1.2_
 
 - [ ] 90. Realizar auditoría final
@@ -1477,6 +1720,7 @@
   - Verificar accesibilidad WCAG 2.1 AA
   - Verificar compatibilidad cross-browser
   - Verificar responsive design en múltiples dispositivos
+  - **Implementar en la página real que tenemos**
   - _Requisitos: 3.1, 3.2, 4.1, 4.2, 5.1_
 
 ## Notas Importantes

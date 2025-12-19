@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { asyncHandler } from '@technovastore/shared-utils';
 import { AuthenticatedRequest } from '@technovastore/shared-types';
+import { setAuthCookie, getAuthToken, clearAuthCookie } from '@technovastore/shared-utils';
 
 // Casos de uso
 import { RegisterUser } from '../register-user/RegisterUser';
@@ -26,6 +27,11 @@ import { RequestAccountDeletion } from '../request-account-deletion/RequestAccou
 import { CancelAccountDeletion } from '../cancel-account-deletion/CancelAccountDeletion';
 import { ManageConsent } from '../manage-consent/ManageConsent';
 
+// Wishlist use cases
+import { GetWishlist } from '../get-wishlist/GetWishlist';
+import { AddToWishlist } from '../add-to-wishlist/AddToWishlist';
+import { RemoveFromWishlist } from '../remove-from-wishlist/RemoveFromWishlist';
+
 export class UserController {
   constructor(
     private registerUser: RegisterUser,
@@ -42,10 +48,18 @@ export class UserController {
     private exportPersonalData: ExportPersonalData,
     private requestAccountDeletion: RequestAccountDeletion,
     private cancelAccountDeletion: CancelAccountDeletion,
-    private manageConsent: ManageConsent
+    private manageConsent: ManageConsent,
+    private getWishlist: GetWishlist,
+    private addToWishlist: AddToWishlist,
+    private removeFromWishlist: RemoveFromWishlist
   ) {}
 
   // Auth endpoints
+  // NOTA: Los endpoints de autenticación (register, login, oauthCallback) generan tokens JWT
+  // que deben ser establecidos como httpOnly cookies para mayor seguridad.
+  // NO se debe usar localStorage para almacenar tokens en el frontend.
+  // Las cookies httpOnly protegen contra ataques XSS ya que no son accesibles desde JavaScript.
+  
   register = asyncHandler(async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,6 +72,13 @@ export class UserController {
     try {
       const result = await this.registerUser.execute(req.body);
 
+      // ✅ Establecer cookie httpOnly con el token JWT
+      // Esto proporciona autenticación segura protegida contra XSS
+      setAuthCookie(res, result.tokens.accessToken);
+
+      // NOTA: El token se incluye en el body temporalmente para compatibilidad
+      // con el frontend existente. Una vez que el frontend esté completamente
+      // migrado a usar cookies httpOnly, este campo puede ser removido.
       return res.status(201).json({
         success: true,
         message: 'User registered successfully',
@@ -85,6 +106,13 @@ export class UserController {
     try {
       const result = await this.authenticateUser.execute(req.body);
 
+      // ✅ Establecer cookie httpOnly con el token JWT
+      // Esto proporciona autenticación segura protegida contra XSS
+      setAuthCookie(res, result.tokens.accessToken);
+
+      // NOTA: El token se incluye en el body temporalmente para compatibilidad
+      // con el frontend existente. Una vez que el frontend esté completamente
+      // migrado a usar cookies httpOnly, este campo puede ser removido.
       return res.json({
         success: true,
         message: 'Login successful',
@@ -110,13 +138,24 @@ export class UserController {
     }
 
     try {
+      // Ejecutar el caso de uso para renovar el token
       const tokens = await this.refreshTokenUseCase.execute(refreshToken);
 
+      // ✅ Establecer nueva cookie httpOnly con el nuevo access token
+      // Esto actualiza la cookie de autenticación con el token renovado
+      setAuthCookie(res, tokens.accessToken);
+
+      // NOTA: El token se incluye en el body temporalmente para compatibilidad
+      // con el frontend existente. Una vez que el frontend esté completamente
+      // migrado a usar cookies httpOnly, este campo puede ser removido.
       return res.json({
         success: true,
         data: { tokens },
       });
     } catch (error: any) {
+      // Si el refresh falla, invalidar la cookie existente por seguridad
+      clearAuthCookie(res);
+      
       return res.status(401).json({
         error: 'Invalid refresh token',
       });
@@ -173,15 +212,15 @@ export class UserController {
   });
 
   validateToken = asyncHandler(async (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization;
+    // ✅ SEGURIDAD: Leer token desde cookie httpOnly (prioridad) o Authorization header (fallback)
+    const token = getAuthToken(req);
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return res.status(401).json({
         error: 'No token provided',
       });
     }
 
-    const token = authHeader.substring(7);
     const result = await this.validateAccessToken.execute(token);
 
     if (!result.valid) {
@@ -208,6 +247,9 @@ export class UserController {
     try {
       const result = await this.oauthAuthentication.execute(req.body);
 
+      // Establecer cookie httpOnly con el token JWT
+      setAuthCookie(res, result.tokens.accessToken);
+
       return res.json({
         success: true,
         message: 'OAuth authentication successful',
@@ -228,7 +270,8 @@ export class UserController {
 
   // User profile endpoints
   getProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.headers['x-user-id'] as string;
+    // Obtener userId de req.user (establecido por authMiddleware) o de headers (API Gateway)
+    const userId = req.user?.id || req.headers['x-user-id'] as string;
     
     if (!userId) {
       return res.status(401).json({
@@ -236,7 +279,7 @@ export class UserController {
       });
     }
 
-    const user = await this.getUserProfile.execute(parseInt(userId));
+    const user = await this.getUserProfile.execute(typeof userId === 'string' ? parseInt(userId) : userId);
     
     if (!user) {
       return res.status(404).json({
@@ -475,5 +518,76 @@ export class UserController {
       message: 'Consent preferences updated successfully',
       data: updatedConsent,
     });
+  });
+
+  // Wishlist endpoints
+  getWishlistHandler = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    // Obtener userId de req.user (establecido por authMiddleware) o de headers (API Gateway)
+    const userId = req.user?.id || req.headers['x-user-id'] as string;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado',
+      });
+    }
+
+    const result = await this.getWishlist.execute({ userId: typeof userId === 'string' ? parseInt(userId) : userId });
+
+    return res.json(result);
+  });
+
+  addToWishlistHandler = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    // Obtener userId de req.user (establecido por authMiddleware) o de headers (API Gateway)
+    const userId = req.user?.id || req.headers['x-user-id'] as string;
+    const { productId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado',
+      });
+    }
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: 'productId es requerido',
+      });
+    }
+
+    const result = await this.addToWishlist.execute({
+      userId: typeof userId === 'string' ? parseInt(userId) : userId,
+      productId,
+    });
+
+    return res.json(result);
+  });
+
+  removeFromWishlistHandler = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    // Obtener userId de req.user (establecido por authMiddleware) o de headers (API Gateway)
+    const userId = req.user?.id || req.headers['x-user-id'] as string;
+    const { productId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado',
+      });
+    }
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: 'productId es requerido',
+      });
+    }
+
+    const result = await this.removeFromWishlist.execute({
+      userId: typeof userId === 'string' ? parseInt(userId) : userId,
+      productId,
+    });
+
+    return res.json(result);
   });
 }

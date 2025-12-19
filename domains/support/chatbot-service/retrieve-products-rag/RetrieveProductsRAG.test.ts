@@ -44,6 +44,26 @@ describe('RetrieveProductsRAG', () => {
     );
   });
 
+  describe('extractRequestedLimit', () => {
+    it('debe extraer el número de productos solicitados', () => {
+      expect(retrieveProductsRAG.extractRequestedLimit('recomiendame 4 productos')).toBe(4);
+      expect(retrieveProductsRAG.extractRequestedLimit('dame 3 opciones')).toBe(3);
+      expect(retrieveProductsRAG.extractRequestedLimit('muestrame 5 alternativas')).toBe(5);
+      expect(retrieveProductsRAG.extractRequestedLimit('otros 2 productos')).toBe(2);
+      expect(retrieveProductsRAG.extractRequestedLimit('top 10 laptops')).toBe(10);
+    });
+
+    it('debe retornar null si no hay número', () => {
+      expect(retrieveProductsRAG.extractRequestedLimit('busco laptop')).toBeNull();
+      expect(retrieveProductsRAG.extractRequestedLimit('recomiendame algo')).toBeNull();
+    });
+
+    it('debe limitar entre 1 y 10', () => {
+      expect(retrieveProductsRAG.extractRequestedLimit('dame 0 productos')).toBeNull();
+      expect(retrieveProductsRAG.extractRequestedLimit('dame 15 productos')).toBeNull();
+    });
+  });
+
   describe('execute', () => {
     it('debe recuperar productos por categoría y marca', async () => {
       // Arrange
@@ -67,7 +87,7 @@ describe('RetrieveProductsRAG', () => {
           brand: 'dell',
           availability: true
         }),
-        5
+        expect.any(Number)
       );
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(mockProduct);
@@ -93,7 +113,7 @@ describe('RetrieveProductsRAG', () => {
           category: 'laptop',
           availability: true
         }),
-        5
+        expect.any(Number)
       );
       expect(result).toHaveLength(1);
     });
@@ -115,7 +135,7 @@ describe('RetrieveProductsRAG', () => {
       // Assert
       expect(mockKnowledgeBase.searchByText).toHaveBeenCalledWith(
         expect.stringContaining('laptop'),
-        5
+        expect.any(Number)
       );
       expect(result).toHaveLength(1);
     });
@@ -144,7 +164,30 @@ describe('RetrieveProductsRAG', () => {
       expect(result[0].sku).toBe('TEST-001');
     });
 
-    it('debe limitar resultados a 5 productos', async () => {
+    it('debe limitar resultados al número solicitado por el usuario', async () => {
+      // Arrange
+      const manyProducts = Array.from({ length: 10 }, (_, i) => ({
+        ...mockProduct,
+        sku: `TEST-${i}`,
+        name: `Product ${i}`
+      }));
+      mockKeywordExtractor.extractKeywords.mockReturnValue({
+        categories: ['laptop'],
+        brands: [],
+        technicalSpecs: {},
+        generalKeywords: [],
+        normalizedText: 'dame 3 laptops'
+      });
+      mockKnowledgeBase.searchProducts.mockResolvedValue(manyProducts);
+
+      // Act - Usuario pide 3 productos
+      const result = await retrieveProductsRAG.execute('dame 3 laptops');
+
+      // Assert
+      expect(result).toHaveLength(3);
+    });
+
+    it('debe usar límite por defecto de 5 si no se especifica', async () => {
       // Arrange
       const manyProducts = Array.from({ length: 10 }, (_, i) => ({
         ...mockProduct,
@@ -165,6 +208,32 @@ describe('RetrieveProductsRAG', () => {
 
       // Assert
       expect(result).toHaveLength(5);
+    });
+
+    it('debe excluir productos por SKU cuando se especifica', async () => {
+      // Arrange
+      const products = [
+        { ...mockProduct, sku: 'SKU-1', name: 'Product 1' },
+        { ...mockProduct, sku: 'SKU-2', name: 'Product 2' },
+        { ...mockProduct, sku: 'SKU-3', name: 'Product 3' },
+      ];
+      mockKeywordExtractor.extractKeywords.mockReturnValue({
+        categories: ['laptop'],
+        brands: [],
+        technicalSpecs: {},
+        generalKeywords: [],
+        normalizedText: 'laptop'
+      });
+      mockKnowledgeBase.searchProducts.mockResolvedValue(products);
+
+      // Act - Excluir SKU-1 y SKU-2
+      const result = await retrieveProductsRAG.execute('laptop', {
+        excludeSkus: ['SKU-1', 'SKU-2']
+      });
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].sku).toBe('SKU-3');
     });
 
     it('debe ordenar productos con disponibilidad primero', async () => {

@@ -1,34 +1,34 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config';
 import { AuthenticatedRequest } from '@technovastore/shared-types';
 import { logger } from '../utils/logger';
+import { getAuthToken } from '@technovastore/shared-utils';
 
 export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    // Check if user info is passed from API Gateway
+    // Verificar si la información del usuario viene del API Gateway
     const userId = req.headers['x-user-id'] as string;
     const userRole = req.headers['x-user-role'] as string;
     
     if (userId && userRole) {
       req.user = {
         id: userId,
-        email: '', // Will be populated if needed
+        email: '',
         role: userRole,
       };
       return next();
     }
 
-    // Fallback to JWT validation
-    const authHeader = req.headers.authorization;
+    // ✅ SEGURIDAD: Leer token desde cookie httpOnly (prioridad) o Authorization header (fallback)
+    const token = getAuthToken(req);
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return res.status(401).json({
         error: 'Access denied. No token provided.',
       });
     }
 
-    const token = authHeader.substring(7);
     const decoded = jwt.verify(token, config.jwt.secret) as any;
     
     req.user = {

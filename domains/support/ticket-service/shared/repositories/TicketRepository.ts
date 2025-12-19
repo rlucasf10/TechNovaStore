@@ -233,6 +233,68 @@ export class TicketRepository {
   }
 
   /**
+   * ✅ SEGURIDAD: Get tickets by user ID with pagination and filtering
+   * Solo retorna tickets que pertenecen al usuario especificado
+   */
+  async getTicketsByUserId(
+    userId: number,
+    page: number = 1,
+    limit: number = 20,
+    status?: TicketStatus,
+    category?: TicketCategory,
+    priority?: TicketPriority
+  ): Promise<{ tickets: ITicket[]; total: number }> {
+    const client = await this.pool.connect();
+
+    try {
+      const offset = (page - 1) * limit;
+      const conditions: string[] = ['user_id = $1'];
+      const values: any[] = [userId];
+      let paramIndex = 2;
+
+      if (status) {
+        conditions.push(`status = $${paramIndex++}`);
+        values.push(status);
+      }
+
+      if (category) {
+        conditions.push(`category = $${paramIndex++}`);
+        values.push(category);
+      }
+
+      if (priority) {
+        conditions.push(`priority = $${paramIndex++}`);
+        values.push(priority);
+      }
+
+      const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+      // Get total count
+      const countQuery = `SELECT COUNT(*) FROM tickets ${whereClause}`;
+      const countResult = await client.query(countQuery, values);
+      const total = parseInt(countResult.rows[0].count);
+
+      // Get tickets
+      values.push(limit, offset);
+      const ticketsQuery = `
+        SELECT * FROM tickets 
+        ${whereClause}
+        ORDER BY created_at DESC
+        LIMIT $${paramIndex++} OFFSET $${paramIndex++}
+      `;
+
+      const ticketsResult = await client.query(ticketsQuery, values);
+
+      return {
+        tickets: ticketsResult.rows as ITicket[],
+        total
+      };
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
    * Add message to ticket
    */
   async addMessage(ticketId: number, messageData: AddMessageRequest): Promise<ITicketMessage> {

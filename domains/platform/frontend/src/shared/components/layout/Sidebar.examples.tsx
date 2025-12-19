@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Button } from '@/ui/Button';
 import { Menu, Laptop, Smartphone, Monitor, Headphones, Keyboard, Mouse } from 'lucide-react';
@@ -258,7 +258,7 @@ export function NavigationCallbackExample() {
     
     // Simular que se navegó a algún lugar
     if (isOpen) {
-      setLastNavigation('/dashboard');
+      setLastNavigation('/dashboard/usuario');
     }
   };
 

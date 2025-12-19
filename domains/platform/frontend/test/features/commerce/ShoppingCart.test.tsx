@@ -1,10 +1,16 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { ShoppingCart } from '@/commerce/components/cart/ShoppingCart'
-import { useCartStore } from '@/commerce/store/cart.store'
 import { Product } from '@/types'
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de useCartStore
+const mockUseCartStore = jest.fn()
+jest.mock('@/commerce/store/cart.store', () => ({
+  useCartStore: (selector?: (state: any) => any) => {
+    const state = mockUseCartStore()
+    return selector ? selector(state) : state
+  },
+}))
 
 // Mock product for testing
 const mockProduct: Product = {
@@ -31,7 +37,7 @@ describe('ShoppingCart', () => {
   })
 
   it('should show empty cart message when no items', () => {
-    const mockState = {
+    mockUseCartStore.mockReturnValue({
       items: [],
       total: 0,
       itemCount: 0,
@@ -40,13 +46,6 @@ describe('ShoppingCart', () => {
       updateQuantity: jest.fn(),
       clearCart: jest.fn(),
       getTotalPrice: jest.fn(() => 0),
-    };
-
-    (useCartStore as jest.Mock).mockImplementation((selector?: any) => {
-      if (selector) {
-        return selector(mockState)
-      }
-      return mockState
     })
 
     render(<ShoppingCart />)
@@ -57,7 +56,7 @@ describe('ShoppingCart', () => {
   })
 
   it('should show cart summary when showCheckoutButton is true', () => {
-    const mockState = {
+    mockUseCartStore.mockReturnValue({
       items: [],
       total: 0,
       itemCount: 0,
@@ -66,13 +65,6 @@ describe('ShoppingCart', () => {
       updateQuantity: jest.fn(),
       clearCart: jest.fn(),
       getTotalPrice: jest.fn(() => 0),
-    };
-
-    (useCartStore as jest.Mock).mockImplementation((selector?: any) => {
-      if (selector) {
-        return selector(mockState)
-      }
-      return mockState
     })
 
     render(<ShoppingCart showCheckoutButton={true} />)
@@ -81,7 +73,7 @@ describe('ShoppingCart', () => {
   })
 
   it('should show cart summary when showCheckoutButton is false', () => {
-    const mockState = {
+    mockUseCartStore.mockReturnValue({
       items: [],
       total: 0,
       itemCount: 0,
@@ -90,13 +82,6 @@ describe('ShoppingCart', () => {
       updateQuantity: jest.fn(),
       clearCart: jest.fn(),
       getTotalPrice: jest.fn(() => 0),
-    };
-
-    (useCartStore as jest.Mock).mockImplementation((selector?: any) => {
-      if (selector) {
-        return selector(mockState)
-      }
-      return mockState
     })
 
     render(<ShoppingCart showCheckoutButton={false} />)

@@ -1,0 +1,8 @@
+export { default as HeroSection } from './HeroSection'
+export { ProductRecommenderWidget } from './ProductRecommenderWidget'
+export { PromoBanner } from './PromoBanner'
+export { TrustBadges } from './TrustBadges'
+export { FeaturedCategories } from './FeaturedCategories'
+export { DealsSection } from './DealsSection'
+export { CampaignCountdown } from './CampaignCountdown'
+export { NewsletterSignup } from './NewsletterSignup'

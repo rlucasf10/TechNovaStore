@@ -3,6 +3,7 @@
  * Verifica funcionalidad de overlay, animaciones, cierre, trap de foco y accesibilidad
  */
 
+import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Modal, ModalHeader, ModalBody, ModalFooter } from '@/ui/Modal'

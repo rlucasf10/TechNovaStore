@@ -131,7 +131,15 @@ export const securityConfig = {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
       ? (process.env.CORS_ORIGINS || 'https://technovastore.com').split(',')
-      : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3011'],
+      : [
+          'http://localhost:3000', 
+          'http://localhost:3001', 
+          'http://localhost:3002', 
+          'http://localhost:3011', 
+          'http://localhost:3020',
+          'http://192.168.1.137:3020',
+          'http://192.168.1.137:3000',
+        ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [

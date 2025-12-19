@@ -37,8 +37,8 @@ export function MainLayout({ children, minimal = false }: MainLayoutProps) {
       {/* Header con navegación y menú móvil integrado */}
       <Header />
       
-      {/* Contenido principal */}
-      <main className="flex-1">
+      {/* Contenido principal - pt-[72px] compensa el header fixed */}
+      <main className="flex-1 pt-[72px]">
         {children}
       </main>
       

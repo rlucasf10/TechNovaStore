@@ -88,6 +88,13 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 30s
 
+  # Commerce Services
+  - job_name: 'campaign-manager-service'
+    static_configs:
+      - targets: ['campaign-manager:3011']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
   # Automation Services
   - job_name: 'sync-engine'
     static_configs:

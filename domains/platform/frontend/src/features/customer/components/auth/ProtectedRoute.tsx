@@ -14,7 +14,7 @@
  * 
  * Con redirección personalizada:
  * ```tsx
- * <ProtectedRoute redirectTo="/login?from=/dashboard">
+ * <ProtectedRoute redirectTo="/login?from=/dashboard/usuario">
  *   <DashboardPage />
  * </ProtectedRoute>
  * ```

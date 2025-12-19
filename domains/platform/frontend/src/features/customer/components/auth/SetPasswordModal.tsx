@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal } from '@/ui/Modal';
+import { AnimatedModal } from '@/ui/AnimatedModal';
 import { Button } from '@/ui/Button';
 import { Input } from '@/ui/Input';
 import { PasswordStrengthIndicator } from '@/customer';
@@ -190,14 +190,15 @@ export default function SetPasswordModal({
   };
 
   return (
-    <Modal
-      open={open}
+    <AnimatedModal
+      isOpen={open}
       onClose={handleClose}
       title="Establecer Contraseña"
       description="Establece una contraseña para poder iniciar sesión con tu email además de tus métodos OAuth."
       size="md"
-      disableBackdropClick={isSubmitting}
-      disableEscapeKey={isSubmitting}
+      closeOnBackdropClick={!isSubmitting}
+      closeOnEsc={!isSubmitting}
+      animationType="slideUp"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Input de nueva contraseña */}
@@ -290,6 +291,6 @@ export default function SetPasswordModal({
           </Button>
         </div>
       </form>
-    </Modal>
+    </AnimatedModal>
   );
 }

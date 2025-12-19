@@ -1,7 +1,5 @@
 'use client'
 
-import React from 'react'
-
 interface TrackingEvent {
   id: string
   order_id: number
@@ -64,7 +62,7 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
         <div className="text-4xl mb-4">📍</div>
         <p>No hay información de seguimiento disponible</p>
         <p className="text-sm mt-2">
@@ -81,11 +79,11 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
 
   return (
     <div className="space-y-4">
-      <h4 className="font-medium text-gray-900 mb-4">Historial de Seguimiento</h4>
+      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-4">Historial de Seguimiento</h4>
       
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-slate-600"></div>
         
         {sortedEvents.map((event) => (
           <div key={event.id} className="relative flex items-start space-x-4 pb-6">
@@ -102,26 +100,26 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
             {/* Event content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <h5 className="text-sm font-medium text-gray-900">
+                <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {event.description}
                 </h5>
-                <time className="text-xs text-gray-500">
+                <time className="text-xs text-gray-500 dark:text-gray-400">
                   {formatDate(event.timestamp)}
                 </time>
               </div>
               
               {event.location && (
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   📍 {event.location}
                 </p>
               )}
               
               {event.is_delivered && (
-                <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800 font-medium">
+                <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
                     🎉 ¡Tu pedido ha sido entregado con éxito!
                   </p>
-                  <p className="text-xs text-green-600 mt-1">
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
                     Esperamos que disfrutes de tu compra. No olvides dejar una reseña.
                   </p>
                 </div>
@@ -133,14 +131,14 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
       
       {/* Estimated delivery info */}
       {!sortedEvents.some(e => e.is_delivered) && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
           <div className="flex items-center">
-            <span className="text-blue-600 text-lg mr-3">ℹ️</span>
+            <span className="text-blue-600 dark:text-blue-400 text-lg mr-3">ℹ️</span>
             <div>
-              <p className="text-sm font-medium text-blue-900">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
                 Información de Entrega
               </p>
-              <p className="text-xs text-blue-700 mt-1">
+              <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
                 El seguimiento se actualiza automáticamente cada 6 horas. 
                 Si tienes alguna pregunta, contacta con nuestro soporte.
               </p>

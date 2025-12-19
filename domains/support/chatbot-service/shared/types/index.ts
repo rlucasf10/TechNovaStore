@@ -40,6 +40,9 @@ export interface ChatContext {
   conversationHistory: ConversationMessage[];
   lastProductQuery?: string;
   lastProducts?: ProductInfo[];
+  aiProvider?: 'gemini' | 'ollama' | 'fallback';
+  /** SKUs de productos ya mostrados en esta sesión (para evitar repeticiones) */
+  shownProductSkus?: string[];
 }
 
 /**

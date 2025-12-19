@@ -2,6 +2,28 @@
  * Configuración del User Service
  */
 
+import { logger } from '../shared/utils/logger';
+
+// Validación de JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  logger.error('CRITICAL SECURITY ERROR: JWT_SECRET environment variable is not set');
+  throw new Error('JWT_SECRET must be configured. Application cannot start.');
+}
+
+if (JWT_SECRET.length < 32) {
+  logger.warn('WARNING: JWT_SECRET is shorter than 32 characters. Consider using a longer secret for better security.');
+}
+
+// Validación de POSTGRES_PASSWORD
+const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
+
+if (!POSTGRES_PASSWORD) {
+  logger.error('CRITICAL: POSTGRES_PASSWORD environment variable is not set');
+  throw new Error('POSTGRES_PASSWORD must be configured. Application cannot start.');
+}
+
 export const config = {
   // Puerto del servicio
   port: parseInt(process.env.PORT || '3003', 10),
@@ -15,7 +37,7 @@ export const config = {
     port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
     database: process.env.POSTGRES_DB || 'technovastore',
     username: process.env.POSTGRES_USER || 'postgres',
-    password: process.env.POSTGRES_PASSWORD || 'postgres',
+    password: POSTGRES_PASSWORD,
     pool: {
       max: 20,
       min: 2,
@@ -40,7 +62,7 @@ export const config = {
 
   // JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    secret: JWT_SECRET,
     accessTokenExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
     refreshTokenExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   },

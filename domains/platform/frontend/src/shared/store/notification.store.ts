@@ -51,7 +51,7 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
   // Acciones
   addNotification: (notification: Omit<Notification, 'id'>) => {
     const id = generateId();
-    const duration = notification.duration ?? 5000; // 5 segundos por defecto
+    const duration = notification.duration ?? 1500; // 1.5 segundos por defecto
     
     const newNotification: Notification = {
       ...notification,
@@ -103,7 +103,7 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
       type: 'error',
       title: title || 'Error',
       message,
-      duration: duration ?? 7000, // Errores duran más
+      duration: duration ?? 5000, // 5 segundos para errores
     });
   },
   
@@ -112,7 +112,7 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
       type: 'warning',
       title: title || 'Advertencia',
       message,
-      duration,
+      duration: duration ?? 5000, // 5 segundos para advertencias
     });
   },
   

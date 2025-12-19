@@ -5,7 +5,7 @@
  * - FakeStore API
  * - DummyJSON
  * 
- * Ejecutar: node scripts/populate-free-products.js
+ * Ejecutar: node scripts/utilitieses pa/populate-free-products.js
  */
 
 const axios = require('axios');

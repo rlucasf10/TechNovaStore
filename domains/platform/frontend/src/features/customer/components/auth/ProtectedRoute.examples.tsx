@@ -283,7 +283,7 @@ export function NextJsLayoutExample({ children }: { children: React.ReactNode })
           <nav>
             <ul className="space-y-2">
               <li>
-                <a href="/dashboard" className="block p-2 hover:bg-gray-700 rounded">
+                <a href="/dashboard/usuario" className="block p-2 hover:bg-gray-700 rounded">
                   Resumen
                 </a>
               </li>

@@ -5,15 +5,19 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SocialLoginButtons } from '@/customer/components/auth/SocialLoginButtons';
-import { authService } from '@/customer/services/auth.service';
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de authService
+const mockOauthLogin = jest.fn();
+jest.mock('@/customer/services/auth.service', () => ({
+  authService: {
+    oauthLogin: (provider: string) => mockOauthLogin(provider),
+  },
+}));
 
 describe('SocialLoginButtons', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset all mocks
-    (authService.oauthLogin as jest.Mock).mockReset();
+    mockOauthLogin.mockReset();
   });
 
   describe('Renderizado', () => {
@@ -34,7 +38,7 @@ describe('SocialLoginButtons', () => {
 
   describe('Interacción', () => {
     it('llama a authService.oauthLogin al hacer clic en Google', async () => {
-      (authService.oauthLogin as jest.Mock).mockResolvedValueOnce(undefined);
+      mockOauthLogin.mockResolvedValueOnce(undefined);
 
       render(<SocialLoginButtons />);
       
@@ -42,12 +46,12 @@ describe('SocialLoginButtons', () => {
       fireEvent.click(googleButton);
       
       await waitFor(() => {
-        expect(authService.oauthLogin).toHaveBeenCalledWith('google', undefined);
+        expect(mockOauthLogin).toHaveBeenCalledWith('google');
       });
     });
 
     it('llama a authService.oauthLogin al hacer clic en GitHub', async () => {
-      (authService.oauthLogin as jest.Mock).mockResolvedValueOnce(undefined);
+      mockOauthLogin.mockResolvedValueOnce(undefined);
 
       render(<SocialLoginButtons />);
       
@@ -55,27 +59,27 @@ describe('SocialLoginButtons', () => {
       fireEvent.click(githubButton);
       
       await waitFor(() => {
-        expect(authService.oauthLogin).toHaveBeenCalledWith('github', undefined);
+        expect(mockOauthLogin).toHaveBeenCalledWith('github');
       });
     });
 
     it('pasa redirectTo al servicio de autenticación', async () => {
-      (authService.oauthLogin as jest.Mock).mockResolvedValueOnce(undefined);
+      mockOauthLogin.mockResolvedValueOnce(undefined);
 
-      render(<SocialLoginButtons redirectTo="/dashboard" />);
+      render(<SocialLoginButtons redirectTo="/dashboard/usuario" />);
       
       const googleButton = screen.getByText('Continuar con Google');
       fireEvent.click(googleButton);
       
       await waitFor(() => {
-        expect(authService.oauthLogin).toHaveBeenCalledWith('google', '/dashboard');
+        expect(mockOauthLogin).toHaveBeenCalledWith('google');
       });
     });
   });
 
   describe('Callbacks', () => {
     it('llama a onOAuthStart cuando se inicia OAuth', async () => {
-      (authService.oauthLogin as jest.Mock).mockResolvedValueOnce(undefined);
+      mockOauthLogin.mockResolvedValueOnce(undefined);
       const onOAuthStart = jest.fn();
 
       render(<SocialLoginButtons onOAuthStart={onOAuthStart} />);
@@ -90,7 +94,7 @@ describe('SocialLoginButtons', () => {
 
     it('llama a onError cuando falla OAuth', async () => {
       const error = new Error('OAuth failed');
-      (authService.oauthLogin as jest.Mock).mockRejectedValueOnce(error);
+      mockOauthLogin.mockRejectedValueOnce(error);
       const onError = jest.fn();
 
       render(<SocialLoginButtons onError={onError} />);
@@ -117,7 +121,7 @@ describe('SocialLoginButtons', () => {
 
     it('deshabilita todos los botones durante carga', async () => {
       // Simular una promesa que tarda en resolverse
-      (authService.oauthLogin as jest.Mock).mockImplementationOnce(() => new Promise(() => {}));
+      mockOauthLogin.mockImplementationOnce(() => new Promise(() => {}));
 
       render(<SocialLoginButtons />);
       

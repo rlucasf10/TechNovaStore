@@ -1,6 +1,11 @@
 /**
  * Caso de uso: Autenticación OAuth
  * Extraído de OAuthService y AuthController.oauthCallback()
+ * 
+ * NOTA IMPORTANTE: Este caso de uso genera tokens JWT después de una autenticación
+ * OAuth exitosa. Los tokens serán establecidos como httpOnly cookies por el controlador.
+ * NO se debe almacenar el token en localStorage en el frontend, ya que las cookies
+ * httpOnly son más seguras y protegen contra ataques XSS.
  */
 
 import { OAuthService, OAuthUserInfo } from '../shared/services/OAuthService';

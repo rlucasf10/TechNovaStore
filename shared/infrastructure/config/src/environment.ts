@@ -3,6 +3,38 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+// Validación de JWT_SECRET
+const JWT_SECRET = process.env['JWT_SECRET'];
+
+if (!JWT_SECRET) {
+  console.error('CRITICAL SECURITY ERROR: JWT_SECRET environment variable is not set');
+  throw new Error('JWT_SECRET must be configured. Application cannot start.');
+}
+
+if (JWT_SECRET.length < 32) {
+  console.warn('WARNING: JWT_SECRET is shorter than 32 characters. Consider using a longer secret for better security.');
+}
+
+// Validación de POSTGRES_PASSWORD
+const POSTGRES_PASSWORD = process.env['POSTGRES_PASSWORD'];
+
+if (!POSTGRES_PASSWORD) {
+  console.error('CRITICAL: POSTGRES_PASSWORD environment variable is not set');
+  throw new Error('POSTGRES_PASSWORD must be configured. Application cannot start.');
+}
+
+// Validación de JWT_REFRESH_SECRET
+const JWT_REFRESH_SECRET = process.env['JWT_REFRESH_SECRET'];
+
+if (!JWT_REFRESH_SECRET) {
+  console.error('CRITICAL SECURITY ERROR: JWT_REFRESH_SECRET environment variable is not set');
+  throw new Error('JWT_REFRESH_SECRET must be configured. Application cannot start.');
+}
+
+if (JWT_REFRESH_SECRET.length < 32) {
+  console.warn('WARNING: JWT_REFRESH_SECRET is shorter than 32 characters. Consider using a longer secret for better security.');
+}
+
 export const config = {
   // Server Configuration
   port: parseInt(process.env['PORT'] || '3000', 10),
@@ -26,7 +58,7 @@ export const config = {
     port: parseInt(process.env['POSTGRES_PORT'] || '5432', 10),
     database: process.env['POSTGRES_DB'] || 'technovastore',
     username: process.env['POSTGRES_USER'] || 'postgres',
-    password: process.env['POSTGRES_PASSWORD'] || 'password',
+    password: POSTGRES_PASSWORD,
     pool: {
       max: parseInt(process.env['POSTGRES_POOL_MAX'] || '20', 10),
       min: parseInt(process.env['POSTGRES_POOL_MIN'] || '5', 10),
@@ -53,9 +85,9 @@ export const config = {
   
   // JWT Configuration
   jwt: {
-    secret: process.env['JWT_SECRET'] || 'REDACTED_JWT_SECRET',
+    secret: JWT_SECRET,
     expiresIn: process.env['JWT_EXPIRES_IN'] || '24h',
-    refreshSecret: process.env['JWT_REFRESH_SECRET'] || 'your-super-secret-refresh-key',
+    refreshSecret: JWT_REFRESH_SECRET,
     refreshExpiresIn: process.env['JWT_REFRESH_EXPIRES_IN'] || '7d',
   }
 };

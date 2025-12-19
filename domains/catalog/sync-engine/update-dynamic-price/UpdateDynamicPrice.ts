@@ -9,6 +9,9 @@
  */
 
 import { DynamicPricingEngine } from '../shared/pricing/DynamicPricingEngine';
+import { createLogger } from '@technovastore/shared-config';
+
+const logger = createLogger('sync-engine-dynamic-price');
 
 export interface DynamicPriceUpdateResult {
   sku: string;
@@ -36,7 +39,7 @@ export class UpdateDynamicPrice {
       throw new Error('SKU and product name are required');
     }
 
-    console.log(`Updating dynamic price for product: ${productName} (SKU: ${sku})`);
+    logger.info('Updating dynamic price for product', { productName, sku });
 
     const engineResult = await this.dynamicPricingEngine.updateProductPrice(sku, productName);
 
@@ -59,11 +62,13 @@ export class UpdateDynamicPrice {
     };
 
     if (result.changed) {
-      console.log(
-        `Price updated: ${result.oldPrice} → ${result.newPrice} (${result.priceChangePercentage.toFixed(2)}%)`
-      );
+      logger.info('Price updated', { 
+        oldPrice: result.oldPrice, 
+        newPrice: result.newPrice, 
+        changePercentage: result.priceChangePercentage.toFixed(2) 
+      });
     } else {
-      console.log(`Price unchanged: ${result.newPrice} - ${result.reason}`);
+      logger.info('Price unchanged', { price: result.newPrice, reason: result.reason });
     }
 
     return result;

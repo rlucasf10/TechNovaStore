@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { authMiddleware, optionalAuth, requireRole } from './AuthenticateRequest';
 import { AuthenticatedRequest } from '@technovastore/shared-types';
 import axios from 'axios';
+import { getAuthToken } from '@technovastore/shared-utils';
 
 // Mock dependencies
 jest.mock('jsonwebtoken');
@@ -16,7 +17,11 @@ jest.mock('../shared/utils/logger', () => ({
     error: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
+    debug: jest.fn(),
   },
+}));
+jest.mock('@technovastore/shared-utils', () => ({
+  getAuthToken: jest.fn(),
 }));
 
 describe('Auth Middleware', () => {
@@ -37,7 +42,9 @@ describe('Auth Middleware', () => {
   });
 
   describe('authMiddleware', () => {
-    test('should return 401 if no authorization header', async () => {
+    test('should return 401 if no token found (no cookie, no header)', async () => {
+      (getAuthToken as jest.Mock).mockReturnValue(null);
+
       await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -47,20 +54,9 @@ describe('Auth Middleware', () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    test('should return 401 if authorization header does not start with Bearer', async () => {
-      mockReq.headers = { authorization: 'InvalidToken' };
-
-      await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Access denied. No token provided.',
-      });
-    });
-
-    test('should validate token with user service successfully', async () => {
-      const token = 'valid-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+    test('should authenticate with token from cookie', async () => {
+      const token = 'valid-token-from-cookie';
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       const userData = {
         id: '1',
@@ -77,16 +73,39 @@ describe('Auth Middleware', () => {
 
       await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
+      expect(getAuthToken).toHaveBeenCalledWith(mockReq);
       expect(mockReq.user).toEqual(userData);
-      expect(mockReq.headers!['x-user-id']).toBe('1');
-      expect(mockReq.headers!['x-user-email']).toBe('test@example.com');
-      expect(mockReq.headers!['x-user-role']).toBe('customer');
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    test('should authenticate with token from Authorization header (fallback)', async () => {
+      const token = 'valid-token-from-header';
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
+
+      const userData = {
+        id: '1',
+        email: 'test@example.com',
+        role: 'customer',
+      };
+
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: {
+          success: true,
+          data: userData,
+        },
+      });
+
+      await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+
+      expect(getAuthToken).toHaveBeenCalledWith(mockReq);
+      expect(mockReq.user).toEqual(userData);
       expect(mockNext).toHaveBeenCalled();
     });
 
     test('should fallback to local JWT validation if user service fails', async () => {
       const token = 'valid-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       const decodedToken = {
         id: '1',
@@ -100,12 +119,15 @@ describe('Auth Middleware', () => {
       await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockReq.user).toEqual(decodedToken);
+      expect(mockReq.headers!['x-user-id']).toBe('1');
+      expect(mockReq.headers!['x-user-email']).toBe('test@example.com');
+      expect(mockReq.headers!['x-user-role']).toBe('customer');
       expect(mockNext).toHaveBeenCalled();
     });
 
     test('should return 401 for expired token', async () => {
       const token = 'expired-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       (axios.post as jest.Mock).mockRejectedValue(new Error('Service unavailable'));
       (jwt.verify as jest.Mock).mockImplementation(() => {
@@ -122,7 +144,7 @@ describe('Auth Middleware', () => {
 
     test('should return 401 for invalid token', async () => {
       const token = 'invalid-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       (axios.post as jest.Mock).mockRejectedValue(new Error('Service unavailable'));
       (jwt.verify as jest.Mock).mockImplementation(() => {
@@ -139,16 +161,18 @@ describe('Auth Middleware', () => {
   });
 
   describe('optionalAuth', () => {
-    test('should continue without user if no token provided', () => {
-      optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+    test('should continue without user if no token provided', async () => {
+      (getAuthToken as jest.Mock).mockReturnValue(null);
+
+      await optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockReq.user).toBeUndefined();
       expect(mockNext).toHaveBeenCalled();
     });
 
-    test('should decode token if provided', () => {
+    test('should decode token if provided (from cookie or header)', async () => {
       const token = 'valid-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       const decodedToken = {
         id: '1',
@@ -158,21 +182,22 @@ describe('Auth Middleware', () => {
 
       (jwt.verify as jest.Mock).mockReturnValue(decodedToken);
 
-      optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+      await optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
+      expect(getAuthToken).toHaveBeenCalledWith(mockReq);
       expect(mockReq.user).toEqual(decodedToken);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    test('should continue even if token is invalid', () => {
+    test('should continue even if token is invalid', async () => {
       const token = 'invalid-token';
-      mockReq.headers = { authorization: `Bearer ${token}` };
+      (getAuthToken as jest.Mock).mockReturnValue(token);
 
       (jwt.verify as jest.Mock).mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
-      optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
+      await optionalAuth(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockReq.user).toBeUndefined();
       expect(mockNext).toHaveBeenCalled();

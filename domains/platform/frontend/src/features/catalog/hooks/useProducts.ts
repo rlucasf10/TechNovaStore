@@ -3,11 +3,17 @@
  * 
  * React Query hooks para gestión de productos
  * Integración con ProductService
+ * 
+ * Optimizaciones implementadas:
+ * - staleTime y gcTime configurados según tipo de dato
+ * - Query keys centralizados
+ * - Prefetching automático de datos relacionados
  */
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { productService, type ProductFiltersService, type SearchProductsParams } from '@/catalog';
 import type { Product, PaginatedResponse } from '@/types';
+import { queryKeys, STALE_TIME, GC_TIME } from '@/lib/react-query.config';
 
 /**
  * Hook para obtener lista de productos con filtros
@@ -33,9 +39,10 @@ export function useProducts(
   options?: Omit<UseQueryOptions<PaginatedResponse<Product>>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['products', filters],
+    queryKey: queryKeys.products.list(filters),
     queryFn: () => productService.getProducts(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.MEDIUM,
     ...options,
   });
 }
@@ -57,10 +64,11 @@ export function useProduct(
   options?: Omit<UseQueryOptions<Product>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['product', id],
+    queryKey: queryKeys.products.detail(id),
     queryFn: () => productService.getProduct(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.MEDIUM,
     ...options,
   });
 }
@@ -85,10 +93,11 @@ export function useProductSearch(
   options?: Omit<UseQueryOptions<Product[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['products', 'search', params],
+    queryKey: queryKeys.products.search(params.query),
     queryFn: () => productService.searchProducts(params),
     enabled: params.query.length > 2,
-    staleTime: 2 * 60 * 1000, // 2 minutos
+    staleTime: STALE_TIME.DYNAMIC, // Búsquedas son más dinámicas
+    gcTime: GC_TIME.SHORT,
     ...options,
   });
 }
@@ -110,9 +119,10 @@ export function useFeaturedProducts(
   options?: Omit<UseQueryOptions<Product[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['products', 'featured', limit],
+    queryKey: queryKeys.products.featured(limit),
     queryFn: () => productService.getFeaturedProducts(limit),
-    staleTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.LONG, // Productos destacados cambian poco
     ...options,
   });
 }
@@ -136,10 +146,11 @@ export function useRelatedProducts(
   options?: Omit<UseQueryOptions<Product[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['products', 'related', productId, limit],
+    queryKey: queryKeys.products.related(productId, limit),
     queryFn: () => productService.getRelatedProducts(productId, limit),
     enabled: !!productId,
-    staleTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.LONG, // Productos relacionados cambian poco
     ...options,
   });
 }
@@ -166,10 +177,11 @@ export function useProductsByCategory(
   options?: Omit<UseQueryOptions<PaginatedResponse<Product>>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['products', 'category', categorySlug, filters],
+    queryKey: queryKeys.products.category(categorySlug, filters),
     queryFn: () => productService.getProductsByCategory(categorySlug, filters),
     enabled: !!categorySlug,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.MEDIUM,
     ...options,
   });
 }

@@ -1,5 +1,11 @@
 /**
  * Tests para el caso de uso: Obtener productos relacionados
+ * 
+ * Prueba el algoritmo de similitud basado en:
+ * - Categoría y subcategoría (40%)
+ * - Rango de precio (25%)
+ * - Marca (20%)
+ * - Especificaciones técnicas (15%)
  */
 
 import { Product } from '../shared/types/Product';
@@ -10,48 +16,80 @@ describe('GetRelatedProducts', () => {
     await Product.deleteMany({});
   });
 
-  it('should get related products from same category', async () => {
+  it('should get related products from same category and subcategory', async () => {
     const mainProduct = await Product.create({
       sku: 'LAPTOP-MAIN',
-      name: 'Main Laptop',
+      name: 'Dell XPS 15',
       description: 'Main laptop product',
-      category: 'Electronics',
-      subcategory: 'Laptops',
+      category: 'Informática',
+      subcategory: 'Portátiles',
       brand: 'Dell',
       our_price: 1299.99,
+      specifications: {
+        ram: '16GB',
+        processor: 'Intel i7',
+        storage: '512GB SSD'
+      },
       images: [],
       providers: []
     });
 
+    // Producto muy similar (misma categoría, subcategoría, marca y precio cercano)
     await Product.create({
       sku: 'LAPTOP-REL-1',
-      name: 'Related Laptop 1',
+      name: 'Dell XPS 13',
       description: 'Related laptop 1',
-      category: 'Electronics',
-      subcategory: 'Laptops',
-      brand: 'HP',
-      our_price: 999.99,
+      category: 'Informática',
+      subcategory: 'Portátiles',
+      brand: 'Dell',
+      our_price: 1199.99,
+      specifications: {
+        ram: '16GB',
+        processor: 'Intel i7',
+        storage: '256GB SSD'
+      },
       images: [],
       providers: []
     });
 
+    // Producto similar (misma categoría y subcategoría, diferente marca)
     await Product.create({
       sku: 'LAPTOP-REL-2',
-      name: 'Related Laptop 2',
+      name: 'HP Pavilion',
       description: 'Related laptop 2',
-      category: 'Electronics',
-      subcategory: 'Laptops',
-      brand: 'Lenovo',
+      category: 'Informática',
+      subcategory: 'Portátiles',
+      brand: 'HP',
+      our_price: 999.99,
+      specifications: {
+        ram: '8GB',
+        processor: 'Intel i5',
+        storage: '512GB SSD'
+      },
+      images: [],
+      providers: []
+    });
+
+    // Producto menos similar (diferente subcategoría)
+    await Product.create({
+      sku: 'DESKTOP-001',
+      name: 'Desktop PC',
+      description: 'Desktop computer',
+      category: 'Informática',
+      subcategory: 'Sobremesa',
+      brand: 'HP',
       our_price: 899.99,
       images: [],
       providers: []
     });
 
+    // Producto no relacionado (diferente categoría)
     await Product.create({
       sku: 'MOUSE-001',
       name: 'Gaming Mouse',
       description: 'Not related - different category',
-      category: 'Accessories',
+      category: 'Periféricos',
+      subcategory: 'Ratones',
       brand: 'Logitech',
       our_price: 49.99,
       images: [],
@@ -60,45 +98,179 @@ describe('GetRelatedProducts', () => {
 
     const related = await GetRelatedProducts.execute(
       (mainProduct._id as any).toString(),
-      'Electronics',
-      4
+      5
     );
 
-    expect(related).toHaveLength(2);
-    expect(related.every(p => p.category === 'Electronics')).toBe(true);
+    expect(related.length).toBeGreaterThan(0);
+    expect(related.length).toBeLessThanOrEqual(5);
+    
+    // El primer resultado debe ser el más similar (Dell XPS 13)
+    expect(related[0].sku).toBe('LAPTOP-REL-1');
+    
+    // No debe incluir el producto principal
     expect(related.every(p => p.sku !== 'LAPTOP-MAIN')).toBe(true);
   });
 
-  it('should exclude the main product from results', async () => {
+  it('should prioritize products with same brand', async () => {
     const mainProduct = await Product.create({
-      sku: 'PROD-MAIN',
-      name: 'Main Product',
-      description: 'Main product',
-      category: 'Electronics',
-      brand: 'Test Brand',
-      our_price: 599.99,
+      sku: 'SAMSUNG-MAIN',
+      name: 'Samsung Galaxy S21',
+      description: 'Main phone',
+      category: 'Móviles',
+      subcategory: 'Smartphones',
+      brand: 'Samsung',
+      our_price: 799.99,
       images: [],
       providers: []
     });
 
+    // Mismo brand, precio similar
     await Product.create({
-      sku: 'PROD-REL',
-      name: 'Related Product',
-      description: 'Related product',
-      category: 'Electronics',
-      brand: 'Test Brand',
-      our_price: 499.99,
+      sku: 'SAMSUNG-REL',
+      name: 'Samsung Galaxy S20',
+      description: 'Related Samsung',
+      category: 'Móviles',
+      subcategory: 'Smartphones',
+      brand: 'Samsung',
+      our_price: 699.99,
+      images: [],
+      providers: []
+    });
+
+    // Diferente brand, precio similar
+    await Product.create({
+      sku: 'IPHONE-REL',
+      name: 'iPhone 12',
+      description: 'Related iPhone',
+      category: 'Móviles',
+      subcategory: 'Smartphones',
+      brand: 'Apple',
+      our_price: 799.99,
       images: [],
       providers: []
     });
 
     const related = await GetRelatedProducts.execute(
       (mainProduct._id as any).toString(),
-      'Electronics',
-      10
+      5
     );
 
-    expect(related.every(p => p.sku !== 'PROD-MAIN')).toBe(true);
+    expect(related.length).toBeGreaterThan(0);
+    // El producto Samsung debe tener mayor prioridad
+    expect(related[0].brand).toBe('Samsung');
+  });
+
+  it('should prioritize products with similar price', async () => {
+    const mainProduct = await Product.create({
+      sku: 'MAIN-MID',
+      name: 'Mid-range Product',
+      description: 'Main product',
+      category: 'Electrónica',
+      subcategory: 'Tablets',
+      brand: 'Generic',
+      our_price: 500.00,
+      images: [],
+      providers: []
+    });
+
+    // Precio muy similar
+    await Product.create({
+      sku: 'REL-CLOSE',
+      name: 'Close Price Product',
+      description: 'Close price',
+      category: 'Electrónica',
+      subcategory: 'Tablets',
+      brand: 'Generic',
+      our_price: 520.00,
+      images: [],
+      providers: []
+    });
+
+    // Precio muy diferente
+    await Product.create({
+      sku: 'REL-FAR',
+      name: 'Far Price Product',
+      description: 'Far price',
+      category: 'Electrónica',
+      subcategory: 'Tablets',
+      brand: 'Generic',
+      our_price: 1500.00,
+      images: [],
+      providers: []
+    });
+
+    const related = await GetRelatedProducts.execute(
+      (mainProduct._id as any).toString(),
+      5
+    );
+
+    expect(related.length).toBeGreaterThan(0);
+    // El producto con precio similar debe estar primero
+    expect(related[0].sku).toBe('REL-CLOSE');
+  });
+
+  it('should consider technical specifications', async () => {
+    const mainProduct = await Product.create({
+      sku: 'MAIN-SPECS',
+      name: 'Product with Specs',
+      description: 'Main',
+      category: 'Informática',
+      subcategory: 'Portátiles',
+      brand: 'Test',
+      our_price: 1000.00,
+      specifications: {
+        ram: '16GB',
+        processor: 'Intel i7',
+        screen: '15.6"'
+      },
+      images: [],
+      providers: []
+    });
+
+    // Especificaciones muy similares
+    await Product.create({
+      sku: 'REL-SIMILAR-SPECS',
+      name: 'Similar Specs',
+      description: 'Similar',
+      category: 'Informática',
+      subcategory: 'Portátiles',
+      brand: 'Other',
+      our_price: 1100.00,
+      specifications: {
+        ram: '16GB',
+        processor: 'Intel i7',
+        screen: '15.6"'
+      },
+      images: [],
+      providers: []
+    });
+
+    // Especificaciones diferentes
+    await Product.create({
+      sku: 'REL-DIFF-SPECS',
+      name: 'Different Specs',
+      description: 'Different',
+      category: 'Informática',
+      subcategory: 'Portátiles',
+      brand: 'Other',
+      our_price: 1050.00,
+      specifications: {
+        ram: '8GB',
+        processor: 'Intel i5',
+        screen: '13.3"'
+      },
+      images: [],
+      providers: []
+    });
+
+    const related = await GetRelatedProducts.execute(
+      (mainProduct._id as any).toString(),
+      5
+    );
+
+    expect(related.length).toBeGreaterThan(0);
+    // El producto con specs similares debe tener mayor score
+    expect(related[0].sku).toBe('REL-SIMILAR-SPECS');
   });
 
   it('should respect limit parameter', async () => {
@@ -106,7 +278,8 @@ describe('GetRelatedProducts', () => {
       sku: 'MAIN-001',
       name: 'Main Product',
       description: 'Main',
-      category: 'Electronics',
+      category: 'Electrónica',
+      subcategory: 'Test',
       brand: 'Test',
       our_price: 999.99,
       images: [],
@@ -118,7 +291,8 @@ describe('GetRelatedProducts', () => {
         sku: `REL-00${i}`,
         name: `Related Product ${i}`,
         description: `Related ${i}`,
-        category: 'Electronics',
+        category: 'Electrónica',
+        subcategory: 'Test',
         brand: 'Test',
         our_price: 100 * i,
         images: [],
@@ -128,7 +302,6 @@ describe('GetRelatedProducts', () => {
 
     const related = await GetRelatedProducts.execute(
       (mainProduct._id as any).toString(),
-      'Electronics',
       3
     );
 
@@ -140,7 +313,8 @@ describe('GetRelatedProducts', () => {
       sku: 'MAIN-ACTIVE',
       name: 'Main Product',
       description: 'Main',
-      category: 'Electronics',
+      category: 'Electrónica',
+      subcategory: 'Test',
       brand: 'Test',
       our_price: 999.99,
       is_active: true,
@@ -152,7 +326,8 @@ describe('GetRelatedProducts', () => {
       sku: 'REL-ACTIVE',
       name: 'Related Active',
       description: 'Active related',
-      category: 'Electronics',
+      category: 'Electrónica',
+      subcategory: 'Test',
       brand: 'Test',
       our_price: 799.99,
       is_active: true,
@@ -164,7 +339,8 @@ describe('GetRelatedProducts', () => {
       sku: 'REL-INACTIVE',
       name: 'Related Inactive',
       description: 'Inactive related',
-      category: 'Electronics',
+      category: 'Electrónica',
+      subcategory: 'Test',
       brand: 'Test',
       our_price: 699.99,
       is_active: false,
@@ -174,12 +350,20 @@ describe('GetRelatedProducts', () => {
 
     const related = await GetRelatedProducts.execute(
       (mainProduct._id as any).toString(),
-      'Electronics',
       10
     );
 
     expect(related).toHaveLength(1);
     expect(related[0].sku).toBe('REL-ACTIVE');
+  });
+
+  it('should return empty array when product not found', async () => {
+    const related = await GetRelatedProducts.execute(
+      '507f1f77bcf86cd799439011', // ID válido pero inexistente
+      5
+    );
+
+    expect(related).toHaveLength(0);
   });
 
   it('should return empty array when no related products exist', async () => {
@@ -188,6 +372,7 @@ describe('GetRelatedProducts', () => {
       name: 'Only Product',
       description: 'The only product in this category',
       category: 'UniqueCategory',
+      subcategory: 'UniqueSubcategory',
       brand: 'Test',
       our_price: 999.99,
       images: [],
@@ -196,59 +381,9 @@ describe('GetRelatedProducts', () => {
 
     const related = await GetRelatedProducts.execute(
       (mainProduct._id as any).toString(),
-      'UniqueCategory',
-      4
+      5
     );
 
     expect(related).toHaveLength(0);
-  });
-
-  it('should return products sorted by creation date (newest first)', async () => {
-    const mainProduct = await Product.create({
-      sku: 'MAIN-001',
-      name: 'Main Product',
-      description: 'Main',
-      category: 'Electronics',
-      brand: 'Test',
-      our_price: 999.99,
-      images: [],
-      providers: []
-    });
-
-    // Crear productos con pequeño delay para asegurar orden
-    const product1 = await Product.create({
-      sku: 'OLD-001',
-      name: 'Older Product',
-      description: 'Older',
-      category: 'Electronics',
-      brand: 'Test',
-      our_price: 799.99,
-      images: [],
-      providers: []
-    });
-
-    await new Promise(resolve => setTimeout(resolve, 10));
-
-    const product2 = await Product.create({
-      sku: 'NEW-001',
-      name: 'Newer Product',
-      description: 'Newer',
-      category: 'Electronics',
-      brand: 'Test',
-      our_price: 899.99,
-      images: [],
-      providers: []
-    });
-
-    const related = await GetRelatedProducts.execute(
-      (mainProduct._id as any).toString(),
-      'Electronics',
-      10
-    );
-
-    expect(related).toHaveLength(2);
-    // El más nuevo debe estar primero
-    expect(related[0].sku).toBe('NEW-001');
-    expect(related[1].sku).toBe('OLD-001');
   });
 });

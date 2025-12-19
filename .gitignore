@@ -73,13 +73,24 @@ jspm_packages/
 .env.logging
 .env.docker
 .env.shared
+.env.test
 
 # Environment files with credentials (keep only .example files)
 **/.env
+**/.env.test
+**/.env.local
+**/.env.prod
+**/.env.staging
+**/.env.docker
+**/.env.shared
+**/.env.security
+**/.env.logging
 !**/.env.example
 !**/.env.*.example
 !.env.docker.example
 !.env.shared.example
+!.env.prod.example
+!.env.staging.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -229,6 +240,7 @@ secrets/
 credentials/
 *.secret
 *.credentials
+.env.secrets
 
 # CI/CD secrets
 .github/secrets/

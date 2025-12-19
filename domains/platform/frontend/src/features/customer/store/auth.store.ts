@@ -5,6 +5,10 @@
  * - Usuario actual
  * - Estado de autenticación
  * - Métodos de autenticación vinculados
+ * 
+ * ✅ SEGURIDAD: Este store NO verifica tokens en localStorage.
+ * La autenticación se maneja exclusivamente mediante httpOnly cookies
+ * que son gestionadas automáticamente por el navegador y el backend.
  */
 
 import { create } from 'zustand';
@@ -81,6 +85,15 @@ export const useAuthStore = create<AuthState>()(
         } : null,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // ✅ SEGURIDAD: NO verificamos tokens en localStorage.
+        // La autenticación se valida mediante httpOnly cookies en el backend.
+        // Si la cookie expiró, la próxima petición al backend retornará 401
+        // y el interceptor de axios manejará el logout automáticamente.
+        if (state) {
+          state.isLoading = false;
+        }
+      },
     }
   )
 );

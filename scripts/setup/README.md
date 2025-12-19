@@ -53,6 +53,39 @@ Verifica que el proyecto esté correctamente instalado y configurado.
 
 ---
 
+### `configure-network-access.ps1`
+Configura automáticamente el acceso desde red local detectando la IP de tu máquina.
+
+**Uso:**
+```powershell
+.\scripts\setup\configure-network-access.ps1
+```
+
+**Opciones:**
+1. **Solo localhost** - Acceso solo desde esta máquina
+2. **Red local** - Acceso desde cualquier dispositivo en tu red (móvil, tablet, otro PC)
+
+**Acciones realizadas:**
+1. Detecta automáticamente la IP de tu máquina
+2. Actualiza `COOKIE_DOMAIN` en archivos .env
+3. Actualiza `FRONTEND_URL` en archivos .env
+4. Actualiza `NEXT_PUBLIC_API_URL` en archivos .env
+5. Muestra instrucciones para reiniciar servicios
+
+**Cuándo usar:**
+- ✅ Quieres probar la app desde tu móvil/tablet
+- ✅ Quieres que otros en tu red accedan a la app
+- ✅ Cambió la IP de tu máquina
+- ✅ Configuración inicial de httpOnly cookies
+
+**Importante:**
+- Después de ejecutar, reinicia los servicios:
+  ```powershell
+  docker-compose -f docker-compose.optimized.yml restart user-service api-gateway frontend
+  ```
+
+---
+
 ## Proceso de Instalación Completo
 
 ### 1. Clonar el Repositorio

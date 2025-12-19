@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/customer';
 
@@ -18,11 +18,13 @@ import { authService } from '@/customer';
  * 
  * Requisitos: 24.2, 24.3
  */
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -79,16 +81,36 @@ export default function GoogleCallbackPage() {
 
         console.log('✅ Usuario autenticado con Google:', user.email);
         setIsProcessing(false);
+        setUserName(user.firstName || user.email.split('@')[0]);
+        setUserRole(user.role);
 
-        // 6. Redirigir a dashboard si éxito
-        // Redirigir según el rol del usuario
-        if (user.role === 'admin') {
-          console.log('🔐 Redirigiendo a admin dashboard...');
-          router.push('/admin');
+        // 6. Determinar URL de redirección
+        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+        let finalRedirectUrl: string;
+        
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          finalRedirectUrl = redirectUrl;
         } else {
-          console.log('🔐 Redirigiendo a user dashboard...');
-          router.push('/dashboard');
+          finalRedirectUrl = user.role === 'admin' ? '/dashboard/admin' : '/dashboard/usuario';
         }
+
+        // 7. Si estamos en un popup, comunicar a la ventana padre y cerrar
+        if (window.opener && !window.opener.closed) {
+          console.log('🔐 Detectado popup, comunicando a ventana padre...');
+          window.opener.postMessage({
+            type: 'oauth-success',
+            provider: 'google',
+            user: user,
+            redirectUrl: finalRedirectUrl,
+          }, window.location.origin);
+          window.close();
+          return;
+        }
+
+        // 8. Si no es popup, redirigir normalmente
+        console.log('🔐 Redirigiendo a:', finalRedirectUrl);
+        router.push(finalRedirectUrl);
       } catch (error: any) {
         console.error('❌ Error en callback de OAuth:', error);
         setIsProcessing(false);
@@ -146,37 +168,90 @@ export default function GoogleCallbackPage() {
     );
   }
 
-  // Estado de procesamiento (spinner)
+  // Mensaje de bienvenida - misma tarjeta, solo cambia el texto
+  const displayName = userName || '';
+  const displayRole = userRole || 'user';
+  
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="text-center max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        {/* Spinner animado */}
-        <div className="mb-6 flex justify-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+        {/* Icono animado */}
+        <div className="mb-6">
+          <div className={`w-20 h-20 ${isProcessing ? 'bg-blue-100' : 'bg-green-100'} rounded-full flex items-center justify-center mx-auto ${!isProcessing ? 'animate-bounce' : ''}`}>
+            {isProcessing ? (
+              <svg className="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+            ) : (
+              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
         </div>
-        
+
         {/* Título */}
-        <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-          Completando inicio de sesión con Google...
+        <h2 className="text-2xl font-semibold mb-2 text-gray-900">
+          {isProcessing 
+            ? '¡Bienvenido!'
+            : `¡Bienvenido, ${displayName}!`}
         </h2>
         
-        {/* Mensaje descriptivo */}
-        <p className="text-gray-600">
+        {/* Subtítulo - cambia según estado */}
+        <p className="text-gray-600 mb-6">
           {isProcessing 
-            ? 'Verificando tu cuenta y configurando tu sesión'
-            : 'Redirigiendo a tu dashboard...'}
+            ? 'Conectando con Google...'
+            : (displayRole === 'admin' 
+                ? 'Accediendo al panel de administración...'
+                : 'Redirigiendo a tu dashboard...')}
         </p>
-        
-        {/* Indicador de progreso adicional */}
-        <div className="mt-6">
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-            <svg className="animate-pulse h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Autenticación segura con Google</span>
+
+        {/* Spinner de carga */}
+        <div className="flex justify-center mb-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+
+        {/* Badge de rol - solo cuando tenemos datos */}
+        {!isProcessing && (
+          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800 mb-4">
+            {displayRole === 'admin' ? '👑 Administrador' : '👤 Usuario'}
           </div>
+        )}
+        
+        {/* Indicador de seguridad */}
+        <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
+          <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span>Inicio de sesión seguro con Google</span>
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Página principal con Suspense boundary
+ * Requerido por Next.js 15 para useSearchParams()
+ */
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="text-center max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+          <div className="mb-6 flex justify-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+            Cargando...
+          </h2>
+        </div>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }

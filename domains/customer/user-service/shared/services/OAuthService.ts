@@ -109,13 +109,32 @@ export class OAuthService {
 
   /**
    * Normalizar información de usuario de Google
+   * Nota: Google puede no devolver apellido si el usuario no lo tiene configurado
    */
   private static normalizeGoogleUserInfo(data: any): OAuthUserInfo {
+    // Extraer nombre y apellido, manejando casos donde no existan
+    let firstName = data.given_name || '';
+    let lastName = data.family_name || '';
+    
+    // Si no hay given_name, intentar extraer del name completo
+    if (!firstName && data.name) {
+      const nameParts = data.name.trim().split(' ');
+      firstName = nameParts[0] || '';
+      lastName = nameParts.slice(1).join(' ') || lastName;
+    }
+    
+    // Si aún no hay nombre, usar valor por defecto
+    if (!firstName) {
+      firstName = 'Usuario';
+    }
+    
+    // El apellido puede quedar vacío - es válido
+    
     return {
       id: data.id,
       email: data.email,
-      firstName: data.given_name || data.name?.split(' ')[0] || 'Usuario',
-      lastName: data.family_name || data.name?.split(' ').slice(1).join(' ') || '',
+      firstName,
+      lastName,
       emailVerified: data.verified_email || false,
       avatar: data.picture,
     };
@@ -189,6 +208,11 @@ export class OAuthService {
         // Usuario existente con este proveedor
         logger.info(`Existing OAuth user found: ${user.email}`, { userId: user.id, provider });
         
+        // Actualizar avatar si cambió
+        if (userInfo.avatar && user.avatar !== userInfo.avatar) {
+          user.avatar = userInfo.avatar;
+        }
+        
         // Actualizar última vez usado
         await user.updateAuthMethodLastUsed(provider);
         user.last_login = new Date();
@@ -208,6 +232,11 @@ export class OAuthService {
         
         // Actualizar provider ID
         user[providerIdField] = userInfo.id;
+        
+        // Actualizar avatar si no tiene uno o si cambió
+        if (userInfo.avatar && (!user.avatar || user.avatar !== userInfo.avatar)) {
+          user.avatar = userInfo.avatar;
+        }
         
         // Agregar método de autenticación
         await user.addAuthMethod(provider, userInfo.id);
@@ -231,6 +260,7 @@ export class OAuthService {
         password_hash: null, // Usuario OAuth sin contraseña
         first_name: userInfo.firstName,
         last_name: userInfo.lastName,
+        avatar: userInfo.avatar, // Guardar imagen de perfil de OAuth
         [providerIdField]: userInfo.id,
         email_verified: userInfo.emailVerified,
         role: 'customer',

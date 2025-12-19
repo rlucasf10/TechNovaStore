@@ -3,11 +3,17 @@
  * 
  * React Query hooks para gestión de categorías
  * Integración con CategoryService
+ * 
+ * Optimizaciones implementadas:
+ * - staleTime largo para datos estáticos (categorías cambian poco)
+ * - Query keys centralizados
+ * - gcTime optimizado para caché prolongado
  */
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { categoryService, type CategoryTree } from '@/catalog';
 import type { Category } from '@/types';
+import { queryKeys, STALE_TIME, GC_TIME, staticQueryOptions } from '@/lib/react-query.config';
 
 /**
  * Hook para obtener todas las categorías
@@ -24,9 +30,9 @@ export function useCategories(
   options?: Omit<UseQueryOptions<Category[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: queryKeys.categories.list(),
     queryFn: () => categoryService.getCategories(),
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(), // Categorías son datos estáticos
     ...options,
   });
 }
@@ -48,10 +54,10 @@ export function useCategory(
   options?: Omit<UseQueryOptions<Category>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['category', slug],
+    queryKey: queryKeys.categories.detail(slug),
     queryFn: () => categoryService.getCategory(slug),
     enabled: !!slug,
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(), // Categorías son datos estáticos
     ...options,
   });
 }
@@ -73,10 +79,10 @@ export function useCategoryById(
   options?: Omit<UseQueryOptions<Category>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['category', 'id', id],
+    queryKey: [...queryKeys.categories.all, 'id', id],
     queryFn: () => categoryService.getCategoryById(id),
     enabled: !!id,
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(),
     ...options,
   });
 }
@@ -96,9 +102,9 @@ export function useCategoryTree(
   options?: Omit<UseQueryOptions<CategoryTree[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories', 'tree'],
+    queryKey: [...queryKeys.categories.all, 'tree'],
     queryFn: () => categoryService.getCategoryTree(),
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(),
     ...options,
   });
 }
@@ -118,9 +124,9 @@ export function useRootCategories(
   options?: Omit<UseQueryOptions<Category[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories', 'root'],
+    queryKey: [...queryKeys.categories.all, 'root'],
     queryFn: () => categoryService.getRootCategories(),
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(),
     ...options,
   });
 }
@@ -142,10 +148,10 @@ export function useSubcategories(
   options?: Omit<UseQueryOptions<Category[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories', 'subcategories', parentId],
+    queryKey: [...queryKeys.categories.all, 'subcategories', parentId],
     queryFn: () => categoryService.getSubcategories(parentId),
     enabled: !!parentId,
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(),
     ...options,
   });
 }
@@ -167,9 +173,9 @@ export function useFeaturedCategories(
   options?: Omit<UseQueryOptions<Category[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories', 'featured', limit],
+    queryKey: [...queryKeys.categories.all, 'featured', limit],
     queryFn: () => categoryService.getFeaturedCategories(limit),
-    staleTime: 30 * 60 * 1000, // 30 minutos
+    ...staticQueryOptions(),
     ...options,
   });
 }
@@ -191,10 +197,11 @@ export function useSearchCategories(
   options?: Omit<UseQueryOptions<Category[]>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: ['categories', 'search', query],
+    queryKey: [...queryKeys.categories.all, 'search', query],
     queryFn: () => categoryService.searchCategories(query),
     enabled: query.length > 2,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: STALE_TIME.MEDIUM,
+    gcTime: GC_TIME.SHORT,
     ...options,
   });
 }

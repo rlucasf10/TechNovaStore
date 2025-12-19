@@ -1,4 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
+import { safeJsonParse } from '../utils/safeJsonParse';
+import { logger } from '../utils/logger';
 
 /**
  * Configuration for Ollama adapter
@@ -106,7 +108,7 @@ export class OllamaAdapter {
       }
     });
 
-    console.log(`OllamaAdapter initialized with host: ${this.config.host}, model: ${this.config.model}`);
+    logger.info('OllamaAdapter inicializado', { host: this.config.host, model: this.config.model });
   }
 
   /**
@@ -137,7 +139,10 @@ export class OllamaAdapter {
         }
       };
 
-      console.log(`Sending request to Ollama: ${messages.length} messages${retryCount > 0 ? ` (retry ${retryCount}/${MAX_RETRIES})` : ''}`);
+      logger.debug('Enviando request a Ollama', { 
+        messageCount: messages.length, 
+        retry: retryCount > 0 ? `${retryCount}/${MAX_RETRIES}` : 'none' 
+      });
       
       const response = await this.httpClient.post<OllamaResponse>('/api/chat', request);
 
@@ -149,7 +154,9 @@ export class OllamaAdapter {
         );
       }
 
-      console.log(`Received response from Ollama: ${response.data.message.content.length} characters`);
+      logger.debug('Respuesta recibida de Ollama', { 
+        contentLength: response.data.message.content.length 
+      });
       
       return response.data.message.content;
     } catch (error) {
@@ -158,7 +165,10 @@ export class OllamaAdapter {
       // Retry logic with exponential backoff
       if (ollamaError.retryable && retryCount < MAX_RETRIES) {
         const backoffDelay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s...
-        console.warn(`Request failed (${ollamaError.code}), retrying in ${backoffDelay}ms...`);
+        logger.warn('Request a Ollama falló, reintentando', { 
+          code: ollamaError.code, 
+          backoffDelay 
+        });
         
         await this.sleep(backoffDelay);
         return this.generateResponse(messages, retryCount + 1);
@@ -197,7 +207,7 @@ export class OllamaAdapter {
         }
       };
 
-      console.log(`Sending streaming request to Ollama: ${messages.length} messages`);
+      logger.debug('Enviando streaming request a Ollama', { messageCount: messages.length });
 
       const response = await this.httpClient.post('/api/chat', request, {
         responseType: 'stream'
@@ -215,18 +225,22 @@ export class OllamaAdapter {
         
         for (const line of lines) {
           if (line.trim()) {
-            try {
-              const data: OllamaResponse = JSON.parse(line);
-              
-              if (data.message && data.message.content) {
-                onChunk(data.message.content);
-              }
-              
-              if (data.done) {
-                console.log('Streaming response completed');
-              }
-            } catch (parseError) {
-              console.error('Error parsing streaming chunk:', parseError);
+            // Parsear JSON de forma segura con valor por defecto
+            const data = safeJsonParse<OllamaResponse>(
+              line,
+              { 
+                done: true, 
+                message: { role: 'assistant', content: '' } 
+              },
+              'OllamaAdapter.parseStreamLine'
+            );
+            
+            if (data.message && data.message.content) {
+              onChunk(data.message.content);
+            }
+            
+            if (data.done) {
+              logger.debug('Streaming response completado');
             }
           }
         }
@@ -272,7 +286,9 @@ export class OllamaAdapter {
 
       return isHealthy;
     } catch (error) {
-      console.warn('Ollama health check failed:', error instanceof Error ? error.message : 'Unknown error');
+      logger.warn('Ollama health check falló', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
       
       // Update cache with failure
       this.healthCheckCache = {
@@ -303,12 +319,14 @@ export class OllamaAdapter {
       const modelLoaded = models.some(m => m.name === this.config.model);
 
       if (!modelLoaded) {
-        console.warn(`Model ${this.config.model} is not loaded in Ollama`);
+        logger.warn('Modelo no cargado en Ollama', { model: this.config.model });
       }
 
       return modelLoaded;
     } catch (error) {
-      console.error('Error checking if model is loaded:', error instanceof Error ? error.message : 'Unknown error');
+      logger.error('Error al verificar si el modelo está cargado', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
       return false;
     }
   }

@@ -9,6 +9,8 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { createTicketRoutes } from './api/routes';
 import pool from './config/database';
+import { logger } from './shared/utils/logger';
+import { apiRateLimiter } from './shared/middleware/rateLimiter';
 
 // Load environment variables
 dotenv.config();
@@ -36,13 +38,18 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Rate limiting para todas las rutas /api/
+// Configuración: 100 requests por 15 minutos por IP
+// Requirements: 7.1, 7.2, 7.3, 7.4
+app.use('/api', apiRateLimiter);
+
 // API routes
 const ticketRoutes = createTicketRoutes(pool);
 app.use('/api', ticketRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
+  logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
@@ -59,34 +66,36 @@ app.use('*', (req, res) => {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
+  logger.info('Received SIGTERM, shutting down gracefully...');
   await pool.end();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('Received SIGINT, shutting down gracefully...');
+  logger.info('Received SIGINT, shutting down gracefully...');
   await pool.end();
   process.exit(0);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+  logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error('Unhandled Rejection', { reason, promise: String(promise) });
   process.exit(1);
 });
 
 // Start server
 app.listen(port, () => {
-  console.log(`Ticket service running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/health`);
-  console.log(`API base URL: http://localhost:${port}/api`);
-  console.log(`Screaming Architecture: Organized by use cases`);
+  logger.info('Ticket service started', {
+    port,
+    healthCheck: `http://localhost:${port}/health`,
+    apiBaseUrl: `http://localhost:${port}/api`,
+    architecture: 'Screaming Architecture - Organized by use cases'
+  });
 });
 
 export default app;

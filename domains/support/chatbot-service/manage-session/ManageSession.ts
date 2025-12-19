@@ -9,6 +9,7 @@
  */
 
 import { ChatContext } from '../shared/types';
+import { logger } from '../shared/utils/logger';
 
 export interface ChatSession {
   sessionId: string;
@@ -16,6 +17,7 @@ export interface ChatSession {
   context: ChatContext;
   createdAt: Date;
   lastActivity: Date;
+  preferredAIProvider?: 'gemini' | 'fallback';
 }
 
 export class ManageSession {
@@ -45,7 +47,9 @@ export class ManageSession {
         },
         conversationHistory: [],
         lastProductQuery: undefined,
-        lastProducts: undefined
+        lastProducts: undefined,
+        // Inicializar array de productos ya mostrados (para evitar repeticiones)
+        shownProductSkus: []
       },
       createdAt: now,
       lastActivity: now
@@ -100,6 +104,30 @@ export class ManageSession {
   }
 
   /**
+   * Obtiene el total de sesiones (alias para compatibilidad)
+   */
+  getTotalSessions(): number {
+    return this.sessions.size;
+  }
+
+  /**
+   * Obtiene el número de sesiones activas (alias para compatibilidad)
+   */
+  getActiveSessions(): number {
+    return this.sessions.size;
+  }
+
+  /**
+   * Limpia todas las sesiones activas (para reinicio del servicio)
+   */
+  clearAllSessions(): number {
+    const count = this.sessions.size;
+    this.sessions.clear();
+    logger.info('Todas las sesiones limpiadas', { count });
+    return count;
+  }
+
+  /**
    * Inicia la limpieza periódica de sesiones expiradas
    */
   private startSessionCleanup(): void {
@@ -110,7 +138,7 @@ export class ManageSession {
       for (const [sessionId, session] of this.sessions.entries()) {
         if (now.getTime() - session.lastActivity.getTime() > maxAge) {
           this.sessions.delete(sessionId);
-          console.log(`Cleaned up expired session: ${sessionId}`);
+          logger.debug('Sesión expirada limpiada', { sessionId });
         }
       }
     }, 60 * 60 * 1000); // Ejecutar cada hora

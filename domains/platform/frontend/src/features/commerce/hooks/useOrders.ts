@@ -19,7 +19,8 @@ export function useOrders(): UseOrdersReturn {
       setLoading(true)
       setError(null)
       
-      const response = await api.get('/orders')
+      // Usar el endpoint correcto para obtener pedidos del usuario actual
+      const response = await api.get('/orders/my-orders')
       setOrders(response.data.data)
     } catch (err: unknown) {
       const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al cargar los pedidos'

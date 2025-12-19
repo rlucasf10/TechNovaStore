@@ -1,6 +1,6 @@
 'use client'
 
-import { InputHTMLAttributes, forwardRef, ReactNode, useState } from 'react'
+import { InputHTMLAttributes, forwardRef, ReactNode, useState, useId } from 'react'
 import { cn } from '@/lib/utils'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -42,7 +42,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     type,
     ...props 
   }, ref) => {
-    const inputId = id || `input-${Math.random().toString(36).substring(2, 11)}`
+    // Usar useId de React para generar IDs estables entre SSR y cliente
+    const generatedId = useId()
+    const inputId = id || `input-${generatedId}`
     const [showPassword, setShowPassword] = useState(false)
     const [isFocused, setIsFocused] = useState(false)
     
@@ -64,10 +66,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     
     // Estados del input
     const stateClasses = error
-      ? 'border-error focus:border-error focus:ring-error/20 text-gray-900'
+      ? 'border-error focus:border-error focus:ring-error/20 text-gray-900 dark:text-gray-100 bg-white dark:bg-slate-800'
       : disabled
-      ? 'border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed'
-      : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/20 text-gray-900'
+      ? 'border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+      : 'border-gray-300 dark:border-slate-600 focus:border-primary-500 focus:ring-primary-500/20 text-gray-900 dark:text-gray-100 bg-white dark:bg-slate-800'
 
     // Padding según iconos
     const paddingClasses = cn(
@@ -182,7 +184,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {label && !floatingLabel && (
             <label 
               htmlFor={inputId} 
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
             >
               {label}
             </label>
@@ -195,8 +197,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'absolute left-3 transition-all duration-200 pointer-events-none',
                 shouldFloat
-                  ? 'top-2 text-xs text-primary-600 font-medium'
-                  : 'top-1/2 -translate-y-1/2 text-base text-gray-500',
+                  ? 'top-2 text-xs text-primary-600 dark:text-primary-400 font-medium'
+                  : 'top-1/2 -translate-y-1/2 text-base text-gray-500 dark:text-gray-400',
                 error && shouldFloat && 'text-error'
               )}
             >
@@ -285,7 +287,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* Texto de ayuda */}
         {helperText && !error && (
-          <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-gray-500">
+          <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
             {helperText}
           </p>
         )}

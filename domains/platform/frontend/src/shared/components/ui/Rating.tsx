@@ -128,7 +128,9 @@ const Rating = forwardRef<HTMLDivElement, RatingProps>(
             !isInteractive && 'cursor-default',
             sizes[size]
           )}
-          aria-label={`${starIndex + 1} ${starIndex === 0 ? 'estrella' : 'estrellas'}`}
+          aria-label={`Calificar con ${starIndex + 1} ${starIndex === 0 ? 'estrella' : 'estrellas'}`}
+          aria-pressed={isInteractive && normalizedValue >= starIndex + 1}
+          tabIndex={isInteractive ? 0 : -1}
         >
           <svg
             className={cn('absolute inset-0', sizes[size])}
@@ -176,11 +178,11 @@ const Rating = forwardRef<HTMLDivElement, RatingProps>(
         {/* Valor numérico y contador de reviews */}
         {showValue && (
           <div className={cn('inline-flex items-center gap-1', textSizes[size])}>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               {normalizedValue.toFixed(1)}
             </span>
             {reviewCount !== undefined && (
-              <span className="text-gray-500">
+              <span className="text-gray-500 dark:text-gray-400">
                 ({reviewCount.toLocaleString('es-ES')} {reviewCount === 1 ? 'review' : 'reviews'})
               </span>
             )}

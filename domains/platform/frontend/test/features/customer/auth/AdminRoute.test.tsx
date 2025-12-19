@@ -4,12 +4,16 @@
  * Verifica que el componente proteja correctamente las rutas de admin.
  */
 
+import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AdminRoute } from '@/customer/components/auth/AdminRoute';
-import { useAuth } from '@/customer/hooks/useAuth';
 import { useRouter, usePathname } from 'next/navigation';
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de useAuth
+const mockUseAuth = jest.fn();
+jest.mock('@/customer/hooks/useAuth', () => ({
+  useAuth: () => mockUseAuth(),
+}));
 
 // Mock de next/navigation
 jest.mock('next/navigation', () => ({
@@ -35,7 +39,7 @@ describe('AdminRoute', () => {
   });
 
   it('muestra spinner mientras verifica autenticación', () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: true,
       isAuthenticated: false,
       status: 'loading',
@@ -53,7 +57,7 @@ describe('AdminRoute', () => {
   });
 
   it('redirige a login si no está autenticado', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
       status: 'unauthenticated',
@@ -74,7 +78,7 @@ describe('AdminRoute', () => {
   });
 
   it('incluye URL de retorno en redirección a login', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
       status: 'unauthenticated',
@@ -95,7 +99,7 @@ describe('AdminRoute', () => {
   });
 
   it('redirige a unauthorized si no es admin', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: true,
       status: 'authenticated',
@@ -120,7 +124,7 @@ describe('AdminRoute', () => {
   });
 
   it('muestra contenido si es admin', () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: true,
       status: 'authenticated',
@@ -144,7 +148,7 @@ describe('AdminRoute', () => {
   });
 
   it('usa redirección personalizada a login', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
       status: 'unauthenticated',
@@ -165,7 +169,7 @@ describe('AdminRoute', () => {
   });
 
   it('usa redirección personalizada a unauthorized', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: true,
       status: 'authenticated',
@@ -179,18 +183,18 @@ describe('AdminRoute', () => {
     });
 
     render(
-      <AdminRoute unauthorizedRedirect="/dashboard">
+      <AdminRoute unauthorizedRedirect="/dashboard/usuario">
         <div>Admin Content</div>
       </AdminRoute>
     );
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+      expect(mockPush).toHaveBeenCalledWith('/dashboard/usuario');
     });
   });
 
   it('no incluye URL de retorno si includeReturnUrl es false', async () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
       status: 'unauthenticated',
@@ -209,7 +213,7 @@ describe('AdminRoute', () => {
   });
 
   it('muestra spinner mientras redirige si no está autenticado', () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
       status: 'unauthenticated',
@@ -228,7 +232,7 @@ describe('AdminRoute', () => {
   });
 
   it('muestra spinner mientras redirige si no es admin', () => {
-    (useAuth as jest.Mock).mockReturnValueOnce({
+    mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: true,
       status: 'authenticated',

@@ -84,11 +84,18 @@ export interface User {
   first_name: string
   last_name: string
   phone?: string
+  avatar?: string
   address?: Address
   role: 'customer' | 'admin'
   is_active: boolean
   created_at: string
   updated_at: string
+  authMethods?: Array<{
+    type: 'password' | 'google' | 'github'
+    providerId?: string
+    linkedAt: Date
+    lastUsed?: Date
+  }>
 }
 
 export interface Address {
@@ -202,10 +209,17 @@ export interface ChatMessage {
   timestamp: Date
   type: 'text' | 'product_recommendation' | 'quick_reply'
   metadata?: {
-    products?: Product[]
+    products?: Array<{
+      id: string
+      name: string
+      price: number
+      image: string
+    }>
     quick_replies?: string[]
     intent?: string
     confidence?: number
+    isStreaming?: boolean
+    usingFallback?: boolean
   }
 }
 
@@ -267,3 +281,115 @@ export interface SearchResponse {
 }
 
 // NOTA: Los tipos de autenticación están en @/customer/types/auth.types
+
+// Tipos de Campaign Manager
+export interface Campaign {
+  id: string
+  name: string
+  slug: string
+  startDate: string
+  endDate: string
+  priority: number
+  isActive: boolean
+  discountRules: DiscountRules
+  frontendConfig: FrontendConfig
+  discountsApplied: boolean
+  appliedAt?: string
+  deactivatedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DiscountRules {
+  global?: DiscountRule
+  categories?: Record<string, DiscountRule>
+  products?: Record<string, DiscountRule>
+}
+
+export interface DiscountRule {
+  type: 'percentage' | 'fixed'
+  value: number
+  maxDiscount?: number
+  minPurchase?: number
+}
+
+export interface FrontendConfig {
+  promoBanner: {
+    messages: Array<{ icon: string; text: string }>
+    backgroundColor?: string
+  }
+  hero: {
+    title: string
+    subtitle: string
+    ctaText: string
+    backgroundImage?: string
+    badge?: string
+  }
+  dealsSection: {
+    title: string
+    subtitle: string
+    badge: string
+    backgroundColor?: string
+  }
+  categories?: string[]
+}
+
+// Estados de campaña:
+// - active: Campaña con descuentos aplicados actualmente
+// - pending: Campaña en rango de fechas pero sin activar (requiere acción)
+// - scheduled: Campaña programada para el futuro
+// - finished: Campaña finalizada (fecha de fin pasada)
+export type CampaignStatus = 'active' | 'pending' | 'scheduled' | 'finished'
+
+export interface CampaignFilters {
+  status?: CampaignStatus | 'all'
+  page?: number
+  limit?: number
+}
+
+// Tipos de Analytics de Campañas
+export interface CampaignAnalytics {
+  id: string
+  campaignId: string
+  date: string
+  views: number
+  clicks: number
+  conversions: number
+  revenue: number
+}
+
+export interface AggregatedMetrics {
+  productsWithDiscount: number
+  averageDiscountPercentage: number
+  totalViews: number
+  totalClicks: number
+  totalConversions: number
+  totalRevenue: number
+  conversionRate: number
+  roi: number
+  totalUnitsSold: number
+  totalDiscountAmount: number
+}
+
+export interface TopProduct {
+  productId: string
+  productName: string
+  unitsSold: number
+  revenue: number
+  discountPercentage: number
+  category?: string
+}
+
+export interface CategorySales {
+  category: string
+  unitsSold: number
+  revenue: number
+}
+
+export interface CampaignReport {
+  campaign: Campaign
+  metrics: AggregatedMetrics
+  topProducts: TopProduct[]
+  dailyMetrics: CampaignAnalytics[]
+  categorySales?: CategorySales[]
+}

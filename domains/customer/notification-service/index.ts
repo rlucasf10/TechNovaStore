@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import { apiRateLimiter } from './shared/middleware/rateLimiter';
 
 // Importar infraestructura compartida
 import { EmailService } from './shared/email/EmailService';
@@ -21,14 +22,26 @@ import { SendDelayAlert } from './send-delay-alert/SendDelayAlert';
 import { SendOrderCancellation } from './send-order-cancellation/SendOrderCancellation';
 import { SendInvoiceGenerated } from './send-invoice-generated/SendInvoiceGenerated';
 import { CheckDeliveryDelays } from './check-delivery-delays/CheckDeliveryDelays';
+import { GetUserNotifications } from './get-user-notifications/GetUserNotifications';
+import { CreateUserNotification } from './create-user-notification/CreateUserNotification';
+import { MarkNotificationRead } from './mark-notification-read/MarkNotificationRead';
+import { MarkAllNotificationsRead } from './mark-all-notifications-read/MarkAllNotificationsRead';
+import { DeleteNotification } from './delete-notification/DeleteNotification';
 
 // Importar API layer
 import { NotificationController } from './api/NotificationController';
 import { createNotificationRoutes } from './api/routes';
 
+// Importar repositorios
+import { UserNotificationRepository } from './shared/repositories/UserNotificationRepository';
+import { Pool } from 'pg';
+
 // Importar scheduler (mantener funcionalidad original)
 import { SchedulerService } from './shared/services/SchedulerService';
 import { NotificationService } from './shared/services/NotificationService';
+
+// Importar logger
+import { logger } from './shared/utils/logger';
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +69,29 @@ app.use(express.urlencoded({ extended: true }));
 const emailService = new EmailService(config.email);
 const templateService = new TemplateService();
 
+// Validación de POSTGRES_PASSWORD
+const dbPassword = process.env.POSTGRES_PASSWORD;
+
+if (!dbPassword) {
+  logger.error('CRITICAL: POSTGRES_PASSWORD environment variable is not set');
+  throw new Error('POSTGRES_PASSWORD must be configured. Application cannot start.');
+}
+
+// Initialize PostgreSQL connection pool
+const pool = new Pool({
+  host: process.env.POSTGRES_HOST || 'localhost',
+  port: parseInt(process.env.POSTGRES_PORT || '5432'),
+  database: process.env.POSTGRES_DB || 'technovastore',
+  user: process.env.POSTGRES_USER || 'postgres',
+  password: dbPassword,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+// Initialize repositories
+const userNotificationRepository = new UserNotificationRepository(pool);
+
 // Initialize use cases
 const sendOrderConfirmation = new SendOrderConfirmation(emailService, templateService);
 const sendPaymentConfirmation = new SendPaymentConfirmation(emailService, templateService);
@@ -65,6 +101,13 @@ const sendOrderCancellation = new SendOrderCancellation(emailService, templateSe
 const sendInvoiceGenerated = new SendInvoiceGenerated(emailService, templateService);
 const checkDeliveryDelays = new CheckDeliveryDelays(sendDelayAlert);
 
+// Initialize user notification use cases
+const getUserNotifications = new GetUserNotifications(userNotificationRepository);
+const createUserNotification = new CreateUserNotification(userNotificationRepository);
+const markNotificationRead = new MarkNotificationRead(userNotificationRepository);
+const markAllNotificationsRead = new MarkAllNotificationsRead(userNotificationRepository);
+const deleteNotification = new DeleteNotification(userNotificationRepository);
+
 // Initialize API controller
 const notificationController = new NotificationController(
   sendOrderConfirmation,
@@ -73,7 +116,12 @@ const notificationController = new NotificationController(
   sendDelayAlert,
   sendOrderCancellation,
   sendInvoiceGenerated,
-  checkDeliveryDelays
+  checkDeliveryDelays,
+  getUserNotifications,
+  createUserNotification,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification
 );
 
 // Initialize scheduler (mantener funcionalidad original)
@@ -85,6 +133,11 @@ schedulerService.start();
 app.get('/health', (req, res) => {
   return res.json({ status: 'ok', service: 'notification-service' });
 });
+
+// Rate limiting para todas las rutas /api/
+// Configuración: 100 requests por 15 minutos por IP
+// Requirements: 7.1, 7.2, 7.3, 7.4
+app.use('/api', apiRateLimiter);
 
 // Mount notification routes
 const notificationRoutes = createNotificationRoutes(notificationController);
@@ -109,7 +162,7 @@ app.post('/notifications/email', async (req, res) => {
       message: 'Notification sent successfully'
     });
   } catch (error) {
-    console.error('Error sending notification:', error);
+    logger.error('Error sending notification', { error: error instanceof Error ? error.message : error });
     return res.status(500).json({
       success: false,
       error: 'Failed to send notification'
@@ -123,7 +176,7 @@ app.post('/notifications/shipment-status', async (req, res) => {
     await sendShipmentStatus.execute(data);
     return res.json({ success: true, message: 'Shipment status notification sent successfully' });
   } catch (error) {
-    console.error('Error sending shipment notification:', error);
+    logger.error('Error sending shipment notification', { error: error instanceof Error ? error.message : error });
     return res.status(500).json({ success: false, error: 'Failed to send shipment notification' });
   }
 });
@@ -136,7 +189,7 @@ app.post('/notifications/delay-alert', async (req, res) => {
     await sendDelayAlert.execute(data);
     return res.json({ success: true, message: 'Delay alert sent successfully' });
   } catch (error) {
-    console.error('Error sending delay alert:', error);
+    logger.error('Error sending delay alert', { error: error instanceof Error ? error.message : error });
     return res.status(500).json({ success: false, error: 'Failed to send delay alert' });
   }
 });
@@ -146,7 +199,7 @@ app.post('/admin/check-delays', async (req, res) => {
     await schedulerService.triggerDelayCheck();
     return res.json({ success: true, message: 'Delay check completed successfully' });
   } catch (error) {
-    console.error('Error in manual delay check:', error);
+    logger.error('Error in manual delay check', { error: error instanceof Error ? error.message : error });
     return res.status(500).json({ success: false, error: 'Failed to check for delays' });
   }
 });
@@ -154,24 +207,26 @@ app.post('/admin/check-delays', async (req, res) => {
 const PORT = process.env.PORT || 3005;
 
 const server = app.listen(PORT, () => {
-  console.log(`Notification service running on port ${PORT}`);
-  console.log('Screaming Architecture: Organized by use cases');
+  logger.info(`Notification service running on port ${PORT}`);
+  logger.info('Screaming Architecture: Organized by use cases');
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down gracefully');
   schedulerService.stop();
+  await pool.end();
   server.close(() => {
-    console.log('Process terminated');
+    logger.info('Process terminated');
   });
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down gracefully');
   schedulerService.stop();
+  await pool.end();
   server.close(() => {
-    console.log('Process terminated');
+    logger.info('Process terminated');
   });
 });
 

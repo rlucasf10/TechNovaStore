@@ -68,17 +68,19 @@ export function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className="
-              fixed md:absolute
-              top-0 md:top-full right-0 md:right-0
-              w-full md:w-96
-              h-full md:h-auto
-              md:max-h-[min(600px,calc(100vh-120px))]
-              mt-0 md:mt-2
+              fixed sm:absolute
+              top-16 sm:top-full
+              right-2 sm:right-0
+              w-[calc(100vw-1rem)] sm:w-96
+              max-w-[400px]
+              max-h-[calc(100vh-80px)] sm:max-h-[min(600px,calc(100vh-120px))]
+              mt-0 sm:mt-2
               bg-white
               shadow-2xl
+              border border-gray-200
+              rounded-lg
               z-50
               flex flex-col
-              md:rounded-lg
               overflow-hidden
             "
             role="dialog"
@@ -137,6 +139,9 @@ export function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                               width={64}
                               height={64}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              placeholder="blur"
+                              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">

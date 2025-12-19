@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ChatContext, ChatResponse } from '../types';
+import { logger } from '../utils/logger';
 
 export interface EscalationDecision {
   shouldEscalate: boolean;
@@ -123,7 +124,9 @@ export class EscalationIntegration {
         throw new Error('Failed to create ticket');
       }
     } catch (error) {
-      console.error('Error escalating to ticket system:', error);
+      logger.error('Error al escalar a sistema de tickets', { 
+        error: error instanceof Error ? error.message : error 
+      });
       throw new Error('No se pudo crear el ticket de soporte. Por favor, intenta más tarde.');
     }
   }

@@ -1,0 +1,38 @@
+/* BLOQUE 1: Base + Tailwind + Estilos básicos del body */
+/* Si este bloque falla, el problema está en el import de variables o configuración base */
+
+@import '../styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevenir overflow horizontal en toda la aplicación */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Asegurar que todos los elementos respeten el ancho del viewport */
+  * {
+    box-sizing: border-box;
+  }
+
+  *,
+  *::before,
+  *::after {
+    max-width: 100%;
+  }
+}

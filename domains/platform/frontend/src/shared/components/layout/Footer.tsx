@@ -172,7 +172,7 @@ export function Footer() {
   // ============================================================================
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer id="footer" role="contentinfo" className="bg-gray-900 text-gray-300">
       
       {/* ============================================================ */}
       {/* Sección Principal del Footer */}
@@ -247,26 +247,29 @@ export function Footer() {
 
             {/* Redes Sociales */}
             <div className="mt-6">
-              <h3 className="text-white font-semibold mb-3">Síguenos</h3>
-              <div className="flex space-x-3">
-                {SOCIAL_LINKS.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="
-                      w-10 h-10 rounded-full bg-gray-800 
-                      flex items-center justify-center
-                      text-gray-400 hover:text-white hover:bg-primary-600
-                      transition-all duration-300
-                    "
-                    aria-label={social.name}
-                  >
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
+              <h3 id="social-links-title" className="text-white font-semibold mb-3">Síguenos</h3>
+              <nav aria-labelledby="social-links-title">
+                <ul className="flex space-x-3" role="list">
+                  {SOCIAL_LINKS.map((social) => (
+                    <li key={social.name}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="
+                          w-10 h-10 rounded-full bg-gray-800 
+                          flex items-center justify-center
+                          text-gray-400 hover:text-white hover:bg-primary-600
+                          transition-all duration-300
+                        "
+                        aria-label={`Síguenos en ${social.name} (abre en nueva ventana)`}
+                      >
+                        {social.icon}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
           </div>
 
@@ -274,10 +277,10 @@ export function Footer() {
           {/* Columnas de Enlaces */}
           {/* ============================================================ */}
           
-          {FOOTER_SECTIONS.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-white font-semibold mb-4">{section.title}</h3>
-              <ul className="space-y-2">
+          {FOOTER_SECTIONS.map((section, index) => (
+            <nav key={section.title} aria-labelledby={`footer-section-${index}`}>
+              <h3 id={`footer-section-${index}`} className="text-white font-semibold mb-4">{section.title}</h3>
+              <ul className="space-y-2" role="list">
                 {section.links.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -293,7 +296,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 
@@ -313,11 +316,15 @@ export function Footer() {
             <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <input
+                  id="footer-newsletter-email"
+                  name="footer-newsletter-email"
                   type="email"
                   placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubscribing || subscriptionStatus === 'success'}
+                  autoComplete="email"
+                  aria-label="Email para newsletter del footer"
                   className="
                     w-full px-4 py-2.5 rounded-lg
                     bg-gray-800 border border-gray-700
@@ -358,13 +365,13 @@ export function Footer() {
             </form>
             
             {subscriptionStatus === 'error' && (
-              <p className="mt-2 text-sm text-error">
+              <p className="mt-2 text-sm text-error" role="alert" aria-live="polite">
                 Por favor, ingresa un email válido.
               </p>
             )}
             
             {subscriptionStatus === 'success' && (
-              <p className="mt-2 text-sm text-success">
+              <p className="mt-2 text-sm text-success" role="status" aria-live="polite">
                 ¡Gracias por suscribirte! Revisa tu email para confirmar.
               </p>
             )}

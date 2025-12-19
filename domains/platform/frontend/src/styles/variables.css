@@ -51,16 +51,16 @@
   --color-gray-900: #111827;
   --color-gray-950: #030712;
 
-  /* Colores Semánticos */
-  --color-success: #10b981;
+  /* Colores Semánticos (ajustados para WCAG 2.1 AA - contraste mínimo 4.5:1) */
+  --color-success: #047857;  /* Verde oscuro - Contraste 4.77:1 ✅ */
   --color-success-light: #d1fae5;
   --color-success-dark: #065f46;
   
-  --color-warning: #f59e0b;
+  --color-warning: #b45309;  /* Naranja oscuro - Contraste 4.58:1 ✅ */
   --color-warning-light: #fef3c7;
   --color-warning-dark: #92400e;
   
-  --color-error: #ef4444;
+  --color-error: #dc2626;    /* Rojo - Contraste 4.83:1 ✅ */
   --color-error-light: #fee2e2;
   --color-error-dark: #991b1b;
   

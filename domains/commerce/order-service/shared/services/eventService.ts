@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { logger } from '../utils/logger';
 import { Order } from '../models/Order';
+import { userNotificationClient } from '../clients/UserNotificationClient';
 
 export interface OrderEvent {
   type: 'order.created' | 'order.status_changed' | 'order.payment_completed' | 'order.cancelled' | 'order.refunded';
@@ -36,8 +37,12 @@ class OrderEventService extends EventEmitter {
         totalAmount: event.data.totalAmount,
       });
 
-      // Here you could trigger notifications, analytics, etc.
-      // For example: await NotificationService.sendOrderConfirmation(event);
+      // Crear notificación para el usuario
+      await userNotificationClient.notifyOrderCreated(
+        event.userId,
+        event.orderNumber,
+        event.data.totalAmount
+      );
     });
 
     // Handle payment completion
@@ -47,8 +52,12 @@ class OrderEventService extends EventEmitter {
         transactionId: event.data.transactionId,
       });
 
-      // Trigger auto-purchase process
-      // For example: await AutoPurchaseService.processOrder(event.orderId);
+      // Crear notificación de pago completado
+      await userNotificationClient.notifyPaymentCompleted(
+        event.userId,
+        event.orderNumber,
+        event.data.amount
+      );
     });
 
     // Handle order status changes
@@ -89,47 +98,62 @@ class OrderEventService extends EventEmitter {
           break;
       }
     });
+
+    // Handle order refunded
+    this.on('order.refunded', async (event: OrderEvent) => {
+      logger.info(`Order refunded: ${event.orderNumber}`, {
+        orderId: event.orderId,
+        refundAmount: event.data.refundAmount,
+      });
+
+      // Crear notificación de reembolso
+      await userNotificationClient.notifyRefundProcessed(
+        event.userId,
+        event.orderNumber,
+        event.data.refundAmount
+      );
+    });
   }
 
   private async handleOrderConfirmed(event: OrderEvent) {
-    // This would trigger the auto-purchase system
     logger.info(`Order confirmed, ready for auto-purchase: ${event.orderNumber}`);
     
-    // In a real implementation, this would send a message to the auto-purchase service
-    // await this.notifyAutoPurchaseService(event.orderId);
+    // Crear notificación de pedido confirmado
+    await userNotificationClient.notifyOrderConfirmed(
+      event.userId,
+      event.orderNumber
+    );
   }
 
   private async handleOrderProcessing(event: OrderEvent) {
-    // Order is being processed by the provider
     logger.info(`Order processing started: ${event.orderNumber}`);
     
-    // Could send customer notification about processing
-    // await NotificationService.sendProcessingNotification(event);
+    // Notificación de procesamiento (opcional, puede ser muy frecuente)
+    // Se puede habilitar si se desea
   }
 
   private async handleOrderShipped(event: OrderEvent) {
-    // Order has been shipped
     logger.info(`Order shipped: ${event.orderNumber}`);
     
-    // Send shipping notification to customer
-    // await NotificationService.sendShippingNotification(event);
+    // La notificación de envío la maneja el shipment-tracker
+    // para incluir información de tracking
   }
 
   private async handleOrderDelivered(event: OrderEvent) {
-    // Order has been delivered
     logger.info(`Order delivered: ${event.orderNumber}`);
     
-    // Send delivery confirmation and request feedback
-    // await NotificationService.sendDeliveryNotification(event);
-    // await FeedbackService.requestFeedback(event);
+    // La notificación de entrega la maneja el shipment-tracker
   }
 
   private async handleOrderCancelled(event: OrderEvent) {
-    // Order has been cancelled
     logger.info(`Order cancelled: ${event.orderNumber}`);
     
-    // Send cancellation notification
-    // await NotificationService.sendCancellationNotification(event);
+    // Crear notificación de cancelación
+    await userNotificationClient.notifyOrderCancelled(
+      event.userId,
+      event.orderNumber,
+      event.data.reason
+    );
   }
 
   public emitOrderCreated(order: Order) {

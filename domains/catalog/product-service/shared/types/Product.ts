@@ -24,6 +24,15 @@ export interface IProduct extends Document {
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
+  // Campos de campaña
+  in_campaign?: boolean;
+  campaign_id?: string;
+  campaign_price?: number;
+  original_price?: number;
+  discount_percentage?: number;
+  // Campos de reviews
+  rating?: number;
+  review_count?: number;
 }
 
 const ProviderSchema = new Schema<IProvider>({
@@ -111,6 +120,41 @@ const ProductSchema = new Schema<IProduct>({
     type: Date, 
     default: Date.now,
   },
+  // Campos de campaña
+  in_campaign: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
+  campaign_id: {
+    type: String,
+    index: true,
+  },
+  campaign_price: {
+    type: Number,
+    min: 0,
+  },
+  original_price: {
+    type: Number,
+    min: 0,
+  },
+  discount_percentage: {
+    type: Number,
+    min: 0,
+    max: 100,
+  },
+  // Campos de reviews
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0,
+  },
+  review_count: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
 });
 
 // Indexes for better query performance
@@ -119,6 +163,9 @@ ProductSchema.index({ category: 1, subcategory: 1 });
 ProductSchema.index({ brand: 1, category: 1 });
 ProductSchema.index({ our_price: 1, is_active: 1 });
 ProductSchema.index({ 'providers.availability': 1, is_active: 1 });
+// Índices para campos de campaña
+ProductSchema.index({ in_campaign: 1, campaign_id: 1 });
+ProductSchema.index({ campaign_id: 1, is_active: 1 });
 
 // Update the updated_at field before saving
 ProductSchema.pre('save', function(next) {

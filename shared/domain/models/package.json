@@ -12,7 +12,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@technovastore/shared-types": "file:../types"
+    "@technovastore/shared-types": "file:../types",
+    "@technovastore/shared-config": "file:../../infrastructure/config"
   },
   "devDependencies": {
     "typescript": "^5.3.3",

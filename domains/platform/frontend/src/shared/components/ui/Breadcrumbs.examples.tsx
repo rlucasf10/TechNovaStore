@@ -51,8 +51,8 @@ export function BreadcrumbsWithHomeIcon() {
     <Breadcrumbs
       items={[
         { label: 'Inicio', href: '/', icon: <HomeIcon /> },
-        { label: 'Mi Cuenta', href: '/dashboard' },
-        { label: 'Pedidos', href: '/dashboard/pedidos' },
+        { label: 'Mi Cuenta', href: '/dashboard/usuario' },
+        { label: 'Pedidos', href: '/dashboard/usuario/pedidos' },
         { label: 'Pedido #12345' },
       ]}
       separator={<ChevronSeparator />}
@@ -125,9 +125,9 @@ export function DashboardBreadcrumbs() {
   return (
     <Breadcrumbs
       items={[
-        { label: 'Dashboard', href: '/dashboard', icon: <HomeIcon /> },
-        { label: 'Mis Pedidos', href: '/dashboard/pedidos' },
-        { label: 'Seguimiento', href: '/dashboard/seguimiento' },
+        { label: 'Dashboard', href: '/dashboard/usuario', icon: <HomeIcon /> },
+        { label: 'Mis Pedidos', href: '/dashboard/usuario/pedidos' },
+        { label: 'Seguimiento', href: '/dashboard/usuario/seguimiento' },
         { label: 'Pedido #ORD-2024-001234' },
       ]}
       separator={<ChevronSeparator />}

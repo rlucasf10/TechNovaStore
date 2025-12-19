@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useProducts } from '@/catalog'
 import { useCategories } from '@/catalog'
 import { Button, Loading } from '@/ui'
-import { ProductGrid, ProductFilterSidebar, SearchBar, ProductPagination, ProductToolbar } from './index'
+import { ProductGrid, VirtualizedProductGrid, ProductFilterSidebar, SearchBar, ProductPagination, ProductToolbar } from './index'
 import type { ProductFilters } from './ProductFilterSidebar'
 
 interface ProductCatalogProps {
@@ -231,28 +231,38 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
   }, [searchParams])
 
   if (categoriesLoading) {
-    return <Loading />
+    return (
+      <div role="status" aria-live="polite" aria-label="Cargando categorías">
+        <Loading />
+        <span className="sr-only">Cargando categorías de productos...</span>
+      </div>
+    )
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+      <header className="mb-8">
+        <h1 id="catalog-title" className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Catálogo de Productos
         </h1>
 
-        {/* Search Bar */}
-        <SearchBar
-          onSearch={handleSearch}
-          initialValue={filters.search}
-          placeholder="Buscar productos..."
-        />
-      </div>
+        {/* Barra de búsqueda con rol de búsqueda */}
+        <div role="search" aria-label="Buscar en el catálogo">
+          <SearchBar
+            onSearch={handleSearch}
+            initialValue={filters.search}
+            placeholder="Buscar productos..."
+          />
+        </div>
+      </header>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters Sidebar - Desktop */}
-        <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+        {/* Filtros laterales - Desktop */}
+        <aside 
+          className="hidden lg:block lg:w-64 flex-shrink-0"
+          aria-label="Filtros de productos"
+        >
           <ProductFilterSidebar
             categories={categories.map(cat => ({
               id: cat.id,
@@ -274,9 +284,14 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
           />
         </aside>
 
-        {/* Filters Sidebar - Mobile Modal */}
+        {/* Modal de filtros - Móvil */}
         {showMobileFilters && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div 
+            className="fixed inset-0 z-50 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-filters-title"
+          >
             {/* Overlay */}
             <div
               className="fixed inset-0 bg-black bg-opacity-50"
@@ -284,15 +299,18 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
               aria-hidden="true"
             />
 
-            {/* Modal */}
-            <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+            {/* Panel de filtros */}
+            <div 
+              className="fixed inset-y-0 left-0 w-full max-w-sm bg-white dark:bg-slate-800 shadow-xl overflow-y-auto"
+              role="document"
+            >
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Filtros</h2>
+                  <h2 id="mobile-filters-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filtros</h2>
                   <button
                     onClick={() => setShowMobileFilters(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600"
-                    aria-label="Cerrar filtros"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label="Cerrar panel de filtros"
                   >
                     <svg
                       className="w-6 h-6"
@@ -334,9 +352,13 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
           </div>
         )}
 
-        {/* Main Content */}
-        <main className="flex-1">
-          {/* Toolbar con contador, ordenamiento y vista */}
+        {/* Contenido principal del catálogo */}
+        <section 
+          className="flex-1"
+          aria-labelledby="catalog-title"
+          aria-busy={productsLoading}
+        >
+          {/* Barra de herramientas con contador, ordenamiento y vista */}
           <ProductToolbar
             totalProducts={pagination?.total || 0}
             currentSort={filters.sortBy}
@@ -347,12 +369,16 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
             showFiltersButton={true}
           />
 
-          {/* Products Grid */}
+          {/* Grid de productos */}
           {error ? (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+            <div 
+              className="text-center py-12"
+              role="alert"
+              aria-live="assertive"
+            >
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
                 <svg
-                  className="w-8 h-8 text-red-600"
+                  className="w-8 h-8 text-red-600 dark:text-red-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -366,51 +392,83 @@ export function ProductCatalog({ initialCategory = '', initialSearch = '' }: Pro
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Error al cargar los productos
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Hubo un problema al cargar el catálogo. Por favor, intenta de nuevo.
               </p>
-              <Button onClick={() => window.location.reload()}>
+              <Button 
+                onClick={() => window.location.reload()}
+                aria-label="Reintentar carga de productos"
+              >
                 Reintentar
               </Button>
             </div>
           ) : (
             <>
               {/* Grid de productos con skeleton loading */}
-              <ProductGrid
-                products={products}
-                isLoading={productsLoading}
-                skeletonCount={12}
-                className="mb-8"
-                viewMode={viewMode}
-              />
+              <div 
+                role="region" 
+                aria-label={`Lista de productos${pagination?.total ? `, ${pagination.total} resultados` : ''}`}
+                aria-live="polite"
+              >
+                {/* Usar grid virtualizado si hay más de 20 productos */}
+                {products.length > 20 ? (
+                  <VirtualizedProductGrid
+                    products={products}
+                    isLoading={productsLoading}
+                    skeletonCount={12}
+                    className="mb-8"
+                    viewMode={viewMode}
+                  />
+                ) : (
+                  <ProductGrid
+                    products={products}
+                    isLoading={productsLoading}
+                    skeletonCount={12}
+                    className="mb-8"
+                    viewMode={viewMode}
+                  />
+                )}
+              </div>
 
               {/* Paginación mejorada */}
               {!productsLoading && pagination && pagination.pages > 1 && (
-                <ProductPagination
-                  currentPage={currentPage}
-                  totalPages={pagination.pages}
-                  totalProducts={pagination.total}
-                  productsPerPage={pagination.limit}
-                  onPageChange={handlePageChange}
-                  isLoading={productsLoading}
-                />
+                <nav aria-label="Paginación de productos">
+                  <ProductPagination
+                    currentPage={currentPage}
+                    totalPages={pagination.pages}
+                    totalProducts={pagination.total}
+                    productsPerPage={pagination.limit}
+                    onPageChange={handlePageChange}
+                    isLoading={productsLoading}
+                  />
+                </nav>
               )}
 
-              {/* Botón para limpiar filtros si no hay productos */}
+              {/* Mensaje cuando no hay productos */}
               {!productsLoading && products.length === 0 && (
-                <div className="text-center mt-8">
-                  <Button onClick={clearFilters} variant="secondary">
+                <div 
+                  className="text-center mt-8"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">No se encontraron productos con los filtros seleccionados.</p>
+                  <Button 
+                    onClick={clearFilters} 
+                    variant="secondary"
+                    aria-label="Limpiar todos los filtros aplicados"
+                  >
                     Limpiar filtros
                   </Button>
                 </div>
               )}
             </>
           )}
-        </main>
+        </section>
       </div>
+
     </div>
   )
 }

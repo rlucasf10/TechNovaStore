@@ -3,9 +3,14 @@
  * 
  * Maneja las peticiones HTTP para el servicio de auto-compra.
  * Extrae la lógica de los endpoints del index.ts original.
+ * 
+ * SEGURIDAD: Este es un servicio CRÍTICO. Todas las operaciones
+ * de negocio requieren autenticación y rol admin.
+ * Se registra quién ejecuta cada operación para auditoría.
  */
 
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '@technovastore/shared-types';
 import { logger } from '../shared/utils/logger';
 
 // Interfaces para las dependencias
@@ -68,10 +73,21 @@ export class AutoPurchaseController {
   /**
    * Provider selection endpoint for testing
    * POST /select-provider
+   * Requiere: autenticación + rol admin
    */
-  async selectProviderEndpoint(req: Request, res: Response): Promise<void> {
+  async selectProviderEndpoint(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { productSku, quantity, shippingAddress } = req.body;
+      const adminUser = req.user;
+      
+      // Loggear operación administrativa
+      logger.info('Admin selecting provider', {
+        adminId: adminUser?.id,
+        adminRole: adminUser?.role,
+        productSku,
+        quantity,
+        endpoint: '/select-provider',
+      });
       
       if (!productSku || !quantity || !shippingAddress) {
         res.status(400).json({
@@ -93,7 +109,8 @@ export class AutoPurchaseController {
       });
     } catch (error) {
       logger.error('Provider selection error', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        adminId: (req as AuthenticatedRequest).user?.id,
       });
       res.status(500).json({
         success: false,
@@ -105,10 +122,13 @@ export class AutoPurchaseController {
   /**
    * Manual purchase trigger endpoint for testing
    * POST /purchase
+   * Requiere: autenticación + rol admin
+   * OPERACIÓN CRÍTICA: Ejecuta una compra manual
    */
-  async purchaseEndpoint(req: Request, res: Response): Promise<void> {
+  async purchaseEndpoint(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const order = req.body;
+      const adminUser = req.user;
       
       if (!order || !order.id) {
         res.status(400).json({
@@ -118,7 +138,24 @@ export class AutoPurchaseController {
         return;
       }
       
+      // Loggear operación crítica de compra
+      logger.info('Admin triggering manual purchase', {
+        adminId: adminUser?.id,
+        adminRole: adminUser?.role,
+        orderId: order.id,
+        orderUserId: order.user_id,
+        endpoint: '/purchase',
+        critical: true,
+      });
+      
       const result = await this.orchestratePurchase.execute(order);
+      
+      // Loggear resultado de la operación
+      logger.info('Manual purchase completed', {
+        adminId: adminUser?.id,
+        orderId: order.id,
+        success: result.success,
+      });
       
       res.json({
         success: result.success,
@@ -126,7 +163,9 @@ export class AutoPurchaseController {
       });
     } catch (error) {
       logger.error('Purchase endpoint error', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        adminId: (req as AuthenticatedRequest).user?.id,
+        orderId: req.body?.id,
       });
       res.status(500).json({
         success: false,
@@ -138,14 +177,25 @@ export class AutoPurchaseController {
   /**
    * Get processing statistics
    * GET /stats
+   * Requiere: autenticación + rol admin
    */
-  async statsEndpoint(req: Request, res: Response): Promise<void> {
+  async statsEndpoint(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
+      const adminUser = req.user;
+      
+      // Loggear acceso a estadísticas
+      logger.info('Admin accessing processing stats', {
+        adminId: adminUser?.id,
+        adminRole: adminUser?.role,
+        endpoint: '/stats',
+      });
+      
       const stats = this.getProcessingStats();
       res.json(stats);
     } catch (error) {
       logger.error('Stats endpoint error', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        adminId: (req as AuthenticatedRequest).user?.id,
       });
       res.status(500).json({
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -156,9 +206,21 @@ export class AutoPurchaseController {
   /**
    * Process pending orders endpoint
    * POST /process-pending
+   * Requiere: autenticación + rol admin
+   * OPERACIÓN CRÍTICA: Procesa múltiples pedidos pendientes
    */
-  async processPendingEndpoint(req: Request, res: Response): Promise<void> {
+  async processPendingEndpoint(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
+      const adminUser = req.user;
+      
+      // Loggear inicio de operación crítica
+      logger.info('Admin triggering batch processing of pending orders', {
+        adminId: adminUser?.id,
+        adminRole: adminUser?.role,
+        endpoint: '/process-pending',
+        critical: true,
+      });
+      
       const ordersResponse = await this.orderServiceClient.getOrdersForAutoPurchase();
       
       if (!ordersResponse.success) {
@@ -170,20 +232,38 @@ export class AutoPurchaseController {
       }
 
       const orders = ordersResponse.data || [];
+      
+      logger.info('Processing pending orders batch', {
+        adminId: adminUser?.id,
+        ordersCount: orders.length,
+      });
+      
       const results = await this.processOrdersBatch.execute(orders);
+      
+      // Loggear resultado del procesamiento
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+      
+      logger.info('Batch processing completed', {
+        adminId: adminUser?.id,
+        processedOrders: results.length,
+        successfulOrders: successCount,
+        failedOrders: failCount,
+      });
       
       res.json({
         success: true,
         data: {
           processedOrders: results.length,
-          successfulOrders: results.filter(r => r.success).length,
-          failedOrders: results.filter(r => !r.success).length,
+          successfulOrders: successCount,
+          failedOrders: failCount,
           results
         }
       });
     } catch (error) {
       logger.error('Process pending endpoint error', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        adminId: (req as AuthenticatedRequest).user?.id,
       });
       res.status(500).json({
         success: false,

@@ -36,13 +36,13 @@ export function RelatedProducts({
   }
 
   return (
-    <section className="bg-white rounded-lg border border-gray-200 p-6 lg:p-8">
+    <section className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 lg:p-8">
       {/* Título de la sección */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Productos Relacionados
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Otros productos que podrían interesarte
         </p>
       </div>
@@ -54,15 +54,15 @@ export function RelatedProducts({
           {Array.from({ length: limit }).map((_, index) => (
             <div 
               key={index} 
-              className="bg-gray-100 rounded-lg animate-pulse"
+              className="bg-gray-100 dark:bg-slate-700 rounded-lg animate-pulse"
               style={{ aspectRatio: '3/4' }}
             >
               <div className="h-full flex flex-col p-4">
-                <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+                <div className="aspect-square bg-gray-200 dark:bg-slate-600 rounded-lg mb-4"></div>
                 <div className="space-y-3 flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-6 bg-gray-200 rounded w-1/3 mt-auto"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-slate-600 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-slate-600 rounded w-1/2"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-slate-600 rounded w-1/3 mt-auto"></div>
                 </div>
               </div>
             </div>

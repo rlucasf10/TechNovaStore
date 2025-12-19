@@ -4,6 +4,7 @@
 
 import { CheckDeliveryDelays } from './CheckDeliveryDelays';
 import { OrderForDelayCheck } from '../shared/types';
+import { logger } from '../shared/utils/logger';
 
 export class DelayScheduler {
   private intervalId: NodeJS.Timeout | null = null;
@@ -13,20 +14,20 @@ export class DelayScheduler {
 
   start(): void {
     if (this.intervalId) {
-      console.log('Delay scheduler is already running');
+      logger.info('Delay scheduler is already running');
       return;
     }
 
-    console.log('Starting delay detection scheduler...');
+    logger.info('Starting delay detection scheduler...');
     this.intervalId = setInterval(() => {
       this.runCheck().catch(error => {
-        console.error('Error in scheduled delay check:', error);
+        logger.error('Error in scheduled delay check', { error: error instanceof Error ? error.message : error });
       });
     }, this.CHECK_INTERVAL_MS);
 
     // Run initial check
     this.runCheck().catch(error => {
-      console.error('Error in initial delay check:', error);
+      logger.error('Error in initial delay check', { error: error instanceof Error ? error.message : error });
     });
   }
 
@@ -34,7 +35,7 @@ export class DelayScheduler {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
-      console.log('Delay detection scheduler stopped');
+      logger.info('Delay detection scheduler stopped');
     }
   }
 
@@ -43,7 +44,7 @@ export class DelayScheduler {
   }
 
   private async runCheck(): Promise<void> {
-    console.log('Running scheduled delay check...');
+    logger.info('Running scheduled delay check...');
     
     // In a real implementation, this would fetch from the order service
     const orders = await this.fetchOrdersForDelayCheck();

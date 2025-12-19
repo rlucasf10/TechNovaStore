@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Button } from '@/ui'
 
-// Página 404 dinámica
+// Forzar renderizado dinámico para evitar problemas de prerendering
+export const dynamic = 'force-dynamic'
 
 export default function NotFound() {
   return (

@@ -3,6 +3,7 @@
  * Verifica la barra de progreso, requisitos, checkmarks y niveles de fortaleza
  */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PasswordStrengthIndicator from '@/customer/components/auth/PasswordStrengthIndicator';
 

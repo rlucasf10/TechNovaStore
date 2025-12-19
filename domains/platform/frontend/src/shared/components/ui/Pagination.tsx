@@ -301,9 +301,9 @@ function PaginationButton({
         'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
         // Estados normales
         !isActive && !disabled && [
-          'text-gray-700 bg-white border border-gray-300',
-          'hover:bg-gray-50 hover:border-gray-400',
-          'active:bg-gray-100',
+          'text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600',
+          'hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500',
+          'active:bg-gray-100 dark:active:bg-slate-600',
         ],
         // Estado activo
         isActive && [
@@ -313,7 +313,7 @@ function PaginationButton({
         ],
         // Estado deshabilitado
         disabled && [
-          'text-gray-400 bg-gray-100 border border-gray-200',
+          'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600',
           'cursor-not-allowed opacity-50',
         ],
         className

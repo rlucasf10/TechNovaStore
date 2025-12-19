@@ -2,6 +2,7 @@
  * Controlador de recomendaciones
  * 
  * Maneja las peticiones HTTP para el servicio de recomendaciones
+ * ✅ SEGURIDAD: Implementa verificación de propiedad de recursos
  */
 
 import { Request, Response } from 'express';
@@ -11,6 +12,7 @@ import { GetSessionRecommendations } from '../get-session-recommendations/GetSes
 import { GetTrendingProducts } from '../get-trending-products/GetTrendingProducts';
 import { RecordInteraction } from '../record-interaction/RecordInteraction';
 import { UpdateModels } from '../update-models/UpdateModels';
+import { logger } from '../shared/utils/logger';
 
 export class RecommendationController {
   constructor(
@@ -38,6 +40,32 @@ export class RecommendationController {
         includeMetadata = true 
       } = req.query;
 
+      // ✅ SEGURIDAD: Verificar que el usuario solo acceda a sus propias recomendaciones
+      const authenticatedUser = (req as any).user;
+      if (!authenticatedUser) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required'
+        });
+        return;
+      }
+
+      // Los admins pueden ver recomendaciones de cualquier usuario
+      // Convertir ambos a string para comparación (userId del token puede ser number o string)
+      if (authenticatedUser.role !== 'admin' && String(authenticatedUser.id) !== String(userId)) {
+        logger.warn('Unauthorized access attempt to user recommendations', {
+          authenticatedUserId: authenticatedUser.id,
+          requestedUserId: userId,
+          endpoint: req.path,
+          ip: req.ip,
+        });
+        res.status(403).json({
+          success: false,
+          error: 'Access denied. You can only view your own recommendations.'
+        });
+        return;
+      }
+
       const filters: any = {};
       if (category) filters.category = category;
       if (brand) filters.brand = brand;
@@ -60,7 +88,10 @@ export class RecommendationController {
         metadata: result.metadata
       });
     } catch (error) {
-      console.error('Error in getUserRecommendations:', error);
+      logger.error('Error in getUserRecommendations', { 
+        error: error instanceof Error ? error.message : error,
+        userId: req.params.userId
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to get user recommendations',
@@ -105,7 +136,10 @@ export class RecommendationController {
         metadata: result.metadata
       });
     } catch (error) {
-      console.error('Error in getSimilarProducts:', error);
+      logger.error('Error in getSimilarProducts', { 
+        error: error instanceof Error ? error.message : error,
+        productId: req.params.productId
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to get similar products',
@@ -132,6 +166,32 @@ export class RecommendationController {
         res.status(400).json({
           success: false,
           error: 'Missing required fields: userId, productSku, interactionType'
+        });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar que el usuario solo registre sus propias interacciones
+      const authenticatedUser = (req as any).user;
+      if (!authenticatedUser) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required'
+        });
+        return;
+      }
+
+      // Los admins pueden registrar interacciones para cualquier usuario
+      // Convertir ambos a string para comparación (userId del token puede ser number o string)
+      if (authenticatedUser.role !== 'admin' && String(authenticatedUser.id) !== String(userId)) {
+        logger.warn('Unauthorized access attempt to record interaction', {
+          authenticatedUserId: authenticatedUser.id,
+          requestedUserId: userId,
+          endpoint: req.path,
+          ip: req.ip,
+        });
+        res.status(403).json({
+          success: false,
+          error: 'Access denied. You can only record your own interactions.'
         });
         return;
       }
@@ -165,7 +225,11 @@ export class RecommendationController {
         message: 'Interaction recorded successfully'
       });
     } catch (error) {
-      console.error('Error in recordInteraction:', error);
+      logger.error('Error in recordInteraction', { 
+        error: error instanceof Error ? error.message : error,
+        userId: req.body.userId,
+        productSku: req.body.productSku
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to record interaction',
@@ -190,7 +254,9 @@ export class RecommendationController {
         metadata: result.metadata
       });
     } catch (error) {
-      console.error('Error in getTrendingProducts:', error);
+      logger.error('Error in getTrendingProducts', { 
+        error: error instanceof Error ? error.message : error
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to get trending products',
@@ -223,7 +289,10 @@ export class RecommendationController {
         metadata: result.metadata
       });
     } catch (error) {
-      console.error('Error in getSessionRecommendations:', error);
+      logger.error('Error in getSessionRecommendations', { 
+        error: error instanceof Error ? error.message : error,
+        sessionId: req.params.sessionId
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to get session recommendations',
@@ -246,7 +315,9 @@ export class RecommendationController {
         message: 'Recommendation models updated successfully'
       });
     } catch (error) {
-      console.error('Error in updateModels:', error);
+      logger.error('Error in updateModels', { 
+        error: error instanceof Error ? error.message : error
+      });
       res.status(500).json({
         success: false,
         error: 'Failed to update models',

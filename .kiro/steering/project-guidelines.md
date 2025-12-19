@@ -2,65 +2,15 @@
 
 Reglas y convenciones generales para el desarrollo de todo el proyecto TechNovaStore, una plataforma de e-commerce especializada en tecnología e informática con arquitectura de microservicios.
 
-## REGLA CRÍTICA DE REFACTORIZACIÓN (Screaming Architecture)
+## Arquitectura del Proyecto
 
-**⚠️ IMPORTANTE**: Al refactorizar servicios a Screaming Architecture, seguir estas reglas ESTRICTAMENTE:
+**IMPORTANTE**: El proyecto sigue **Screaming Architecture** en todos los microservicios backend.
 
-### Reglas de Refactorización
-
-- ⚠️ **NUNCA reescribir código desde cero**
-- ✅ **SIEMPRE refactorizar código existente**
-- ✅ **MANTENER toda la lógica y funcionalidad original**
-- ✅ **SOLO reorganizar archivos y estructura**
-- ✅ **Verificar que tests originales siguen pasando**
-
-### Proceso de Refactorización Screaming Architecture
-
-1. **Leer y analizar** el código actual del servicio (src/services/, src/controllers/, src/models/)
-2. **Identificar métodos existentes** como casos de uso (ej: `sendOrderConfirmation` → `send-order-confirmation/`)
-3. **Crear carpetas por caso de uso EN LA RAÍZ** del servicio (al mismo nivel que src/, NO dentro de src/)
-4. **Extraer lógica** de cada método a su carpeta de caso de uso (MANTENER lógica original)
-5. **Crear tests MUY COMPLETOS** para cada caso de uso (mínimo 10-15 tests por caso de uso)
-6. **Consolidar infraestructura** en shared/ EN LA RAÍZ (modelos, repositorios, clientes, utilidades)
-7. **Reorganizar controladores y rutas** en api/ EN LA RAÍZ (extraer de src/controllers/ y src/routes/)
-8. **Actualizar imports** y referencias manteniendo funcionalidad original
-9. **Validar** que tests pasan y servicio funciona EXACTAMENTE igual que antes
-10. **BORRAR completamente** las carpetas src/ y dist/ antiguas una vez validado todo
-
-### Estructura Screaming Architecture
-
-```
-service-name/
-├── use-case-1/               # Caso de uso EN LA RAÍZ (nombre de negocio)
-│   ├── UseCaseName.ts        # Lógica del caso de uso (clase)
-│   └── UseCaseName.test.ts   # Tests MUY COMPLETOS (10-15 tests mínimo)
-├── use-case-2/
-│   ├── UseCaseName.ts
-│   └── UseCaseName.test.ts
-├── shared/                   # Infraestructura compartida EN LA RAÍZ
-│   ├── models/               # Modelos de datos (extraídos de src/models/)
-│   ├── repositories/         # Repositorios (si aplica)
-│   ├── clients/              # Clientes externos
-│   ├── utils/                # Utilidades (logger, etc.)
-│   └── types/                # Tipos compartidos
-├── api/                      # Capa de presentación HTTP EN LA RAÍZ
-│   ├── Controller.ts         # Controlador (extraído de src/controllers/)
-│   └── routes.ts             # Rutas (extraídas de src/routes/)
-├── config/                   # Configuración EN LA RAÍZ
-│   └── index.ts
-├── index.ts                  # Entry point EN LA RAÍZ
-├── package.json
-└── tsconfig.json
-
-NOTA: Las carpetas src/ y dist/ deben BORRARSE completamente después de la refactorización
-```
-
-### Lo que NO hacer
-
-- ❌ NO usar carpetas técnicas (domain/, application/, infrastructure/, presentation/)
-- ❌ NO usar carpeta test/ separada
-- ❌ NO reescribir lógica desde cero
-- ❌ NO cambiar comportamiento del servicio
+- Los servicios backend están organizados por casos de uso en la raíz (ej: `send-order-confirmation/`, `create-campaign/`)
+- Cada caso de uso tiene su lógica y tests en su propia carpeta
+- La infraestructura compartida está en `shared/` (modelos, repositorios, clientes, utilidades)
+- Los controladores y rutas están en `api/`
+- **Excepción**: El frontend aún no ha sido refactorizado a Screaming Architecture (pendiente)
 
 ## Idioma de Respuestas
 
@@ -125,11 +75,12 @@ NOTA: Las carpetas src/ y dist/ deben BORRARSE completamente después de la refa
 
 1. ✅ Implementar funcionalidad en componentes reales
 2. ✅ Integrar en páginas reales de la aplicación
-3. ✅ Guardar archivos (hot-reload automático en 2-5 segundos)
-4. ✅ Refrescar navegador y verificar (ej: http://localhost:3011/productos)
-5. ⚠️ Opcionalmente crear página de prueba para testing adicional
+3. ✅ Guardar archivos
+4. ✅ **El frontend tiene hot-reload activado** - los cambios se aplican automáticamente
+5. ✅ Refrescar navegador y verificar (ej: http://localhost:3020/productos)
+6. ⚠️ Opcionalmente crear página de prueba para testing adicional
 
-**Nota**: En desarrollo, Next.js tiene hot-reload. Solo reconstruir contenedor si cambias `package.json` o configuración de Docker.
+**Nota**: El frontend está en modo desarrollo (`NODE_ENV=development`) con hot-reload. Los cambios se aplican automáticamente sin necesidad de reconstruir el contenedor.
 
 ### Flujo INCORRECTO ❌
 
@@ -148,7 +99,7 @@ NOTA: Las carpetas src/ y dist/ deben BORRARSE completamente después de la refa
 - **Sistema Operativo Local**: Windows 11
 - **Entorno de Ejecución**: Docker containers (OBLIGATORIO)
 - **Arquitectura**: Microservicios con Docker Compose
-- **Docker Compose Activo**: `docker-compose.optimized.yml` (NO usar docker-compose.yml)
+- **Docker Compose Activo**: `docker-compose.optimized.yml` (modo desarrollo con hot-reload)
 
 ### Reglas de Ejecución con Docker
 
@@ -187,7 +138,7 @@ node dist/index.js    # ❌ NO ejecutar en local
 
 **Microservicios de Aplicación:**
 
-- `technovastore-frontend` (puerto 3011) - Aplicación web frontend
+- `technovastore-frontend` (puerto 3020) - Aplicación web frontend
 - `technovastore-api-gateway` (puerto 3000) - API Gateway principal
 - `technovastore-chatbot` (puerto 3009) - Servicio de chatbot con Ollama/Phi-3
 - `technovastore-product-service` (puerto 3001) - Gestión de productos
@@ -232,67 +183,9 @@ node dist/index.js    # ❌ NO ejecutar en local
 - Para reconstruir servicios: `docker-compose build <service-name>`
 - Para reiniciar servicios: `docker-compose restart <service-name>`
 
-### Gestión de Recursos y RAM
-
-**IMPORTANTE**: El sistema tiene **8GB de RAM física total** (6.8 GiB disponibles para Docker).
-
-**Limitación crítica**: Ollama con Phi-3 Mini requiere **~5.3 GB de RAM** para funcionar correctamente.
-
-**Estrategia de contenedores**:
-
-- **NO arrancar todos los contenedores a la vez** - causará falta de memoria
-- **Arrancar SOLO los contenedores necesarios** para cada tarea del tasks.md
-- Detener contenedores no esenciales antes de trabajar con Ollama
-
-**Contenedores esenciales para tareas de chatbot**:
-
-- ✅ `technovastore-mongodb` - Base de datos para ProductKnowledgeBase
-- ✅ `technovastore-ollama` - Servicio LLM (requiere 6GB límite)
-- ✅ `technovastore-chatbot` - Servicio principal del chatbot
-
-**Contenedores a detener durante desarrollo de chatbot**:
-
-- ❌ Frontend, API Gateway, otros microservicios
-- ❌ Stack ELK (Elasticsearch, Logstash, Kibana)
-- ❌ Stack de monitoreo (Prometheus, Grafana, Alertmanager)
-- ❌ Exporters (node-exporter, mongodb-exporter, etc.)
-
-**Comandos útiles para gestión de recursos**:
-
-```bash
-# Detener contenedores no esenciales
-docker-compose -f docker-compose.optimized.yml stop elasticsearch logstash kibana prometheus grafana alertmanager node-exporter mongodb-exporter postgres-exporter redis-exporter frontend api-gateway product-service order-service user-service payment-service notification-service ticket-service sync-engine auto-purchase shipment-tracker recommender
-
-# Arrancar solo contenedores esenciales para chatbot
-docker-compose -f docker-compose.optimized.yml up -d mongodb ollama chatbot
-
-# Ver uso de RAM de contenedores
-docker stats --no-stream --format "table {{.Container}}\t{{.MemUsage}}\t{{.MemPerc}}"
-
-# Ver RAM disponible en el sistema
-docker exec technovastore-ollama sh -c "free -h"
-```
-
-**Configuración de Ollama**:
-
-- Límite de memoria: **6GB** (aumentado desde 3GB)
-- Timeout: **120 segundos** (aumentado desde 30s para permitir carga del modelo)
-- Primera carga del modelo tarda ~60-90 segundos
-- Modelo cargado usa ~4.4 GB de RAM
-
-**⚠️ LIMITACIÓN CRÍTICA CON 8GB RAM**:
-
-- Con 8GB de RAM total, Ollama es **extremadamente lento** (>2 minutos por respuesta)
-- El sistema Windows + Docker + servicios usan ~5GB, dejando solo ~1.8GB libres
-- Ollama necesita ~5.3GB para funcionar eficientemente
-- **Resultado**: Timeouts constantes (>120s), respuestas muy lentas o fallos
-- **Solución**: Se requiere **16GB de RAM mínimo** para funcionamiento óptimo de Ollama
-- **Estado actual**: Código implementado correctamente pero **NO VERIFICABLE** con 8GB RAM
-- **Alternativa temporal**: El sistema de fallback (SimpleFallbackRecognizer) funciona correctamente sin Ollama
-
 ### Comandos Útiles de Docker
 
-**IMPORTANTE**: Siempre usar `-f docker-compose.optimized.yml` en los comandos
+**IMPORTANTE**: Siempre usar `-f docker-compose.optimized.yml` (modo desarrollo con hot-reload)
 
 ```bash
 # Ver todos los containers activos
@@ -347,47 +240,21 @@ docker inspect technovastore-chatbot
 
 **IMPORTANTE**: Entender la diferencia entre desarrollo y producción para evitar confusiones.
 
-### Comportamiento Esperado por Entorno
+### Entornos de Docker Compose
 
-#### Desarrollo (`NODE_ENV=development`)
+**Desarrollo (docker-compose.optimized.yml)**:
+- `NODE_ENV=development` con hot-reload activado
+- Los cambios en el código se aplican automáticamente
+- NO necesitas reconstruir el contenedor después de cada cambio
+- Comando: `docker-compose -f docker-compose.optimized.yml up -d frontend`
 
-- ✅ **Comando correcto**: `npm run dev`
-- ✅ **Funciona**: Hot reload, compilación on-demand
-- ❌ **NO ejecutar**: `npm run build` (fallará con error de `<Html>`)
-- **Razón**: Next.js no puede hacer build de producción con NODE_ENV=development
+**Pre-producción (docker-compose.staging.yml)**:
+- `NODE_ENV=production` con build optimizado
+- Generación estática de páginas
+- Debes reconstruir el contenedor después de cada cambio
+- Comando: `docker-compose -f docker-compose.staging.yml up -d frontend`
 
-**Contenedor de desarrollo**:
-```bash
-# docker-compose.optimized.yml tiene NODE_ENV: development
-docker-compose -f docker-compose.optimized.yml up -d frontend
-
-# El contenedor ejecuta automáticamente: npm run dev
-# NO intentar hacer build en este contenedor
-```
-
-#### Producción (`NODE_ENV=production`)
-
-- ✅ **Comando correcto**: `npm run build`
-- ✅ **Funciona**: Build optimizado, generación estática de páginas
-- ✅ **Resultado**: 16 páginas generadas, standalone build creado
-
-**Contenedor de producción**:
-```bash
-# docker-compose.prod.yml tiene NODE_ENV: production
-docker-compose -f docker-compose.prod.yml up -d frontend-1 frontend-2
-
-# El build se ejecuta durante la construcción de la imagen
-```
-
-### Error Común: `<Html> should not be imported outside of pages/_document`
-
-**Este error es ESPERADO y NORMAL cuando**:
-- Intentas ejecutar `npm run build` en un contenedor con `NODE_ENV=development`
-- Esto NO es un error del código, es una limitación de Next.js
-
-**Solución**:
-- En desarrollo: Usa `npm run dev` (ya configurado en docker-compose.optimized.yml)
-- En producción: Usa `docker-compose.prod.yml` que tiene `NODE_ENV=production`
+**Nota**: Actualmente estamos usando `docker-compose.optimized.yml` para desarrollo.
 
 ### Verificación de Funcionamiento
 
@@ -423,53 +290,116 @@ docker-compose -f docker-compose.optimized.yml build --no-cache frontend
 docker-compose -f docker-compose.optimized.yml up -d frontend
 ```
 
-### Archivos Corregidos (Octubre 2025)
 
-Los siguientes archivos fueron corregidos para eliminar conflictos con el build:
 
-- ✅ `frontend/src/app/icon.tsx` - Eliminado `runtime = 'edge'`
-- ✅ `frontend/src/app/apple-icon.tsx` - Eliminado `runtime = 'edge'`
-- ✅ `frontend/src/app/global-error.tsx` - Estructura correcta para global-error
-- ✅ `frontend/src/components/ui/Modal.tsx` - Eliminado KeyboardEvent no utilizado
-- ✅ `frontend/src/app/ofertas/page.tsx` - Corregido acceso a competitor_price
-- ✅ Stores (auth, notification, theme) - Tipos explícitos agregados
 
-**Estado actual**: El código compila sin errores TypeScript y el build de producción funciona correctamente.
+## Instalación Permanente de Dependencias y Recursos
 
-## Contexto del Proyecto
+**CRÍTICO**: Todas las dependencias, archivos, carpetas y recursos DEBEN instalarse de forma permanente en los contenedores.
 
-**TechNovaStore** es una plataforma de e-commerce completa especializada en tecnología e informática, desarrollada por un equipo hispanohablante.
+### Reglas de Instalación Permanente
 
-### Características Principales
+- **NUNCA** instalar dependencias temporalmente con `docker exec <container> npm install <package>`
+- **SIEMPRE** añadir dependencias en el archivo correspondiente para que persistan:
+  - **Dependencias de Node.js**: Añadir en `package.json` del servicio correspondiente
+  - **Configuración de contenedor**: Modificar `Dockerfile` si es necesario
+  - **Variables de entorno**: Añadir en `docker-compose.optimized.yml` o archivos `.env`
+  - **Archivos de configuración**: Copiar en el `Dockerfile` con instrucción `COPY`
 
-- **Arquitectura**: Microservicios con Docker Compose
-- **Stack Tecnológico**: Node.js, TypeScript, MongoDB, PostgreSQL, Redis
-- **Servicios Principales**:
-  - E-commerce (productos, pedidos, pagos, usuarios)
-  - Chatbot conversacional con IA (Ollama + Phi-3)
-  - Sistema de recomendaciones
-  - Notificaciones y seguimiento de envíos
-  - Compras automáticas y sincronización
-  - Gestión de tickets de soporte
-- **Observabilidad**: Stack ELK (Elasticsearch, Logstash, Kibana) + Prometheus + Grafana
-- **Monitoreo**: Métricas en tiempo real de todos los servicios y bases de datos
+### Flujo Correcto para Añadir Dependencias ✅
 
-### Estructura del Proyecto
+1. **Añadir la dependencia en `package.json`**:
+   ```bash
+   # Editar el archivo package.json del servicio
+   # Añadir la dependencia en "dependencies" o "devDependencies"
+   ```
 
+2. **Reconstruir el contenedor**:
+   ```bash
+   docker-compose -f docker-compose.optimized.yml up -d --build <service-name>
+   ```
+
+3. **Verificar que funciona**:
+   ```bash
+   # Verificar que el servicio arrancó correctamente
+   docker-compose -f docker-compose.optimized.yml logs <service-name>
+   
+   # Verificar que la dependencia está instalada
+   docker exec <container-name> npm list <package-name>
+   ```
+
+### Flujo INCORRECTO ❌
+
+```bash
+# ❌ NO hacer esto - la dependencia se perderá al reiniciar el contenedor
+docker exec technovastore-frontend npm install recharts
+
+# ❌ NO hacer esto - cambios temporales que no persisten
+docker exec technovastore-frontend sh -c "echo 'config' > /app/config.json"
 ```
-.
-├── ai-services/          # Servicios de IA (chatbot, recommender)
-├── backend-services/     # Microservicios backend
-├── frontend/            # Aplicación web frontend
-├── infrastructure/      # Configuración de infraestructura
-├── monitoring/          # Configuración de monitoreo
-└── docker-compose.yml   # Orquestación de todos los servicios
+
+### Ejemplos de Instalación Permanente
+
+**Ejemplo 1: Añadir librería de gráficos al frontend**
+
+```bash
+# 1. Editar domains/platform/frontend/package.json
+# Añadir en "dependencies": "recharts": "^2.10.0"
+
+# 2. Reconstruir contenedor
+docker-compose -f docker-compose.optimized.yml up -d --build frontend
+
+# 3. Verificar
+docker exec technovastore-frontend npm list recharts
 ```
 
-### Principios de Desarrollo
+**Ejemplo 2: Añadir variable de entorno**
 
-- **Microservicios independientes**: Cada servicio tiene su propia base de código y puede desplegarse independientemente
-- **Comunicación asíncrona**: Uso de Redis para mensajería entre servicios
-- **Observabilidad primero**: Todos los servicios deben exponer métricas y logs estructurados
-- **Health checks**: Todos los servicios deben implementar endpoints de health
-- **Containerización**: Todo se ejecuta en Docker, sin excepciones
+```bash
+# 1. Editar docker-compose.optimized.yml
+# Añadir en la sección environment del servicio:
+#   - NEW_VAR=value
+
+# 2. Reiniciar contenedor
+docker-compose -f docker-compose.optimized.yml up -d frontend
+
+# 3. Verificar
+docker exec technovastore-frontend printenv NEW_VAR
+```
+
+**Ejemplo 3: Añadir archivo de configuración**
+
+```bash
+# 1. Crear el archivo en el proyecto (ej: config/custom.json)
+
+# 2. Editar Dockerfile para copiar el archivo:
+#    COPY config/custom.json /app/config/
+
+# 3. Reconstruir contenedor
+docker-compose -f docker-compose.optimized.yml up -d --build <service-name>
+
+# 4. Verificar
+docker exec <container-name> ls -la /app/config/custom.json
+```
+
+### Ventajas de la Instalación Permanente
+
+- ✅ Las dependencias persisten entre reinicios del contenedor
+- ✅ Otros desarrolladores obtienen las mismas dependencias al construir
+- ✅ El entorno de producción tendrá las mismas dependencias
+- ✅ Se mantiene la reproducibilidad del entorno
+- ✅ Se documenta qué dependencias usa cada servicio
+
+### Cuándo Reconstruir vs Reiniciar
+
+**Reconstruir (`up -d --build`)** - Cuando cambias:
+- `package.json` (dependencias)
+- `Dockerfile`
+- Archivos que se copian en el build
+- Configuración de build
+
+**Reiniciar (`restart`)** - Cuando cambias:
+- Variables de entorno en `docker-compose.yml`
+- Código fuente (en desarrollo con hot-reload NO es necesario ni reiniciar)
+- Archivos de configuración montados como volúmenes
+

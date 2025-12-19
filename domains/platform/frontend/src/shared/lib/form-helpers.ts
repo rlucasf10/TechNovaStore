@@ -182,10 +182,20 @@ export const validateCVV = (cvv: string, cardType?: string | null): boolean => {
 
 /**
  * Sanitizar input de texto (remover caracteres peligrosos)
+ * 
+ * NOTA: Para sanitización más robusta, usar las funciones de @/shared/lib/xss-security
+ * Esta función se mantiene por compatibilidad con código existente
+ * 
+ * @deprecated Usar sanitizeFormInput de xss-security.ts para nuevos desarrollos
  */
 export const sanitizeInput = (value: string): string => {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
   return value
     .replace(/[<>]/g, '') // Remover < y >
+    .replace(/javascript:/gi, '') // Remover javascript: protocol
+    .replace(/on\w+=/gi, '') // Remover event handlers (onclick=, onerror=, etc.)
     .trim();
 };
 

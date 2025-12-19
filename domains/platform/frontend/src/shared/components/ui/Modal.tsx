@@ -93,6 +93,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
   }, ref) => {
     const modalRef = useRef<HTMLDivElement>(null)
     const previousActiveElement = useRef<HTMLElement | null>(null)
+    const hasInitialFocus = useRef(false)
 
     // Tamaños del modal
     const sizes = {
@@ -102,13 +103,6 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
       xl: 'max-w-xl',
       full: 'max-w-full mx-4',
     }
-
-    // Manejar cierre con ESC
-    const handleEscapeKey = useCallback((event: globalThis.KeyboardEvent) => {
-      if (!disableEscapeKey && event.key === 'Escape' && open) {
-        onClose()
-      }
-    }, [disableEscapeKey, open, onClose])
 
     // Manejar click en el backdrop
     const handleBackdropClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
@@ -135,58 +129,28 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
       )
     }, [])
 
-    // Trap de foco - manejar navegación con Tab
-    const handleKeyDown = useCallback((event: globalThis.KeyboardEvent) => {
-      if (event.key !== 'Tab' || !open) return
-
-      const focusableElements = getFocusableElements()
-      if (focusableElements.length === 0) return
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-
-      // Si Shift+Tab en el primer elemento, ir al último
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault()
-        lastElement.focus()
-      }
-      // Si Tab en el último elemento, ir al primero
-      else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault()
-        firstElement.focus()
-      }
-    }, [open, getFocusableElements])
-
-    // Efectos cuando el modal se abre/cierra
+    // Efecto para manejar apertura/cierre del modal
     useEffect(() => {
       if (open) {
-        // Guardar el elemento activo actual
-        previousActiveElement.current = document.activeElement as HTMLElement
+        // Guardar el elemento activo actual solo la primera vez
+        if (!hasInitialFocus.current) {
+          previousActiveElement.current = document.activeElement as HTMLElement
+        }
 
         // Bloquear scroll del body
         document.body.style.overflow = 'hidden'
 
-        // Agregar event listeners
-        document.addEventListener('keydown', handleEscapeKey)
-        document.addEventListener('keydown', handleKeyDown)
-
-        // Enfocar el primer elemento focuseable después de un pequeño delay
-        // para permitir que la animación se complete
-        setTimeout(() => {
-          const focusableElements = getFocusableElements()
-          if (focusableElements.length > 0) {
-            focusableElements[0].focus()
-          } else if (modalRef.current) {
-            modalRef.current.focus()
-          }
-        }, 100)
+        // Enfocar el modal solo una vez al abrir
+        if (!hasInitialFocus.current) {
+          hasInitialFocus.current = true
+          // No hacer focus automático - dejar que el usuario interactúe naturalmente
+        }
       } else {
         // Restaurar scroll del body
         document.body.style.overflow = ''
-
-        // Remover event listeners
-        document.removeEventListener('keydown', handleEscapeKey)
-        document.removeEventListener('keydown', handleKeyDown)
+        
+        // Resetear el flag de foco inicial
+        hasInitialFocus.current = false
 
         // Restaurar foco al elemento anterior
         if (previousActiveElement.current) {
@@ -197,10 +161,45 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
       return () => {
         document.body.style.overflow = ''
-        document.removeEventListener('keydown', handleEscapeKey)
-        document.removeEventListener('keydown', handleKeyDown)
       }
-    }, [open, handleEscapeKey, handleKeyDown, getFocusableElements])
+    }, [open])
+
+    // Efecto separado para event listeners (evita re-ejecutar el foco)
+    useEffect(() => {
+      if (!open) return
+
+      const escapeHandler = (event: globalThis.KeyboardEvent) => {
+        if (!disableEscapeKey && event.key === 'Escape') {
+          onClose()
+        }
+      }
+
+      const tabHandler = (event: globalThis.KeyboardEvent) => {
+        if (event.key !== 'Tab') return
+
+        const focusableElements = getFocusableElements()
+        if (focusableElements.length === 0) return
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault()
+          lastElement.focus()
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault()
+          firstElement.focus()
+        }
+      }
+
+      document.addEventListener('keydown', escapeHandler)
+      document.addEventListener('keydown', tabHandler)
+
+      return () => {
+        document.removeEventListener('keydown', escapeHandler)
+        document.removeEventListener('keydown', tabHandler)
+      }
+    }, [open, disableEscapeKey, onClose, getFocusableElements])
 
     // No renderizar nada si el modal está cerrado
     if (!open) return null

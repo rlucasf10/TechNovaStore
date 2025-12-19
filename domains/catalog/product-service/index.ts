@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 // import { config } from '@technovastore/shared-config';
 import { connectMongoDB } from './shared/infrastructure/database';
 import { connectRedis } from './shared/infrastructure/redis';
@@ -9,6 +10,7 @@ import { logger } from './shared/infrastructure/logger';
 import { errorHandler } from './api/middleware/errorHandler';
 import { productRoutes } from './api/routes/productRoutes';
 import { categoryRoutes } from './api/routes/categoryRoutes';
+import { reviewRoutes } from './api/routes/reviewRoutes';
 import { register, metricsMiddleware, HealthChecker, createMongoHealthCheck, createRedisHealthCheck } from '@technovastore/shared-utils';
 
 const app = express();
@@ -32,6 +34,9 @@ if (!behindGateway) {
   }));
 }
 
+// Cookie parser middleware (necesario para leer cookies httpOnly)
+app.use(cookieParser());
+
 // Metrics middleware
 app.use(metricsMiddleware);
 
@@ -49,6 +54,8 @@ app.use(morgan('combined', {
 // Routes
 app.use('/products', productRoutes);
 app.use('/categories', categoryRoutes);
+// Rutas de reviews (montadas en la raíz porque tienen prefijos propios)
+app.use('/', reviewRoutes);
 
 // Metrics endpoint
 app.get('/metrics', async (_req, res) => {

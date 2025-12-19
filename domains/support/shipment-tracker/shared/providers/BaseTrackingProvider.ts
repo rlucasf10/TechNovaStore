@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { TrackingProvider, ProviderTrackingResponse, DeliveryEstimate, ShipmentStatus } from '../types/tracking';
+import { logger } from '../utils/logger';
 
 export abstract class BaseTrackingProvider implements TrackingProvider {
   protected httpClient: AxiosInstance;
@@ -37,7 +38,10 @@ export abstract class BaseTrackingProvider implements TrackingProvider {
       (response) => response,
       (error) => {
         if (error.response?.status === 429) {
-          console.warn(`Rate limit hit for ${this.name} provider`);
+          logger.warn('Rate limit hit for provider', { 
+            provider: this.name,
+            statusCode: 429
+          });
         }
         return Promise.reject(error);
       }

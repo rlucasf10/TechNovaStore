@@ -16,15 +16,31 @@ export * from './components/dashboard/ChangePassword'
 export * from './components/dashboard/GdprDashboard'
 export * from './components/dashboard/OrderTracking'
 export * from './components/dashboard/TrackingTimeline'
+export * from './components/dashboard/WelcomeCard'
+export * from './components/dashboard/RecentOrdersCard'
+export * from './components/dashboard/StatisticsCard'
+export * from './components/dashboard/RecommendationsCard'
+export * from './components/dashboard/NotificationsCard'
+export * from './components/dashboard/QuickActionsCard'
+export * from './components/dashboard/ProfileInformation'
+export * from './components/dashboard/SecuritySettings'
+export * from './components/dashboard/PreferencesSettings'
+export * from './components/dashboard/AuthMethodsManagement'
+export * from './components/dashboard/AddressManagement'
+export * from './components/dashboard/PaymentMethodManagement'
 
 // Hooks
 export * from './hooks/useAuth'
 export * from './hooks/useAuthErrors'
 export * from './hooks/useUser'
 export * from './hooks/useNotifications'
+export * from './hooks/useAddresses'
+export * from './hooks/usePaymentMethods'
 
 // Services
 export * from './services/auth.service'
+export * from './services/address.service'
+export * from './services/payment-method.service'
 
 // Store (explicit exports to avoid conflicts)
 export { 
@@ -62,6 +78,20 @@ export type {
   AuthStatus,
   AuthState
 } from './types/auth.types'
+
+export type {
+  UserAddress,
+  AddressFormData,
+  AddressLabel
+} from './types/address.types'
+
+export type {
+  PaymentMethod,
+  PaymentMethodFormData,
+  PaymentMethodType,
+  CardBrand,
+  PaymentMethodLabel
+} from './types/payment-method.types'
 
 // Lib
 export * from './lib/auth-errors'

@@ -1,0 +1,157 @@
+/* BLOQUE 6: Accesibilidad - Focus states, skip links, WCAG */
+/* Si este bloque falla, el problema está en los estilos de accesibilidad */
+
+@import '../styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  /* Focus visible mejorado para navegación por teclado */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+    border-radius: 4px;
+  }
+
+  /* Focus visible específico para botones */
+  button:focus-visible,
+  a[role="button"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600 ring-2 ring-primary-500 ring-offset-2;
+    outline-style: solid;
+  }
+
+  /* Focus visible para inputs */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 border-primary-500;
+  }
+
+  /* Focus visible para enlaces */
+  a:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+    text-decoration: underline;
+  }
+
+  /* Focus visible para elementos interactivos personalizados */
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+    outline-style: solid;
+  }
+
+  /* Asegurar que el focus nunca se oculte */
+  *:focus {
+    outline: none;
+  }
+
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Tamaño mínimo táctil (44x44px) */
+  button, 
+  a[role="button"],
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Contraste en placeholders */
+  ::placeholder {
+    color: #4b5563;
+    opacity: 1;
+  }
+  
+  /* Contraste de enlaces */
+  a:not([class]) {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+  
+  a:not([class]):hover {
+    color: #1e40af;
+  }
+
+  /* Estados disabled */
+  :disabled,
+  [aria-disabled="true"] {
+    @apply opacity-60;
+    cursor: not-allowed;
+  }
+
+  /* Skip links */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:z-[9999];
+    @apply bg-primary-600 text-white px-6 py-3 rounded-md font-medium;
+    @apply shadow-lg transition-all duration-200;
+    @apply focus:outline-2 focus:outline-offset-2 focus:outline-white;
+  }
+
+  .skip-to-main {
+    @apply skip-link focus:top-4 focus:left-4;
+  }
+
+  /* Contenedor de skip links */
+  .skip-links-container {
+    @apply sr-only focus-within:not-sr-only;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  /* Reducir movimiento */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Jerarquía de encabezados */
+  h1 {
+    @apply text-4xl font-bold text-gray-900;
+  }
+
+  h2 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+
+  h4 {
+    @apply text-xl font-semibold text-gray-900;
+  }
+
+  h5 {
+    @apply text-lg font-medium text-gray-900;
+  }
+
+  h6 {
+    @apply text-base font-medium text-gray-900;
+  }
+}

@@ -83,7 +83,8 @@ user-service/
 - Login con email/contraseña
 - Autenticación OAuth (Google, GitHub)
 - JWT tokens (access + refresh)
-- Sesiones seguras
+- **Sesiones seguras con httpOnly cookies** (NO usar localStorage)
+- Protección contra ataques XSS mediante cookies httpOnly
 
 ### 2. Gestión de Contraseñas
 - Hash seguro con bcrypt
@@ -236,6 +237,50 @@ npm start
 - `LOG_LEVEL` - Nivel de logging
 
 ## Seguridad
+
+### HttpOnly Cookies para Autenticación
+
+**IMPORTANTE**: Este servicio utiliza httpOnly cookies para almacenar tokens JWT, NO localStorage.
+
+#### ¿Por qué httpOnly cookies?
+- **Protección contra XSS**: Las cookies httpOnly no son accesibles desde JavaScript, protegiendo contra ataques de Cross-Site Scripting
+- **Envío automático**: El navegador envía automáticamente las cookies en cada request
+- **Seguridad mejorada**: Combinado con flags `Secure` y `SameSite`, proporciona múltiples capas de protección
+
+#### Configuración de Cookies
+```typescript
+{
+  name: 'auth_token',
+  httpOnly: true,              // No accesible desde JavaScript
+  secure: true,                // Solo HTTPS en producción
+  sameSite: 'lax',            // Protección contra CSRF
+  maxAge: 24 * 60 * 60 * 1000, // 24 horas
+  domain: process.env.COOKIE_DOMAIN,
+  path: '/'
+}
+```
+
+#### Frontend Configuration
+El frontend debe configurar `withCredentials: true` en todas las requests:
+
+```typescript
+// Axios
+axios.defaults.withCredentials = true;
+
+// Fetch
+fetch(url, {
+  credentials: 'include'
+});
+```
+
+#### CORS Configuration
+El API Gateway debe tener configurado:
+```typescript
+{
+  origin: process.env.FRONTEND_URL,
+  credentials: true  // CRÍTICO para cookies
+}
+```
 
 ### Políticas de Contraseñas
 - Mínimo 8 caracteres

@@ -6,6 +6,7 @@
 import { Order } from '../models/Order';
 import { TrackingInfo } from '../types/tracking';
 import { NotificationService } from '../clients/NotificationService';
+import { logger } from './logger';
 
 export class DelayChecker {
   static async checkForDelays(
@@ -23,7 +24,12 @@ export class DelayChecker {
 
     // Check if delivery is delayed beyond original estimate
     if (newEstimate > originalEstimate && now > originalEstimate) {
-      console.log(`Delivery delay detected for order ${order.orderNumber}`);
+      logger.info('Delivery delay detected', {
+        orderNumber: order.orderNumber,
+        originalEstimate: originalEstimate.toISOString(),
+        newEstimate: newEstimate.toISOString(),
+        delayDays: Math.ceil((newEstimate.getTime() - originalEstimate.getTime()) / (1000 * 60 * 60 * 24))
+      });
       await notificationService.sendDelayNotification(order, originalEstimate, newEstimate);
     }
   }

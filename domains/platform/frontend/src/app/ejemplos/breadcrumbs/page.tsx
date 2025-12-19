@@ -28,9 +28,9 @@ export default function BreadcrumbsExamplePage() {
   ]
 
   const dashboardBreadcrumbs: BreadcrumbItem[] = [
-    { label: 'Dashboard', href: '/dashboard', icon: <HomeIcon /> },
-    { label: 'Mis Pedidos', href: '/dashboard/pedidos' },
-    { label: 'Seguimiento', href: '/dashboard/seguimiento' },
+    { label: 'Dashboard', href: '/dashboard/usuario', icon: <HomeIcon /> },
+    { label: 'Mis Pedidos', href: '/dashboard/usuario/pedidos' },
+    { label: 'Seguimiento', href: '/dashboard/usuario/seguimiento' },
     { label: 'Pedido #ORD-2024-001234' },
   ]
 

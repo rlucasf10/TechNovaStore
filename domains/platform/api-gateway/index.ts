@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import https from 'https';
 import http from 'http';
 import { config } from './config';
@@ -65,7 +66,39 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
+// Cookie parser middleware - DEBE estar ANTES de las rutas
+// CRÍTICO: Necesario para leer cookies httpOnly en el middleware de autenticación
+// Este middleware parsea las cookies del header 'Cookie' y las hace disponibles en req.cookies
+app.use(cookieParser());
+
 // Enhanced CORS configuration
+// ============================================================================
+// NOTA CRÍTICA SOBRE credentials: true
+// ============================================================================
+// La opción 'credentials: true' es ABSOLUTAMENTE ESENCIAL para que las httpOnly 
+// cookies funcionen correctamente en requests cross-origin entre el frontend y backend.
+//
+// ¿Qué hace credentials: true?
+// - Permite que el navegador envíe cookies en requests cross-origin
+// - Permite que el navegador acepte el header 'Set-Cookie' en responses cross-origin
+// - Habilita el envío de headers de autenticación (Authorization, cookies, etc.)
+//
+// Sin credentials: true:
+// ❌ Las cookies NO se enviarán desde el frontend al backend
+// ❌ El header 'Set-Cookie' será ignorado por el navegador
+// ❌ La autenticación basada en httpOnly cookies NO funcionará
+//
+// Requisitos para que funcione:
+// ✅ Backend: credentials: true en configuración CORS
+// ✅ Frontend: withCredentials: true en requests (axios/fetch)
+// ✅ Backend: origin debe ser específico (NO puede ser '*')
+// ✅ Backend: cookie-parser debe estar instalado y configurado
+//
+// Configuración actual:
+// - credentials: true ✅ (configurado en securityConfig.cors.credentials)
+// - origin: http://localhost:3020 ✅ (configurado en securityConfig.cors.origin)
+// - cookie-parser: instalado y configurado ✅
+// ============================================================================
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -77,7 +110,7 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: securityConfig.cors.credentials,
+  credentials: securityConfig.cors.credentials, // CRÍTICO: Permite envío de cookies httpOnly
   methods: securityConfig.cors.methods,
   allowedHeaders: securityConfig.cors.allowedHeaders,
   exposedHeaders: securityConfig.cors.exposedHeaders,
@@ -133,10 +166,12 @@ app.use(rateLimitRequest.createApiRateLimit());
 // XSS Protection
 app.use(sanitizeInput.execute.bind(sanitizeInput));
 
-// CSRF Protection - Skip for /api/chat and OAuth callback routes
+// CSRF Protection - Skip for /api/chat, OAuth callback, and logout routes
 if (securityConfig.csrf.enabled) {
   app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (req.path.startsWith('/api/chat') || req.path.startsWith('/api/auth/oauth/callback')) {
+    if (req.path.startsWith('/api/chat') || 
+        req.path.startsWith('/api/auth/oauth/callback') ||
+        req.path === '/api/auth/logout') {
       return next();
     }
     return validateCsrfToken.execute(req, res, next);

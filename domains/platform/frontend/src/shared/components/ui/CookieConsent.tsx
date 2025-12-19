@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from './Button'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/features/customer/store/auth.store'
 
 interface ConsentData {
   necessary_cookies: boolean
@@ -76,15 +77,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
         timestamp: new Date().toISOString(),
       }))
 
-      // Send to backend if user is authenticated
-      const token = localStorage.getItem('auth-token')
-      if (token) {
+      // ✅ SEGURIDAD: Enviar al backend si el usuario está autenticado
+      // Usamos fetch con credentials: 'include' para enviar httpOnly cookies automáticamente
+      // NO usamos Authorization header con tokens de localStorage
+      const { isAuthenticated } = useAuthStore.getState()
+      if (isAuthenticated) {
         await fetch('/api/gdpr/consent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
           },
+          credentials: 'include', // ✅ Envía httpOnly cookies automáticamente
           body: JSON.stringify({ consent_data: consentData }),
         })
       }
@@ -110,7 +113,7 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
 
   return (
     <div className={cn(
-      'fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg',
+      'fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg',
       className
     )}>
       <div className="max-w-7xl mx-auto p-4">
@@ -118,10 +121,10 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
           // Simple consent banner
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Configuración de Cookies y Privacidad
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Utilizamos cookies y tecnologías similares para mejorar tu experiencia, 
                 personalizar contenido y analizar nuestro tráfico. Puedes elegir qué 
                 cookies aceptar según tus preferencias.
@@ -155,7 +158,7 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
           // Detailed consent form
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Configuración Detallada de Privacidad
               </h3>
               <button
@@ -172,17 +175,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Necessary Cookies */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Cookies Necesarias
                   </label>
                   <input
                     type="checkbox"
                     checked={true}
                     disabled
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Esenciales para el funcionamiento básico del sitio web. No se pueden desactivar.
                 </p>
               </div>
@@ -190,17 +193,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Analytics Cookies */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Cookies de Análisis
                   </label>
                   <input
                     type="checkbox"
                     checked={consent.analytics_cookies}
                     onChange={(e) => handleConsentChange('analytics_cookies', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Nos ayudan a entender cómo los visitantes interactúan con nuestro sitio web.
                 </p>
               </div>
@@ -208,17 +211,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Marketing Cookies */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Cookies de Marketing
                   </label>
                   <input
                     type="checkbox"
                     checked={consent.marketing_cookies}
                     onChange={(e) => handleConsentChange('marketing_cookies', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Utilizadas para mostrar anuncios relevantes y medir la efectividad de campañas.
                 </p>
               </div>
@@ -226,17 +229,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Data Processing */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Procesamiento de Datos
                   </label>
                   <input
                     type="checkbox"
                     checked={consent.data_processing}
                     onChange={(e) => handleConsentChange('data_processing', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Consentimiento para procesar tus datos personales según nuestra política de privacidad.
                 </p>
               </div>
@@ -244,17 +247,17 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Email Marketing */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Marketing por Email
                   </label>
                   <input
                     type="checkbox"
                     checked={consent.email_marketing}
                     onChange={(e) => handleConsentChange('email_marketing', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Recibir ofertas especiales y noticias por correo electrónico.
                 </p>
               </div>
@@ -262,23 +265,23 @@ export function CookieConsent({ onConsentUpdate, className }: CookieConsentProps
               {/* Third Party Sharing */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-900">
+                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Compartir con Terceros
                   </label>
                   <input
                     type="checkbox"
                     checked={consent.third_party_sharing}
                     onChange={(e) => handleConsentChange('third_party_sharing', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Permitir compartir datos con socios comerciales para mejorar nuestros servicios.
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
+            <div className="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-slate-700">
               <Button
                 variant="secondary"
                 size="sm"

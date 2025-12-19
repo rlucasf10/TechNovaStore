@@ -1,0 +1,244 @@
+
+
+
+
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+	
+	
+	
+	<meta charset="UTF-8"/>
+	<title>Buscador de códigos postales de Correos | Correos.es</title>
+	<meta name="template" content="spa-page-template"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+	<script>
+	var id_token_ss = sessionStorage.getItem('cal.CORREOSID.portalcorreos.id_token');
+	var has_cookie = document.cookie.includes("NEOAEMSTAMP");
+	var cookie_stamp = null;
+	if (has_cookie) {
+		var v = document.cookie.match('(^|;) ?' + "NEOAEMSTAMP" + '=([^;]*)(;|$)');
+		cookie_stamp = v ? v[2] : null; 
+	}
+	var ss_stamp = sessionStorage.getItem('cal.CORREOSID.portalcorreos.date_expire');
+	var environmentApiHostAEM = document.querySelector('meta[name="environmentApiHostAEM"]');
+	if (environmentApiHostAEM != null) {
+		environmentApiHostAEM = environmentApiHostAEM.content + "/jcr:content.login.json";
+	} else {
+		environmentApiHostAEM = document.location.pathname + "/jcr:content.login.json";
+	}
+	if ((id_token_ss == null || cookie_stamp !== ss_stamp) && has_cookie && environmentApiHostAEM != null) {
+		fetch(environmentApiHostAEM).then((response) => {
+			if(response.status == '200') {
+				return response.json();
+			} else {
+				throw new Error;
+			}
+		}).then (response => {
+			sessionStorage.setItem('cal.CORREOSID.portalcorreos.id_token', response.id_token);
+			sessionStorage.setItem('cal.CORREOSID.portalcorreos.refresh_token', response.refresh_token);
+			sessionStorage.setItem('cal.CORREOSID.portalcorreos.date_expire', response.date_expire);
+		})
+		.catch( error => {
+			sessionStorage.removeItem("cal.CORREOSID.portalcorreos.id_token");
+			sessionStorage.removeItem("cal.CORREOSID.portalcorreos.refresh_token");
+			sessionStorage.removeItem("cal.CORREOSID.portalcorreos.date_expire");
+		});
+	}
+	if (id_token_ss != null && !has_cookie) {
+		sessionStorage.removeItem("cal.CORREOSID.portalcorreos.id_token");
+		sessionStorage.removeItem("cal.CORREOSID.portalcorreos.refresh_token");
+		sessionStorage.removeItem("cal.CORREOSID.portalcorreos.date_expire");
+	}
+</script>
+	
+
+	
+
+
+
+
+
+
+<meta name="description" content="¿Estás buscando un código postal? Introduce la dirección y en unos segundos tendrás la información. "/>
+<meta name="robots" content="index,follow"/>
+
+
+<link rel="canonical" href="https://www.correos.es/es/es/herramientas/codigos-postales/detalle"/>
+<link rel="alternate" href="https://www.correos.es/es/es/herramientas/codigos-postales/detalle" hreflang="x-default"/>
+
+  <link rel="alternate" hreflang="ca-ES" href="https://www.correos.es/es/ca/eines/codis-postals/detall"/>
+
+  <link rel="alternate" hreflang="en-ES" href="https://www.correos.es/es/en/tools/codigos-postales/details"/>
+
+  <link rel="alternate" hreflang="es-ES" href="https://www.correos.es/es/es/herramientas/codigos-postales/detalle"/>
+
+  <link rel="alternate" hreflang="gl-ES" href="https://www.correos.es/es/gl/ferramentas/codigos-postais/detalle"/>
+
+  <link rel="alternate" hreflang="va-ES" href="https://www.correos.es/es/va/ferramentes/codis-postals/detall"/>
+
+  <link rel="alternate" hreflang="eu-ES" href="https://www.correos.es/es/eu/tresnak/posta-kodeak/xehetasunak"/>
+
+
+
+<meta name="type" content="herramienta"/>
+
+
+<meta property="og:title" content="Buscador de códigos postales de Correos | Correos.es"/>
+<meta property="og:description" content="¿Estás buscando un código postal? Introduce la dirección y en unos segundos tendrás la información. "/>
+<meta property="og:image" itemprop="image" content="https://www.correos.es/content/dam/correos/imagenes/iconos/CORREOS-1000x1000.png"/>
+<meta property="og:image:secure_url" content="https://www.correos.es/content/dam/correos/imagenes/iconos/CORREOS-1000x1000.png"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:width" content="1000"/>
+<meta property="og:image:height" content="1000"/>
+<meta property="og:url" content="https://www.correos.es/es/es/herramientas/codigos-postales/detalle"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:title" content="Buscador de códigos postales de Correos | Correos.es"/>
+<meta name="twitter:description" content="¿Estás buscando un código postal? Introduce la dirección y en unos segundos tendrás la información. "/>
+<meta name="twitter:url" content="https://www.correos.es/es/es/herramientas/codigos-postales/detalle"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:site" content="@correos"/>
+
+
+<meta name="autor" content="Grupo Correos"/>
+<meta name="organization" content="Sociedad Estatal de Correos y Tel&eacute;grafos, S.A."/>
+
+
+
+<meta name="environmentApiHost" content="https://api1.correos.es"/>
+<meta name="environmentApiHostAzure" content="https://apicorp.correos.es"/>
+<meta name="environmentApiHostCorreosId" content="https://apicorreosidservices.correos.es"/>
+<meta name="environmentApplicationOid" content="51058cef-6554-483d-a1ff-ca60b4e2694d"/>
+<meta name="environmentcacheLocation" content="sessionStorage"/>
+<meta name="environmentApiHostAEM" content="/content/correos/es/es"/>
+<meta name="environmentTypeRoute" content="PB"/>
+<meta name="environmentUrlLogOutRedirect" content="https://mioficina.correos.es/es/es/login"/>
+<meta name="environmentLanguage" content="ES"/>
+
+<link rel="stylesheet" href="/etc/clientlibs/correoslibs/correos-ui-kit.css?numero=0629f6448b559cba87b8a790482cba5b" id="components-css"/>
+<script nomodule="" src="/etc/clientlibs/correoslibs/correos-ui-kit.js?numero=5a15d5c2773271d66d2a442739a0102a" id="component-js"></script>
+<script type="module" src="/etc/clientlibs/correoslibs/correos-ui-kit.esm.js?numero=44116fa54bb432cc2a2a904266119e03" id="component-js-module"></script>
+
+<link rel="stylesheet" href="/etc/clientlibs/comunlibs/arq-ui-kit.css?numero=873729c59421fd191daf0770f7e52f5e" id="components-css"/>
+<script nomodule="" src="/etc/clientlibs/comunlibs/arq-ui-kit.js?numero=4fb3148ac551d25d9b6797d4ce626e02" id="component-js"></script>
+<script type="module" src="/etc/clientlibs/comunlibs/arq-ui-kit.esm.js?numero=b472f9a38fcf6082e3ec8c4275562d2d" id="component-js-module"></script>
+
+
+    
+<script src="/etc.clientlibs/correos/clientlibs/clientlib-dependencies.min.d41d8cd98f00b204e9800998ecf8427e.js"></script>
+
+
+
+
+    
+<link rel="stylesheet" href="/etc.clientlibs/correos/clientlibs/clientlib-base.min.7d250654d6a4ba422176cd385b93bb36.css" type="text/css">
+
+
+
+
+<meta name="theme-color" content="#000000"/>
+<link rel="icon" href="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<link rel="apple-touch-icon" sizes="167x167" href="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<link rel="apple-touch-icon" sizes="152x152" href="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<link rel="apple-touch-icon" sizes="120x120" href="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<meta name="msapplication-square310x310logo" content="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<meta name="msapplication-wide310x150logo" content="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<meta name="msapplication-square150x150logo" content="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<meta name="msapplication-square70x70logo" content="/content/dam/correos/imagenes/iconos/CORREOS-favicon.svg"/>
+<link rel="manifest" href="/etc.clientlibs/correos/clientlibs/clientlib-react/resources/manifest.json"/>
+
+<!-- AEM page model -->
+
+
+
+<meta property="cq:pagemodel_root_url" content="/content/correos/es/es/herramientas/codigos-postales.model.json"/>
+
+<!-- CUSTOM Meta AEM page model -->
+
+	<meta name="/content/correos/es/es/herramientas/codigos-postales/detalle" content="/es/es/herramientas/codigos-postales/detalle"/>
+
+
+
+<script src="//assets.adobedtm.com/31e842d3af0a/e239f3676926/launch-22ce7a1a18b2.min.js" async></script>
+
+
+
+
+<script type="text/javascript">
+	var digitalData = {};
+</script>
+
+
+
+
+
+
+
+	
+    
+    
+
+    
+
+    
+    
+    
+<link rel="stylesheet" href="/etc.clientlibs/correos/clientlibs/clientlib-react.min.72c8019d230619c578b6fd160b99643a.css" type="text/css">
+
+
+
+    
+
+	
+
+</head>
+    <body class="page basicpage" data-pagename="correosweb:herramientas:codigos postales:detalle" data-area="correos">
+	    
+	    	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX9JL63" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	    
+        
+        
+            
+
+
+
+            
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="spa-root"></div>
+            
+    
+    
+<script src="/etc.clientlibs/correos/clientlibs/clientlib-react.min.e660a0adf5dad258690f7954ff908330.js"></script>
+<script src="/etc.clientlibs/correos/clientlibs/clientlib-provider-correosid.min.ed8e3f9c92c02f27ac1f60e6503eb3e8.js"></script>
+
+
+
+    
+
+    
+    
+<script src="/etc.clientlibs/core/wcm/components/commons/site/clientlibs/container.min.c8339545b501e3db3abc37c9a4cc2d6e.js"></script>
+<script src="/etc.clientlibs/correos/clientlibs/clientlib-base.min.feb344e1e9ce6d28711e600e19366ba4.js"></script>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+    
+    
+
+            
+
+        
+        
+    </body>
+</html>

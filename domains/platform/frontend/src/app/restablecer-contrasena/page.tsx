@@ -16,7 +16,7 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -195,11 +195,11 @@ function ResetPasswordContent() {
         subtitle="Por favor espera mientras verificamos tu enlace de recuperación"
         showBackToHome={false}
       >
-        <div className="flex flex-col items-center justify-center py-12">
+        <div className="flex flex-col items-center justify-center py-12" role="status" aria-live="polite">
           {/* Spinner de carga */}
           <div className="relative w-16 h-16">
-            <div className="absolute inset-0 border-4 border-primary-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-primary-600 rounded-full border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-primary-200 rounded-full" aria-hidden="true"></div>
+            <div className="absolute inset-0 border-4 border-primary-600 rounded-full border-t-transparent animate-spin" aria-hidden="true"></div>
           </div>
           <p className="mt-6 text-sm text-gray-600">Verificando enlace...</p>
         </div>

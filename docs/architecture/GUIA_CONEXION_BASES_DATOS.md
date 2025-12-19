@@ -4,12 +4,20 @@ Esta guía te ayudará a conectarte a las bases de datos del proyecto usando her
 
 ---
 
+## ✅ Versiones Actuales
+
+- **MongoDB:** 8.0.16 (Actualizado el 23/11/2025)
+- **PostgreSQL:** 15
+- **Redis:** 7
+
+---
+
 ## 📊 Resumen de Credenciales
 
 | Base de Datos  | Host      | Puerto | Usuario | Contraseña | Base de Datos |
 | -------------- | --------- | ------ | ------- | ---------- | ------------- |
 | **PostgreSQL** | localhost | 5432   | admin   | password   | technovastore |
-| **MongoDB**    | localhost | 27017  | admin   | password   | technovastore |
+| **MongoDB**    | localhost | 27088  | admin   | password   | technovastore |
 | **Redis**      | localhost | 6379   | -       | password   | -             |
 
 ---
@@ -98,11 +106,11 @@ WHERE table_schema = 'public';
 1. Abre MongoDB Compass
 2. En "New Connection", usa esta URI:
    ```
-   mongodb://admin:password@localhost:27017/technovastore?authSource=admin
+   mongodb://admin:password@localhost:27088/technovastore?authSource=admin
    ```
 3. O configura manualmente:
    - Hostname: `localhost`
-   - Port: `27017`
+   - Port: `27088` ⚠️ **IMPORTANTE: El puerto es 27088, no 27017**
    - Authentication: Username/Password
    - Username: `admin`
    - Password: `password`
@@ -129,7 +137,7 @@ db.products.countDocuments();
 2. Click en "Connect" → "New Connection"
 3. En la pestaña "Server":
    - Server: `localhost`
-   - Port: `27017`
+   - Port: `27088` ⚠️ **IMPORTANTE: El puerto es 27088, no 27017**
 4. En la pestaña "Authentication":
    - Authentication Mode: `Username/Password`
    - Username: `admin`
@@ -151,7 +159,7 @@ db.products.countDocuments();
 2. Click en "Create" (nueva conexión)
 3. En la pestaña "Connection":
    - Name: `TechNovaStore`
-   - Address: `localhost:27017`
+   - Address: `localhost:27088` ⚠️ **IMPORTANTE: El puerto es 27088, no 27017**
 4. En la pestaña "Authentication":
    - ✅ Marca "Perform authentication"
    - Database: `admin`
@@ -239,9 +247,11 @@ docker ps --filter "name=technovastore" --format "table {{.Names}}\t{{.Ports}}"
 
 ```
 technovastore-postgresql    0.0.0.0:5432->5432/tcp
-technovastore-mongodb       0.0.0.0:27017->27017/tcp
+technovastore-mongodb       0.0.0.0:27088->27017/tcp
 technovastore-redis         0.0.0.0:6379->6379/tcp
 ```
+
+⚠️ **NOTA:** MongoDB está mapeado al puerto **27088** en el host, no al 27017.
 
 ---
 
@@ -261,7 +271,7 @@ technovastore-redis         0.0.0.0:6379->6379/tcp
 
    ```powershell
    netstat -an | findstr "5432"
-   netstat -an | findstr "27017"
+   netstat -an | findstr "27088"
    netstat -an | findstr "6379"
    ```
 
@@ -297,7 +307,7 @@ Si algún puerto está ocupado por otra aplicación:
 ```powershell
 # Ver qué proceso está usando el puerto
 netstat -ano | findstr "5432"
-netstat -ano | findstr "27017"
+netstat -ano | findstr "27088"
 netstat -ano | findstr "6379"
 
 # Matar el proceso (reemplaza PID con el número que aparece)

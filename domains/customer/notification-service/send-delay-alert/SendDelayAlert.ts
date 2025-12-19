@@ -6,6 +6,7 @@
 import { EmailService } from '../shared/email/EmailService';
 import { TemplateService } from '../shared/templates/TemplateService';
 import { DelayAlertData } from '../shared/types/index';
+import { logger } from '../shared/utils/logger';
 
 export class SendDelayAlert {
   constructor(
@@ -26,9 +27,9 @@ export class SendDelayAlert {
       const template = this.templateService.getTemplate('delivery_delay', notificationData);
       await this.emailService.sendEmail(data.customerEmail, template);
       
-      console.log(`Delay alert sent to ${data.customerEmail} for order ${data.orderId}`);
+      logger.info('Delay alert sent', { customerEmail: data.customerEmail, orderId: data.orderId });
     } catch (error) {
-      console.error(`Failed to send delay alert for ${data.orderId}:`, error);
+      logger.error('Failed to send delay alert', { orderId: data.orderId, error: error instanceof Error ? error.message : error });
       throw error;
     }
   }

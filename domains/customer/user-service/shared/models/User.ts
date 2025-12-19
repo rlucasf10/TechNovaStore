@@ -16,6 +16,7 @@ export interface UserAttributes {
   first_name: string;
   last_name: string;
   phone?: string;
+  avatar?: string; // URL de la imagen de perfil (Google, GitHub, etc.)
   address?: {
     street: string;
     city: string;
@@ -44,6 +45,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   declare first_name: string;
   declare last_name: string;
   declare phone?: string;
+  declare avatar?: string;
   declare address?: {
     street: string;
     city: string;
@@ -142,8 +144,9 @@ User.init(
     last_name: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      defaultValue: '',
       validate: {
-        len: [2, 100],
+        len: [0, 100], // Permitir apellido vacío para usuarios OAuth
       },
     },
     phone: {
@@ -152,6 +155,10 @@ User.init(
       validate: {
         is: /^[\+]?[1-9][\d]{0,15}$/,
       },
+    },
+    avatar: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
     },
     address: {
       type: DataTypes.JSONB,

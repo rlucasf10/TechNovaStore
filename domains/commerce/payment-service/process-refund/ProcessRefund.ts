@@ -16,16 +16,13 @@ export interface RefundResponse {
 }
 
 export class ProcessRefund {
-  private orderServiceClient: OrderServiceClient;
-
-  constructor(orderServiceClient?: OrderServiceClient) {
-    this.orderServiceClient = orderServiceClient || new OrderServiceClient();
-  }
-
-  async execute(orderId: number, amount?: number): Promise<RefundResponse> {
+  async execute(orderId: number, amount?: number, authHeaders?: Record<string, string>): Promise<RefundResponse> {
     try {
+      // Crear cliente con headers de autenticación si se proporcionan
+      const orderServiceClient = new OrderServiceClient(undefined, authHeaders);
+
       // Obtener información del pedido
-      const orderInfo = await this.orderServiceClient.getPaymentStatus(orderId);
+      const orderInfo = await orderServiceClient.getPaymentStatus(orderId);
       
       if (!orderInfo) {
         return {
@@ -59,7 +56,7 @@ export class ProcessRefund {
       const transactionId = `REF-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
       // Notificar al Order Service sobre el reembolso
-      await this.orderServiceClient.updatePaymentStatus(orderId, 'refunded', transactionId);
+      await orderServiceClient.updatePaymentStatus(orderId, 'refunded', transactionId);
 
       logger.info(`Refund completed for order ${orderId}`, {
         orderId,
@@ -74,7 +71,10 @@ export class ProcessRefund {
         message: 'Refund processed successfully',
       };
     } catch (error) {
-      logger.error('Refund processing error:', error);
+      logger.error('Refund processing error', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       
       return {
         success: false,

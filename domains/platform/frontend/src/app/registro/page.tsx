@@ -17,7 +17,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -193,7 +193,7 @@ export default function RegistroPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Campo de Nombre */}
             <div className="space-y-2">
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Nombre *
               </label>
               <input
@@ -201,15 +201,15 @@ export default function RegistroPage() {
                 id="firstName"
                 type="text"
                 autoComplete="given-name"
-                className={`block w-full px-4 py-3 border ${errors.firstName ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full px-4 py-3 border ${errors.firstName ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="Juan"
                 disabled={isLoading}
                 aria-invalid={errors.firstName ? 'true' : 'false'}
                 aria-describedby={errors.firstName ? 'firstName-error' : undefined}
               />
               {errors.firstName && (
-                <p id="firstName-error" className="text-sm text-red-600 flex items-center mt-1">
+                <p id="firstName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                   <svg
                     className="h-4 w-4 mr-1"
                     fill="none"
@@ -230,7 +230,7 @@ export default function RegistroPage() {
 
             {/* Campo de Apellidos */}
             <div className="space-y-2">
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Apellidos *
               </label>
               <input
@@ -238,15 +238,15 @@ export default function RegistroPage() {
                 id="lastName"
                 type="text"
                 autoComplete="family-name"
-                className={`block w-full px-4 py-3 border ${errors.lastName ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full px-4 py-3 border ${errors.lastName ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="Pérez García"
                 disabled={isLoading}
                 aria-invalid={errors.lastName ? 'true' : 'false'}
                 aria-describedby={errors.lastName ? 'lastName-error' : undefined}
               />
               {errors.lastName && (
-                <p id="lastName-error" className="text-sm text-red-600 flex items-center mt-1">
+                <p id="lastName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                   <svg
                     className="h-4 w-4 mr-1"
                     fill="none"
@@ -268,13 +268,13 @@ export default function RegistroPage() {
 
           {/* Campo de Email */}
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Correo electrónico *
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400"
+                  className="h-5 w-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -292,8 +292,8 @@ export default function RegistroPage() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="tu@email.com"
                 disabled={isLoading}
                 aria-invalid={errors.email ? 'true' : 'false'}
@@ -301,7 +301,7 @@ export default function RegistroPage() {
               />
             </div>
             {errors.email && (
-              <p id="email-error" className="text-sm text-red-600 flex items-center mt-1">
+              <p id="email-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                 <svg
                   className="h-4 w-4 mr-1"
                   fill="none"
@@ -322,13 +322,13 @@ export default function RegistroPage() {
 
           {/* Campo de Contraseña con PasswordStrengthIndicator */}
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Contraseña *
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400"
+                  className="h-5 w-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -346,8 +346,8 @@ export default function RegistroPage() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
-                className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="Mínimo 8 caracteres"
                 disabled={isLoading}
                 aria-invalid={errors.password ? 'true' : 'false'}
@@ -356,7 +356,7 @@ export default function RegistroPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 disabled={isLoading}
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
@@ -388,7 +388,7 @@ export default function RegistroPage() {
               </button>
             </div>
             {errors.password && (
-              <p id="password-error" className="text-sm text-red-600 flex items-center mt-1">
+              <p id="password-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                 <svg
                   className="h-4 w-4 mr-1"
                   fill="none"
@@ -414,7 +414,7 @@ export default function RegistroPage() {
 
           {/* Campo de Confirmar Contraseña con validación en tiempo real */}
           <div className="space-y-2">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Confirmar contraseña *
             </label>
             <div className="relative">
@@ -422,7 +422,7 @@ export default function RegistroPage() {
                 <svg
                   className={`h-5 w-5 transition-colors ${confirmPassword && password === confirmPassword
                     ? 'text-green-500'
-                    : 'text-gray-400'
+                    : 'text-gray-400 dark:text-gray-500'
                     }`}
                   fill="none"
                   stroke="currentColor"
@@ -442,11 +442,11 @@ export default function RegistroPage() {
                 type={showConfirmPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 className={`block w-full pl-10 pr-12 py-3 border ${errors.confirmPassword
-                  ? 'border-red-300'
+                  ? 'border-red-300 dark:border-red-500'
                   : confirmPassword && password === confirmPassword
-                    ? 'border-green-300'
-                    : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                    ? 'border-green-300 dark:border-green-500'
+                    : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="Repite tu contraseña"
                 disabled={isLoading}
                 aria-invalid={errors.confirmPassword ? 'true' : 'false'}
@@ -455,7 +455,7 @@ export default function RegistroPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 disabled={isLoading}
                 aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
@@ -489,7 +489,7 @@ export default function RegistroPage() {
             {errors.confirmPassword && (
               <p
                 id="confirmPassword-error"
-                className="text-sm text-red-600 flex items-center mt-1"
+                className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1"
               >
                 <svg
                   className="h-4 w-4 mr-1"
@@ -510,7 +510,7 @@ export default function RegistroPage() {
             {/* Indicador visual de coincidencia en tiempo real */}
             {confirmPassword && confirmPassword.length > 0 && !errors.confirmPassword && (
               <p
-                className={`text-sm flex items-center mt-1 ${password === confirmPassword ? 'text-green-600' : 'text-gray-500'
+                className={`text-sm flex items-center mt-1 ${password === confirmPassword ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'
                   }`}
               >
                 {password === confirmPassword ? (
@@ -559,17 +559,17 @@ export default function RegistroPage() {
                 {...register('acceptTerms')}
                 id="acceptTerms"
                 type="checkbox"
-                className={`h-4 w-4 mt-0.5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer ${errors.acceptTerms ? 'border-red-300' : ''
+                className={`h-4 w-4 mt-0.5 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-slate-600 rounded cursor-pointer dark:bg-slate-700 ${errors.acceptTerms ? 'border-red-300 dark:border-red-500' : ''
                   }`}
                 disabled={isLoading}
                 aria-invalid={errors.acceptTerms ? 'true' : 'false'}
                 aria-describedby={errors.acceptTerms ? 'acceptTerms-error' : undefined}
               />
-              <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+              <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 Acepto los{' '}
                 <Link
                   href="/terminos"
-                  className="text-primary-600 hover:text-primary-500 font-medium underline"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -578,7 +578,7 @@ export default function RegistroPage() {
                 {' '}y la{' '}
                 <Link
                   href="/privacy-policy"
-                  className="text-primary-600 hover:text-primary-500 font-medium underline"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -588,7 +588,7 @@ export default function RegistroPage() {
               </label>
             </div>
             {errors.acceptTerms && (
-              <p id="acceptTerms-error" className="text-sm text-red-600 flex items-center ml-6">
+              <p id="acceptTerms-error" className="text-sm text-red-600 dark:text-red-400 flex items-center ml-6">
                 <svg
                   className="h-4 w-4 mr-1"
                   fill="none"
@@ -647,18 +647,18 @@ export default function RegistroPage() {
 
         {/* Botones de OAuth */}
         <SocialLoginButtons
-          redirectTo="/dashboard"
+          redirectTo="/dashboard/usuario"
           onError={handleOAuthError}
           disabled={isLoading || rateLimit.isBlocked}
         />
 
         {/* Link a Login */}
         <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             ¿Ya tienes una cuenta?{' '}
             <Link
               href="/login"
-              className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 transition-colors"
             >
               Inicia sesión
             </Link>

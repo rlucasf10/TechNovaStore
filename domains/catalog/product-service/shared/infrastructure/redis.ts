@@ -1,8 +1,12 @@
-import { createClient } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 import { config } from '../../config';
 import { logger } from './logger';
 
-export const redisClient = createClient({
+// Tipo del cliente Redis
+type RedisClient = ReturnType<typeof createClient>;
+
+// Cliente Redis para caché y mensajería
+export const redisClient: RedisClient = createClient({
   socket: {
     host: config.redis.host,
     port: config.redis.port,
@@ -11,7 +15,8 @@ export const redisClient = createClient({
   database: config.redis.db,
 });
 
-export const connectRedis = async () => {
+// Función para conectar a Redis
+export const connectRedis = async (): Promise<RedisClient> => {
   try {
     await redisClient.connect();
     logger.info('Connected to Redis');

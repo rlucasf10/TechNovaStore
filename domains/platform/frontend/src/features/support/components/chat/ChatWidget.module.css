@@ -1,0 +1,144 @@
+/* Estilos para el ChatWidget redimensionable */
+
+/* Animación de pulso sutil para el botón flotante */
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+  }
+}
+
+/* Mejora visual de los handles de redimensionamiento */
+.resize-handle {
+  position: absolute;
+  z-index: 10;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resize-handle:hover {
+  background-color: rgba(59, 130, 246, 0.25);
+  transform: scale(1.1);
+}
+
+.resize-handle:active {
+  background-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Esquinas con área de agarre más grande */
+.resize-corner {
+  width: 12px;
+  height: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resize-corner:hover {
+  width: 14px;
+  height: 14px;
+}
+
+/* Bordes con área de agarre */
+.resize-edge {
+  background-color: transparent;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resize-edge:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Indicador visual de redimensionamiento activo */
+.resizing-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(59, 130, 246, 0.08) 100%);
+  pointer-events: none;
+  z-index: 20;
+  border-radius: 0.5rem;
+  animation: pulse-resize 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-resize {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Scrollbar personalizado para el chat */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Transición suave al redimensionar */
+.chat-window {
+  /* Sin transición por defecto para que el redimensionamiento sea instantáneo */
+  transition: none;
+}
+
+.chat-window:not(.resizing) {
+  /* Solo aplicar transición cuando NO se está redimensionando */
+  transition: box-shadow 0.2s ease;
+}
+
+/* Prevenir selección de texto durante redimensionamiento */
+body.resizing {
+  user-select: none;
+  cursor: inherit !important;
+}
+
+body.resizing * {
+  user-select: none !important;
+  pointer-events: none;
+}
+
+/* Permitir interacción solo con el chat durante redimensionamiento */
+body.resizing .chat-window,
+body.resizing .chat-window * {
+  pointer-events: auto;
+}
+
+/* Responsive: Ocultar handles en móvil y ajustar chat */
+@media (max-width: 768px) {
+  .resize-handle,
+  .resize-corner,
+  .resize-edge {
+    display: none !important;
+  }
+  
+  /* Chat ocupa toda la pantalla en móvil */
+  .chat-window-mobile {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Ajustar scrollbar en móvil */
+  .chat-messages {
+    -webkit-overflow-scrolling: touch;
+  }
+}

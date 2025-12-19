@@ -6,7 +6,6 @@
 
 'use client';
 
-import React from 'react';
 import { Header, Footer } from '@/layout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/ui';
 

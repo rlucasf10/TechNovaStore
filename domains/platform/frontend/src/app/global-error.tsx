@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+// @ts-ignore - React import necesario para JSX en global-error durante SSR
+import React from 'react'
+
+/**
+ * Global Error Boundary - Captura errores críticos a nivel de aplicación
+ * En Next.js 16, este componente DEBE incluir <html> y <body>
+ * porque reemplaza completamente el layout raíz cuando hay un error
+ */
 
 export default function GlobalError({
   error,
@@ -9,39 +16,41 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => {
-    console.error('Global Error:', error)
-  }, [error])
-
   return (
     <html lang="es">
-      <body>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-          <div className="text-center max-w-md">
-            <div className="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-12 h-12 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#f9fafb',
+          padding: '1rem'
+        }}>
+          <div style={{ textAlign: 'center', maxWidth: '400px' }}>
+            <h2 style={{ color: '#111827', marginBottom: '1rem' }}>
               Error del Sistema
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
               Ha ocurrido un error crítico. Por favor, recarga la página.
             </p>
+            {error?.digest && (
+              <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Código: {error.digest}
+              </p>
+            )}
             <button
-              onClick={reset}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => reset()}
+              type="button"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '1rem'
+              }}
             >
               Reintentar
             </button>

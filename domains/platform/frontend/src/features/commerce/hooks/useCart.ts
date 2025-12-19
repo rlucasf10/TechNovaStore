@@ -10,8 +10,10 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { cartService, Cart, AddToCartRequest, UpdateCartItemRequest } from '@/commerce';
+import { cartService } from '@/commerce';
+import type { Cart, AddToCartRequest, UpdateCartItemRequest } from '../services/cart.service';
 import { useToast } from '@/hooks/useToast';
+import { recommenderService } from '@/shared/services/recommenderService';
 
 /**
  * Query keys para el carrito
@@ -96,9 +98,12 @@ export function useAddToCart() {
         'Error al agregar al carrito'
       );
     },
-    onSuccess: (data) => {
+    onSuccess: (data, request) => {
       // Actualizar cache con datos del servidor
       queryClient.setQueryData(cartKeys.detail(), data);
+
+      // Registrar interacción para el sistema de recomendaciones
+      recommenderService.recordInteraction(request.productId, 'add_to_cart');
 
       toast.success(
         `${data.itemCount} ${data.itemCount === 1 ? 'producto' : 'productos'} en tu carrito`,

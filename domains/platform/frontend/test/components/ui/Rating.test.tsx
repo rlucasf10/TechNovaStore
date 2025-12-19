@@ -3,6 +3,7 @@
  * Verifica renderizado, interactividad, tamaños y accesibilidad
  */
 
+import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Rating } from '@/ui/Rating'
 

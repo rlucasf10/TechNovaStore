@@ -2,9 +2,13 @@
  * Controlador de Tickets
  * Extraído de src/controllers/TicketController.ts
  * Adaptado para usar casos de uso
+ * 
+ * ✅ SEGURIDAD: Verificación de propiedad de recursos implementada
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthenticatedRequest } from '@technovastore/shared-types';
+import { logger } from '../shared/utils/logger';
 import { CreateTicket } from '../create-ticket/CreateTicket';
 import { CreateTicketFromChatbot } from '../create-ticket-from-chatbot/CreateTicketFromChatbot';
 import { GetTicket } from '../get-ticket/GetTicket';
@@ -69,7 +73,45 @@ export class TicketController {
     private ticketRepository: TicketRepository
   ) {}
 
-  createTicketHandler = async (req: Request, res: Response): Promise<void> => {
+  /**
+   * ✅ SEGURIDAD: Verifica que el usuario tiene permiso para acceder al ticket
+   * - Los usuarios solo pueden acceder a sus propios tickets
+   * - Los admins pueden acceder a todos los tickets
+   */
+  private async verifyTicketOwnership(
+    ticketId: number,
+    userId: string,
+    userRole: string,
+    res: Response
+  ): Promise<boolean> {
+    const ticket = await this.getTicket.executeById(ticketId);
+    
+    if (!ticket) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return false;
+    }
+
+    // Los admins pueden acceder a todos los tickets
+    if (userRole === 'admin') {
+      return true;
+    }
+
+    // Verificar que el ticket pertenece al usuario
+    if (ticket.user_id && ticket.user_id.toString() !== userId) {
+      logger.warn('Unauthorized ticket access attempt', {
+        userId,
+        ticketId,
+        ticketOwnerId: ticket.user_id,
+      });
+      
+      res.status(403).json({ error: 'Access denied' });
+      return false;
+    }
+
+    return true;
+  }
+
+  createTicketHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketData: CreateTicketRequest = req.body;
       
@@ -88,14 +130,14 @@ export class TicketController {
         data: ticket
       });
     } catch (error) {
-      console.error('Error creating ticket:', error);
+      logger.error('Error creating ticket:', error);
       res.status(500).json({
         error: 'Failed to create ticket'
       });
     }
   };
 
-  getTicketHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       
@@ -104,26 +146,33 @@ export class TicketController {
         return;
       }
 
-      const ticket = await this.getTicket.executeById(ticketId);
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
       
-      if (!ticket) {
-        res.status(404).json({ error: 'Ticket not found' });
+      if (!hasAccess) {
         return;
       }
 
+      const ticket = await this.getTicket.executeById(ticketId);
+      
       res.json({
         success: true,
         data: ticket
       });
     } catch (error) {
-      console.error('Error getting ticket:', error);
+      logger.error('Error getting ticket:', error);
       res.status(500).json({
         error: 'Failed to get ticket'
       });
     }
   };
 
-  getTicketByNumberHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketByNumberHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketNumber = req.params.number;
       
@@ -134,25 +183,49 @@ export class TicketController {
         return;
       }
 
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      if (req.user!.role !== 'admin' && ticket.user_id && ticket.user_id.toString() !== req.user!.id) {
+        logger.warn('Unauthorized ticket access attempt', {
+          userId: req.user!.id,
+          ticketId: ticket.id,
+          ticketOwnerId: ticket.user_id,
+        });
+        
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
       res.json({
         success: true,
         data: ticket
       });
     } catch (error) {
-      console.error('Error getting ticket by number:', error);
+      logger.error('Error getting ticket by number:', error);
       res.status(500).json({
         error: 'Failed to get ticket'
       });
     }
   };
 
-  updateTicketHandler = async (req: Request, res: Response): Promise<void> => {
+  updateTicketHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const updateData: UpdateTicketRequest = req.body;
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -168,14 +241,14 @@ export class TicketController {
         data: ticket
       });
     } catch (error) {
-      console.error('Error updating ticket:', error);
+      logger.error('Error updating ticket:', error);
       res.status(500).json({
         error: 'Failed to update ticket'
       });
     }
   };
 
-  getTicketsHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
@@ -184,9 +257,23 @@ export class TicketController {
       const priority = req.query.priority as TicketPriority;
       const assignedTo = req.query.assigned_to ? parseInt(req.query.assigned_to as string) : undefined;
 
-      const result = await this.ticketRepository.getTickets(
-        page, limit, status, category, priority, assignedTo
-      );
+      // ✅ SEGURIDAD: Los usuarios no-admin solo pueden ver sus propios tickets
+      let result;
+      if (req.user!.role === 'admin') {
+        result = await this.ticketRepository.getTickets(
+          page, limit, status, category, priority, assignedTo
+        );
+      } else {
+        // Filtrar por user_id del usuario autenticado
+        result = await this.ticketRepository.getTicketsByUserId(
+          parseInt(req.user!.id),
+          page,
+          limit,
+          status,
+          category,
+          priority
+        );
+      }
 
       res.json({
         success: true,
@@ -199,14 +286,14 @@ export class TicketController {
         }
       });
     } catch (error) {
-      console.error('Error getting tickets:', error);
+      logger.error('Error getting tickets:', error);
       res.status(500).json({
         error: 'Failed to get tickets'
       });
     }
   };
 
-  addMessageHandler = async (req: Request, res: Response): Promise<void> => {
+  addMessageHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const messageData: AddMessageRequest = req.body;
@@ -223,6 +310,18 @@ export class TicketController {
         return;
       }
 
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
+        return;
+      }
+
       const message = await this.addMessage.execute(ticketId, messageData);
       
       res.status(201).json({
@@ -230,20 +329,32 @@ export class TicketController {
         data: message
       });
     } catch (error) {
-      console.error('Error adding message:', error);
+      logger.error('Error adding message:', error);
       res.status(500).json({
         error: 'Failed to add message'
       });
     }
   };
 
-  getMessagesHandler = async (req: Request, res: Response): Promise<void> => {
+  getMessagesHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const includeInternal = req.query.include_internal === 'true';
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -254,14 +365,14 @@ export class TicketController {
         data: messages
       });
     } catch (error) {
-      console.error('Error getting messages:', error);
+      logger.error('Error getting messages:', error);
       res.status(500).json({
         error: 'Failed to get messages'
       });
     }
   };
 
-  resolveTicketHandler = async (req: Request, res: Response): Promise<void> => {
+  resolveTicketHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const { resolution_message, agent_id, agent_name } = req.body;
@@ -273,6 +384,18 @@ export class TicketController {
 
       if (!resolution_message) {
         res.status(400).json({ error: 'Resolution message is required' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -290,20 +413,32 @@ export class TicketController {
         data: ticket
       });
     } catch (error) {
-      console.error('Error resolving ticket:', error);
+      logger.error('Error resolving ticket:', error);
       res.status(500).json({
         error: 'Failed to resolve ticket'
       });
     }
   };
 
-  closeTicketHandler = async (req: Request, res: Response): Promise<void> => {
+  closeTicketHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const { close_message, agent_id, agent_name } = req.body;
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -321,20 +456,32 @@ export class TicketController {
         data: ticket
       });
     } catch (error) {
-      console.error('Error closing ticket:', error);
+      logger.error('Error closing ticket:', error);
       res.status(500).json({
         error: 'Failed to close ticket'
       });
     }
   };
 
-  createSatisfactionSurveyHandler = async (req: Request, res: Response): Promise<void> => {
+  createSatisfactionSurveyHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       const surveyData: CreateSatisfactionSurveyRequest = req.body;
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -345,14 +492,14 @@ export class TicketController {
         data: survey
       });
     } catch (error) {
-      console.error('Error creating satisfaction survey:', error);
+      logger.error('Error creating satisfaction survey:', error);
       res.status(500).json({
         error: 'Failed to create satisfaction survey'
       });
     }
   };
 
-  sendSatisfactionSurveyHandler = async (req: Request, res: Response): Promise<void> => {
+  sendSatisfactionSurveyHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       
@@ -368,14 +515,14 @@ export class TicketController {
         data: result
       });
     } catch (error) {
-      console.error('Error sending satisfaction survey:', error);
+      logger.error('Error sending satisfaction survey:', error);
       res.status(500).json({
         error: 'Failed to send satisfaction survey'
       });
     }
   };
 
-  getSatisfactionMetricsHandler = async (req: Request, res: Response): Promise<void> => {
+  getSatisfactionMetricsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const startDate = req.query.start_date ? new Date(req.query.start_date as string) : undefined;
       const endDate = req.query.end_date ? new Date(req.query.end_date as string) : undefined;
@@ -388,14 +535,14 @@ export class TicketController {
         data: metrics
       });
     } catch (error) {
-      console.error('Error getting satisfaction metrics:', error);
+      logger.error('Error getting satisfaction metrics:', error);
       res.status(500).json({
         error: 'Failed to get satisfaction metrics'
       });
     }
   };
 
-  getResponseTimeMetricsHandler = async (req: Request, res: Response): Promise<void> => {
+  getResponseTimeMetricsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const startDate = req.query.start_date ? new Date(req.query.start_date as string) : undefined;
       const endDate = req.query.end_date ? new Date(req.query.end_date as string) : undefined;
@@ -409,14 +556,14 @@ export class TicketController {
         data: metrics
       });
     } catch (error) {
-      console.error('Error getting response time metrics:', error);
+      logger.error('Error getting response time metrics:', error);
       res.status(500).json({
         error: 'Failed to get response time metrics'
       });
     }
   };
 
-  getTicketsApproachingSLABreachHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketsApproachingSLABreachHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const tickets = await this.getTicketsApproachingSLABreach.execute();
       
@@ -425,19 +572,31 @@ export class TicketController {
         data: tickets
       });
     } catch (error) {
-      console.error('Error getting tickets approaching SLA breach:', error);
+      logger.error('Error getting tickets approaching SLA breach:', error);
       res.status(500).json({
         error: 'Failed to get tickets approaching SLA breach'
       });
     }
   };
 
-  getTicketAuditSummaryHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketAuditSummaryHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -448,14 +607,14 @@ export class TicketController {
         data: auditSummary
       });
     } catch (error) {
-      console.error('Error getting audit summary:', error);
+      logger.error('Error getting audit summary:', error);
       res.status(500).json({
         error: 'Failed to get audit summary'
       });
     }
   };
 
-  updateSLABenchmarkHandler = async (req: Request, res: Response): Promise<void> => {
+  updateSLABenchmarkHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { 
         category, 
@@ -488,14 +647,14 @@ export class TicketController {
         data: benchmark
       });
     } catch (error) {
-      console.error('Error updating SLA benchmark:', error);
+      logger.error('Error updating SLA benchmark:', error);
       res.status(500).json({
         error: 'Failed to update SLA benchmark'
       });
     }
   };
 
-  getMetricsHandler = async (req: Request, res: Response): Promise<void> => {
+  getMetricsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const startDate = req.query.start_date ? new Date(req.query.start_date as string) : undefined;
       const endDate = req.query.end_date ? new Date(req.query.end_date as string) : undefined;
@@ -507,14 +666,14 @@ export class TicketController {
         data: metrics
       });
     } catch (error) {
-      console.error('Error getting metrics:', error);
+      logger.error('Error getting metrics:', error);
       res.status(500).json({
         error: 'Failed to get metrics'
       });
     }
   };
 
-  getDetailedMetricsHandler = async (req: Request, res: Response): Promise<void> => {
+  getDetailedMetricsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const startDate = req.query.start_date ? new Date(req.query.start_date as string) : undefined;
       const endDate = req.query.end_date ? new Date(req.query.end_date as string) : undefined;
@@ -526,14 +685,14 @@ export class TicketController {
         data: metrics
       });
     } catch (error) {
-      console.error('Error getting detailed metrics:', error);
+      logger.error('Error getting detailed metrics:', error);
       res.status(500).json({
         error: 'Failed to get detailed metrics'
       });
     }
   };
 
-  escalateFromChatbotHandler = async (req: Request, res: Response): Promise<void> => {
+  escalateFromChatbotHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const {
         chat_session_id,
@@ -574,19 +733,31 @@ export class TicketController {
         data: result
       });
     } catch (error) {
-      console.error('Error escalating from chatbot:', error);
+      logger.error('Error escalating from chatbot:', error);
       res.status(500).json({
         error: 'Failed to escalate to human support'
       });
     }
   };
 
-  getTicketAuditTrailHandler = async (req: Request, res: Response): Promise<void> => {
+  getTicketAuditTrailHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const ticketId = parseInt(req.params.id);
       
       if (isNaN(ticketId)) {
         res.status(400).json({ error: 'Invalid ticket ID' });
+        return;
+      }
+
+      // ✅ SEGURIDAD: Verificar propiedad del ticket
+      const hasAccess = await this.verifyTicketOwnership(
+        ticketId,
+        req.user!.id,
+        req.user!.role,
+        res
+      );
+      
+      if (!hasAccess) {
         return;
       }
 
@@ -597,14 +768,14 @@ export class TicketController {
         data: auditTrail
       });
     } catch (error) {
-      console.error('Error getting audit trail:', error);
+      logger.error('Error getting audit trail:', error);
       res.status(500).json({
         error: 'Failed to get audit trail'
       });
     }
   };
 
-  getSLABenchmarksHandler = async (req: Request, res: Response): Promise<void> => {
+  getSLABenchmarksHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const benchmarks = await this.getSLABenchmarks.execute();
       
@@ -613,7 +784,7 @@ export class TicketController {
         data: benchmarks
       });
     } catch (error) {
-      console.error('Error getting SLA benchmarks:', error);
+      logger.error('Error getting SLA benchmarks:', error);
       res.status(500).json({
         error: 'Failed to get SLA benchmarks'
       });

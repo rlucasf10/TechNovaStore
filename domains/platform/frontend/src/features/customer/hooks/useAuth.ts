@@ -86,7 +86,7 @@ export function useAuth(): UseAuthReturn {
     gcTime: 1000 * 60 * 30, // 30 minutos
     retry: false, // No reintentar si falla la autenticación
     refetchOnWindowFocus: false, // NO verificar al enfocar ventana (evita llamadas innecesarias)
-    refetchOnMount: false, // NO verificar al montar (evita llamadas innecesarias en páginas públicas)
+    refetchOnMount: true, // ✅ CRÍTICO: Verificar al montar para validar cookie httpOnly
   });
 
   // Sincronizar con Zustand store
@@ -114,8 +114,15 @@ export function useAuth(): UseAuthReturn {
       // Invalidar queries relacionadas
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile });
       
-      // Redirigir al dashboard
-      router.push('/dashboard');
+      // Verificar si hay una URL de redirección guardada
+      const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectUrl) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        router.push(redirectUrl);
+      } else {
+        // Redirigir al dashboard por defecto
+        router.push('/dashboard/usuario');
+      }
     },
     onError: (error) => {
       console.error('Login error:', error);
@@ -166,8 +173,15 @@ export function useAuth(): UseAuthReturn {
       // Actualizar Zustand store
       setUser(user);
       
-      // Redirigir al dashboard
-      router.push('/dashboard');
+      // Verificar si hay una URL de redirección guardada
+      const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectUrl) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        router.push(redirectUrl);
+      } else {
+        // Redirigir al dashboard por defecto
+        router.push('/dashboard/usuario');
+      }
     },
     onError: (error) => {
       console.error('Register error:', error);

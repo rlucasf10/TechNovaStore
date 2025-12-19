@@ -189,3 +189,31 @@ export const validateSearchQuery = [
     .isInt({ min: 1, max: 50 })
     .withMessage('Limit must be between 1 and 50'),
 ];
+
+export const validateUpdateProductCampaign = [
+  param('id')
+    .isMongoId()
+    .withMessage('Invalid product ID'),
+  
+  body('in_campaign')
+    .isBoolean()
+    .withMessage('in_campaign must be a boolean'),
+  
+  body('campaign_id')
+    .notEmpty()
+    .withMessage('campaign_id is required')
+    .isString()
+    .withMessage('campaign_id must be a string'),
+  
+  body('campaign_price')
+    .isFloat({ min: 0 })
+    .withMessage('campaign_price must be a non-negative number'),
+  
+  body('original_price')
+    .isFloat({ min: 0 })
+    .withMessage('original_price must be a non-negative number'),
+  
+  body('discount_percentage')
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('discount_percentage must be between 0 and 100'),
+];

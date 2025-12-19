@@ -2,6 +2,9 @@ import * as cron from 'node-cron';
 import { SyncConfig, SyncJob, SyncJobType, SyncJobStatus } from '../types/sync';
 import { ProviderType } from '../types/provider';
 import { JobQueue } from '../queue/JobQueue';
+import { createLogger } from '@technovastore/shared-config';
+
+const logger = createLogger('sync-engine-scheduler');
 
 export class SyncScheduler {
   private config: SyncConfig;
@@ -16,16 +19,16 @@ export class SyncScheduler {
 
   start(): void {
     if (this.isRunning) {
-      console.log('Scheduler is already running');
+      logger.info('Scheduler is already running');
       return;
     }
 
     if (!this.config.enabled) {
-      console.log('Sync scheduler is disabled');
+      logger.info('Sync scheduler is disabled');
       return;
     }
 
-    console.log('Starting sync scheduler...');
+    logger.info('Starting sync scheduler...');
     this.isRunning = true;
 
     // Schedule full sync
@@ -43,26 +46,26 @@ export class SyncScheduler {
       this.scheduleAvailabilityCheck();
     });
 
-    console.log('Sync scheduler started successfully');
+    logger.info('Sync scheduler started successfully');
   }
 
   stop(): void {
     if (!this.isRunning) {
-      console.log('Scheduler is not running');
+      logger.info('Scheduler is not running');
       return;
     }
 
-    console.log('Stopping sync scheduler...');
+    logger.info('Stopping sync scheduler...');
     this.isRunning = false;
 
     // Stop all scheduled tasks
     for (const [name, task] of this.scheduledTasks) {
       task.stop();
-      console.log(`Stopped scheduled task: ${name}`);
+      logger.info('Stopped scheduled task', { taskName: name });
     }
 
     this.scheduledTasks.clear();
-    console.log('Sync scheduler stopped');
+    logger.info('Sync scheduler stopped');
   }
 
   private scheduleTask(name: string, cronExpression: string, callback: () => void): void {
@@ -74,14 +77,14 @@ export class SyncScheduler {
 
       task.start();
       this.scheduledTasks.set(name, task);
-      console.log(`Scheduled task "${name}" with expression: ${cronExpression}`);
+      logger.info('Scheduled task', { taskName: name, cronExpression });
     } catch (error) {
-      console.error(`Failed to schedule task "${name}":`, error);
+      logger.error('Failed to schedule task', { taskName: name, error: error instanceof Error ? error.message : error });
     }
   }
 
   private scheduleFullSync(): void {
-    console.log('Scheduling full sync jobs...');
+    logger.info('Scheduling full sync jobs...');
 
     const providers = Object.values(ProviderType);
 
@@ -103,11 +106,11 @@ export class SyncScheduler {
       this.jobQueue.addJob(job);
     }
 
-    console.log(`Scheduled ${providers.length} full sync jobs`);
+    logger.info('Scheduled full sync jobs', { count: providers.length });
   }
 
   private schedulePriceUpdate(): void {
-    console.log('Scheduling price update jobs...');
+    logger.info('Scheduling price update jobs...');
 
     const providers = Object.values(ProviderType);
 
@@ -129,11 +132,11 @@ export class SyncScheduler {
       this.jobQueue.addJob(job);
     }
 
-    console.log(`Scheduled ${providers.length} price update jobs`);
+    logger.info('Scheduled price update jobs', { count: providers.length });
   }
 
   private scheduleAvailabilityCheck(): void {
-    console.log('Scheduling availability check jobs...');
+    logger.info('Scheduling availability check jobs...');
 
     const providers = Object.values(ProviderType);
 
@@ -155,7 +158,7 @@ export class SyncScheduler {
       this.jobQueue.addJob(job);
     }
 
-    console.log(`Scheduled ${providers.length} availability check jobs`);
+    logger.info('Scheduled availability check jobs', { count: providers.length });
   }
 
   private generateJobId(): string {
@@ -166,7 +169,7 @@ export class SyncScheduler {
     this.config = { ...this.config, ...newConfig };
 
     if (this.isRunning) {
-      console.log('Restarting scheduler with new configuration...');
+      logger.info('Restarting scheduler with new configuration...');
       this.stop();
       this.start();
     }
@@ -202,7 +205,7 @@ export class SyncScheduler {
       this.jobQueue.addJob(job);
     }
 
-    console.log(`Manually triggered full sync for ${targetProviders.length} providers`);
+    logger.info('Manually triggered full sync', { providersCount: targetProviders.length });
   }
 
   triggerPriceUpdate(providers?: ProviderType[]): void {
@@ -227,6 +230,6 @@ export class SyncScheduler {
       this.jobQueue.addJob(job);
     }
 
-    console.log(`Manually triggered price update for ${targetProviders.length} providers`);
+    logger.info('Manually triggered price update', { providersCount: targetProviders.length });
   }
 }

@@ -31,6 +31,10 @@ export interface OrderAttributes {
   user_id: number;
   order_number: string;
   status: OrderStatus;
+  subtotal: number;
+  shipping_cost: number;
+  tax_amount: number;
+  discount_amount: number;
   total_amount: number;
   shipping_address: Address;
   billing_address: Address;
@@ -57,6 +61,10 @@ export class Order extends Model<OrderAttributes, OrderCreationAttributes> imple
   public user_id!: number;
   public order_number!: string;
   public status!: OrderStatus;
+  public subtotal!: number;
+  public shipping_cost!: number;
+  public tax_amount!: number;
+  public discount_amount!: number;
   public total_amount!: number;
   public shipping_address!: Address;
   public billing_address!: Address;
@@ -125,12 +133,49 @@ Order.init(
       type: DataTypes.ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'),
       allowNull: false,
     },
+    subtotal: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+      comment: 'Suma de productos sin IVA ni envío',
+    },
+    shipping_cost: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+      comment: 'Costo de envío',
+    },
+    tax_amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+      comment: 'IVA calculado',
+    },
+    discount_amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+      comment: 'Descuentos aplicados',
+    },
     total_amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       validate: {
         min: 0,
       },
+      comment: 'Total final (subtotal + envío + IVA - descuentos)',
     },
     shipping_address: {
       type: DataTypes.JSONB,

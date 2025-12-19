@@ -1,0 +1,89 @@
+/* BLOQUE 3: Tema oscuro - Inputs, botones, cards */
+/* Si este bloque falla, el problema está en selectores de formularios */
+
+@import '../styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
+
+  /* Cards y contenedores */
+  .dark .card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dark [class*="rounded-lg"][class*="shadow"],
+  .dark [class*="rounded-xl"][class*="shadow"],
+  .dark [class*="rounded-2xl"][class*="shadow"] {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Inputs, Textareas, Selects */
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .dark textarea,
+  .dark select {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Checkboxes y radios */
+  .dark input[type="checkbox"],
+  .dark input[type="radio"] {
+    background-color: #1e293b;
+    border-color: #475569;
+  }
+
+  .dark input[type="checkbox"]:checked,
+  .dark input[type="radio"]:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  /* Botones */
+  .dark .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+
+  .dark .btn-secondary:hover {
+    background-color: #475569;
+  }
+
+  .dark button.bg-gray-100,
+  .dark button.bg-gray-200,
+  .dark a.bg-gray-100,
+  .dark a.bg-gray-200 {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+}

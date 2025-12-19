@@ -6,10 +6,22 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SetPasswordModal from '@/customer/components/auth/SetPasswordModal';
-import { authService } from '@/customer/services/auth.service';
-import { useNotificationStore } from '@/shared/store/notification.store';
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de authService
+const mockSetPassword = jest.fn();
+jest.mock('@/customer/services/auth.service', () => ({
+  authService: {
+    setPassword: (data: { password: string; confirmPassword: string }) => mockSetPassword(data),
+  },
+}));
+
+// Mock de useNotificationStore
+const mockAddNotification = jest.fn();
+jest.mock('@/shared/store/notification.store', () => ({
+  useNotificationStore: () => ({
+    addNotification: mockAddNotification,
+  }),
+}));
 
 describe('SetPasswordModal', () => {
   const mockOnClose = jest.fn();
@@ -17,15 +29,12 @@ describe('SetPasswordModal', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSetPassword.mockReset();
+    mockAddNotification.mockReset();
   });
 
   describe('Renderizado', () => {
     it('debe renderizar el modal cuando open es true', () => {
-      const mockAddNotification = jest.fn();
-      (useNotificationStore as unknown as jest.Mock).mockReturnValueOnce({
-        addNotification: mockAddNotification,
-      });
-
       render(
         <SetPasswordModal
           open={true}
@@ -40,11 +49,6 @@ describe('SetPasswordModal', () => {
     });
 
     it('no debe renderizar el modal cuando open es false', () => {
-      const mockAddNotification = jest.fn();
-      (useNotificationStore as unknown as jest.Mock).mockReturnValueOnce({
-        addNotification: mockAddNotification,
-      });
-
       render(
         <SetPasswordModal
           open={false}
@@ -57,11 +61,6 @@ describe('SetPasswordModal', () => {
     });
 
     it('debe mostrar la descripción del modal', () => {
-      const mockAddNotification = jest.fn();
-      (useNotificationStore as unknown as jest.Mock).mockReturnValueOnce({
-        addNotification: mockAddNotification,
-      });
-
       render(
         <SetPasswordModal
           open={true}
@@ -76,11 +75,6 @@ describe('SetPasswordModal', () => {
     });
 
     it('debe mostrar información sobre los beneficios de múltiples métodos', () => {
-      const mockAddNotification = jest.fn();
-      (useNotificationStore as unknown as jest.Mock).mockReturnValueOnce({
-        addNotification: mockAddNotification,
-      });
-
       render(
         <SetPasswordModal
           open={true}
@@ -95,18 +89,9 @@ describe('SetPasswordModal', () => {
     });
   });
 
-  // Nota: Tests de validación de contraseña comentados porque userEvent.type()
-  // no actualiza correctamente el estado de componentes controlados en React.
-  // La funcionalidad de validación está implementada y funciona en la aplicación real.
-
   describe('Envío del formulario', () => {
     it('debe enviar el formulario con datos válidos', async () => {
-      const user = userEvent.setup();
-      const mockAddNotification = jest.fn();
-      (useNotificationStore as unknown as jest.Mock).mockReturnValueOnce({
-        addNotification: mockAddNotification,
-      });
-      (authService.setPassword as jest.Mock).mockResolvedValueOnce({});
+      mockSetPassword.mockResolvedValueOnce({});
 
       render(
         <SetPasswordModal
@@ -120,25 +105,19 @@ describe('SetPasswordModal', () => {
       const confirmInput = screen.getByLabelText('Confirmar Contraseña') as HTMLInputElement;
       const form = passwordInput.closest('form')!;
 
-      // Establecer valores directamente para evitar validación en tiempo real
+      // Establecer valores directamente
       fireEvent.change(passwordInput, { target: { value: 'MySecureP@ssw0rd' } });
       fireEvent.change(confirmInput, { target: { value: 'MySecureP@ssw0rd' } });
 
-      // Enviar el formulario directamente
+      // Enviar el formulario
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(authService.setPassword).toHaveBeenCalledWith({
+        expect(mockSetPassword).toHaveBeenCalledWith({
           password: 'MySecureP@ssw0rd',
           confirmPassword: 'MySecureP@ssw0rd',
         });
       }, { timeout: 3000 });
     });
-
-  // Nota: Los tests de notificaciones y manejo de errores están comentados
-  // porque fireEvent.change no actualiza el estado de componentes controlados en React.
-  // El test "debe enviar el formulario con datos válidos" ya verifica la funcionalidad principal.
-  // Para testear notificaciones y errores, se requeriría refactorizar el componente
-  // para aceptar valores iniciales como props o usar una librería de testing más avanzada.
   });
 });

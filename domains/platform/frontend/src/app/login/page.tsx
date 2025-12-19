@@ -16,7 +16,7 @@
 
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -30,6 +30,64 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query';
 import { useRouter } from 'next/navigation';
 import { useLoginRateLimit } from '@/hooks/useRateLimit';
+import { secureLogger } from '@/shared/lib/security';
+
+// ============================================================================
+// Funciones de utilidad
+// ============================================================================
+
+/**
+ * Valida que una URL de redirección sea segura
+ * Solo permite rutas internas (que empiecen con /)
+ * Previene ataques de Open Redirect
+ */
+function validateRedirectUrl(url: string | null): string | null {
+  if (!url) return null;
+  
+  // Solo permitir rutas que empiecen con /
+  if (!url.startsWith('/')) {
+    console.warn('🔒 URL de redirección rechazada (no es ruta interna):', url);
+    return null;
+  }
+  
+  // No permitir // (protocolo relativo) que podría redirigir a dominios externos
+  if (url.startsWith('//')) {
+    console.warn('🔒 URL de redirección rechazada (protocolo relativo):', url);
+    return null;
+  }
+  
+  // No permitir javascript: o data: URLs
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.startsWith('javascript:') || lowerUrl.startsWith('data:')) {
+    console.warn('🔒 URL de redirección rechazada (esquema peligroso):', url);
+    return null;
+  }
+  
+  // Lista blanca de rutas permitidas (opcional, más restrictivo)
+  const allowedPaths = [
+    '/dashboard/usuario',
+    '/dashboard/admin',
+    '/checkout',
+    '/carrito',
+    '/productos',
+    '/pedidos',
+    '/perfil',
+    '/notificaciones',
+  ];
+  
+  // Verificar si la ruta está en la lista blanca o es una subruta
+  const isAllowed = allowedPaths.some(path => 
+    url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`)
+  );
+  
+  if (!isAllowed) {
+    console.warn('🔒 URL de redirección rechazada (no está en lista blanca):', url);
+    return null;
+  }
+  
+  secureLogger.log('✅ URL de redirección validada:', url);
+  return url;
+}
 
 // ============================================================================
 // Componente LoginPage
@@ -45,6 +103,8 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectingUser, setRedirectingUser] = useState<{ name: string; role: string } | null>(null);
 
   // Rate limiting
   const rateLimit = useLoginRateLimit({
@@ -122,16 +182,35 @@ function LoginContent() {
       setUser(user);
       queryClient.setQueryData(queryKeys.auth.user, user);
 
-      // Redirigir según el rol del usuario
-      if (user.role === 'admin') {
-        router.push('/admin');
+      // Mostrar pantalla de redirección
+      setIsRedirecting(true);
+      setRedirectingUser({ name: user.firstName || user.email, role: user.role });
+
+      // Pequeña pausa para mostrar el mensaje de éxito
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Verificar si hay una URL de redirección guardada
+      const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+      
+      // Validar que la URL sea segura (solo rutas internas)
+      const safeRedirectUrl = validateRedirectUrl(redirectUrl);
+      
+      if (safeRedirectUrl) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        router.push(safeRedirectUrl);
       } else {
-        router.push('/dashboard');
+        // Redirigir según el rol del usuario
+        if (user.role === 'admin') {
+          router.push('/dashboard/admin');
+        } else {
+          router.push('/dashboard/usuario');
+        }
       }
     } catch (error) {
-      console.log('🔍 Login page caught error:', error);
+      // ✅ SEGURIDAD: Usar secureLogger para sanitizar automáticamente datos sensibles
+      secureLogger.log('🔍 Login page caught error');
       const authError = error as AuthError;
-      console.log('🔍 Processed auth error:', authError);
+      secureLogger.log('🔍 Processed auth error:', { code: authError.code, message: authError.message });
       
       // NOTA: No llamar rateLimit.recordAttempt() aquí porque authService ya lo hace
       // Esto evita contar doble los intentos fallidos
@@ -139,7 +218,6 @@ function LoginContent() {
       // Mostrar error (excepto si es rate limiting, que se maneja automáticamente)
       if (authError.code !== 'rate-limit-exceeded') {
         const errorMessage = authError.message || 'Error al iniciar sesión. Intenta de nuevo.';
-        console.log('🔍 Setting error message:', errorMessage);
         setAuthError(errorMessage);
       }
     } finally {
@@ -157,6 +235,54 @@ function LoginContent() {
   // ============================================================================
   // Render
   // ============================================================================
+
+  // Mostrar pantalla de redirección después de login exitoso
+  if (isRedirecting && redirectingUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+          {/* Icono de éxito animado */}
+          <div className="mb-6">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto animate-bounce">
+              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Título */}
+          <h2 className="text-2xl font-semibold mb-2 text-gray-900">
+            ¡Bienvenido, {redirectingUser.name}!
+          </h2>
+          
+          {/* Subtítulo según rol */}
+          <p className="text-gray-600 mb-6">
+            {redirectingUser.role === 'admin' 
+              ? 'Accediendo al panel de administración...'
+              : 'Redirigiendo a tu dashboard...'}
+          </p>
+
+          {/* Spinner de carga */}
+          <div className="flex justify-center mb-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+
+          {/* Badge de rol */}
+          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+            {redirectingUser.role === 'admin' ? '👑 Administrador' : '👤 Usuario'}
+          </div>
+
+          {/* Indicador de seguridad */}
+          <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
+            <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Inicio de sesión seguro</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthLayout
@@ -284,13 +410,13 @@ function LoginContent() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Campo de Email */}
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Correo electrónico
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400"
+                  className="h-5 w-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -308,8 +434,8 @@ function LoginContent() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="tu@email.com"
                 disabled={isLoading}
                 aria-invalid={errors.email ? 'true' : 'false'}
@@ -317,7 +443,7 @@ function LoginContent() {
               />
             </div>
             {errors.email && (
-              <p id="email-error" className="text-sm text-red-600 flex items-center mt-1">
+              <p id="email-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                 <svg
                   className="h-4 w-4 mr-1"
                   fill="none"
@@ -338,13 +464,13 @@ function LoginContent() {
 
           {/* Campo de Contraseña */}
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Contraseña
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5 text-gray-400"
+                  className="h-5 w-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -362,8 +488,8 @@ function LoginContent() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400`}
+                className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-slate-600'
+                  } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100`}
                 placeholder="••••••••"
                 disabled={isLoading}
                 aria-invalid={errors.password ? 'true' : 'false'}
@@ -372,7 +498,7 @@ function LoginContent() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 disabled={isLoading}
                 aria-label="Mostrar contraseña"
               >
@@ -404,7 +530,7 @@ function LoginContent() {
               </button>
             </div>
             {errors.password && (
-              <p id="password-error" className="text-sm text-red-600 flex items-center mt-1">
+              <p id="password-error" className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1">
                 <svg
                   className="h-4 w-4 mr-1"
                   fill="none"
@@ -430,19 +556,19 @@ function LoginContent() {
                 {...register('rememberMe')}
                 id="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-slate-600 rounded cursor-pointer dark:bg-slate-700"
                 disabled={isLoading}
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-700 cursor-pointer"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
               >
                 Recordarme
               </label>
             </div>
             <Link
               href="/recuperar-contrasena"
-              className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors"
+              className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 transition-colors"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -488,18 +614,18 @@ function LoginContent() {
 
         {/* Botones de OAuth */}
         <SocialLoginButtons
-          redirectTo="/dashboard"
+          redirectTo="/dashboard/usuario"
           onError={handleOAuthError}
           disabled={isLoading || rateLimit.isBlocked}
         />
 
         {/* Link a Registro */}
         <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             ¿No tienes una cuenta?{' '}
             <Link
               href="/registro"
-              className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 transition-colors"
             >
               Regístrate gratis
             </Link>

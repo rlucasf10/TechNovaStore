@@ -1,0 +1,557 @@
+[
+  {
+    "name": "Laptop ASUS ROG Strix G15",
+    "description": "Laptop gaming de alto rendimiento con procesador AMD Ryzen 9 5900HX, 16GB RAM DDR4, SSD 512GB NVMe, GPU NVIDIA RTX 3060 6GB, pantalla 15.6\" FHD 144Hz, teclado RGB retroiluminado. Ideal para gaming y creación de contenido.",
+    "price": 1299.99,
+    "category": "Laptops",
+    "brand": "ASUS",
+    "stock": 15,
+    "images": [
+      "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800",
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800"
+    ],
+    "specifications": {
+      "processor": "AMD Ryzen 9 5900HX",
+      "ram": "16GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "graphics": "NVIDIA RTX 3060 6GB",
+      "screen": "15.6\" FHD 144Hz",
+      "weight": "2.3 kg"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.7,
+    "reviews_count": 128
+  },
+  {
+    "name": "Monitor LG UltraGear 27\" 4K",
+    "description": "Monitor gaming 27 pulgadas con resolución 4K UHD (3840x2160), tasa de refresco 144Hz, tiempo de respuesta 1ms, tecnología IPS, HDR10, AMD FreeSync Premium Pro, altura ajustable.",
+    "price": 599.99,
+    "category": "Monitores",
+    "brand": "LG",
+    "stock": 22,
+    "images": [
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800"
+    ],
+    "specifications": {
+      "size": "27 pulgadas",
+      "resolution": "3840x2160 (4K UHD)",
+      "refresh_rate": "144Hz",
+      "response_time": "1ms",
+      "panel_type": "IPS",
+      "hdr": "HDR10"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.8,
+    "reviews_count": 95
+  },
+  {
+    "name": "Teclado Mecánico Logitech G Pro X",
+    "description": "Teclado mecánico gaming compacto TKL (sin teclado numérico), switches intercambiables GX Blue Clicky, iluminación RGB LIGHTSYNC personalizable, cable USB-C desmontable, diseño profesional.",
+    "price": 129.99,
+    "category": "Periféricos",
+    "brand": "Logitech",
+    "stock": 45,
+    "images": [
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800"
+    ],
+    "specifications": {
+      "type": "Mecánico",
+      "switches": "GX Blue Clicky",
+      "layout": "TKL (Tenkeyless)",
+      "backlight": "RGB LIGHTSYNC",
+      "connection": "USB-C"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviews_count": 203
+  },
+  {
+    "name": "Mouse Razer DeathAdder V3 Pro",
+    "description": "Mouse gaming inalámbrico con sensor óptico Focus Pro 30K DPI, switches ópticos Gen-3, batería de hasta 90 horas, peso ultraligero 63g, compatible con Razer HyperSpeed Wireless.",
+    "price": 149.99,
+    "category": "Periféricos",
+    "brand": "Razer",
+    "stock": 38,
+    "images": [
+      "https://images.unsplash.com/photo-1527814050087-3793815479db?w=800"
+    ],
+    "specifications": {
+      "sensor": "Focus Pro 30K DPI",
+      "switches": "Ópticos Gen-3",
+      "battery": "90 horas",
+      "weight": "63g",
+      "connection": "Inalámbrico 2.4GHz + Bluetooth"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.9,
+    "reviews_count": 167
+  },
+  {
+    "name": "SSD Samsung 980 PRO 1TB NVMe",
+    "description": "Unidad de estado sólido M.2 NVMe PCIe 4.0, velocidades de lectura hasta 7000 MB/s y escritura 5000 MB/s, tecnología V-NAND 3-bit MLC, ideal para gaming y edición profesional.",
+    "price": 129.99,
+    "category": "Almacenamiento",
+    "brand": "Samsung",
+    "stock": 67,
+    "images": [
+      "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800"
+    ],
+    "specifications": {
+      "capacity": "1TB",
+      "interface": "M.2 NVMe PCIe 4.0",
+      "read_speed": "7000 MB/s",
+      "write_speed": "5000 MB/s",
+      "form_factor": "M.2 2280"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviews_count": 412
+  },
+  {
+    "name": "Auriculares HyperX Cloud II",
+    "description": "Auriculares gaming con sonido envolvente 7.1 virtual, drivers de 53mm, micrófono con cancelación de ruido desmontable, almohadillas de memory foam, compatible con PC, PS5, Xbox.",
+    "price": 99.99,
+    "category": "Audio",
+    "brand": "HyperX",
+    "stock": 54,
+    "images": [
+      "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800"
+    ],
+    "specifications": {
+      "type": "Over-ear cerrados",
+      "drivers": "53mm",
+      "surround": "7.1 virtual",
+      "microphone": "Desmontable con cancelación de ruido",
+      "connection": "USB + 3.5mm"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 289
+  },
+  {
+    "name": "Webcam Logitech C920 HD Pro",
+    "description": "Cámara web Full HD 1080p a 30fps, enfoque automático, corrección de luz HD, micrófono estéreo integrado, compatible con Windows, Mac, Chrome OS, ideal para streaming y videollamadas.",
+    "price": 79.99,
+    "category": "Periféricos",
+    "brand": "Logitech",
+    "stock": 41,
+    "images": [
+      "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800"
+    ],
+    "specifications": {
+      "resolution": "1920x1080 (Full HD)",
+      "framerate": "30 fps",
+      "focus": "Automático",
+      "microphone": "Estéreo integrado",
+      "connection": "USB-A"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.5,
+    "reviews_count": 521
+  },
+  {
+    "name": "Tarjeta Gráfica NVIDIA RTX 4070 Ti",
+    "description": "GPU de última generación con 12GB GDDR6X, arquitectura Ada Lovelace, Ray Tracing de 3ra generación, DLSS 3, ideal para gaming 4K y creación de contenido profesional.",
+    "price": 899.99,
+    "category": "Componentes",
+    "brand": "NVIDIA",
+    "stock": 8,
+    "images": [
+      "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=800"
+    ],
+    "specifications": {
+      "memory": "12GB GDDR6X",
+      "architecture": "Ada Lovelace",
+      "cuda_cores": "7680",
+      "boost_clock": "2610 MHz",
+      "power": "285W TDP"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.8,
+    "reviews_count": 76
+  },
+  {
+    "name": "Procesador AMD Ryzen 7 7800X3D",
+    "description": "CPU de 8 núcleos y 16 hilos, frecuencia base 4.2GHz hasta 5.0GHz boost, tecnología 3D V-Cache 96MB, socket AM5, ideal para gaming de alto rendimiento y multitarea.",
+    "price": 449.99,
+    "category": "Componentes",
+    "brand": "AMD",
+    "stock": 12,
+    "images": [
+      "https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=800"
+    ],
+    "specifications": {
+      "cores": "8 núcleos / 16 hilos",
+      "base_clock": "4.2 GHz",
+      "boost_clock": "5.0 GHz",
+      "cache": "96MB 3D V-Cache",
+      "socket": "AM5",
+      "tdp": "120W"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviews_count": 143
+  },
+  {
+    "name": "Placa Base ASUS ROG Strix B650-A",
+    "description": "Motherboard ATX para AMD Ryzen serie 7000, socket AM5, chipset B650, PCIe 5.0, DDR5, WiFi 6E, Ethernet 2.5Gb, USB 3.2 Gen 2, iluminación RGB Aura Sync.",
+    "price": 249.99,
+    "category": "Componentes",
+    "brand": "ASUS",
+    "stock": 18,
+    "images": [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800"
+    ],
+    "specifications": {
+      "socket": "AM5",
+      "chipset": "AMD B650",
+      "memory": "DDR5 hasta 6400MHz",
+      "pcie": "PCIe 5.0 x16",
+      "networking": "WiFi 6E + Ethernet 2.5Gb",
+      "form_factor": "ATX"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviews_count": 89
+  },
+  {
+    "name": "RAM Corsair Vengeance DDR5 32GB",
+    "description": "Memoria RAM DDR5 32GB (2x16GB), frecuencia 6000MHz, latencia CL36, disipador de calor de aluminio, compatible con Intel XMP 3.0 y AMD EXPO, iluminación RGB opcional.",
+    "price": 159.99,
+    "category": "Componentes",
+    "brand": "Corsair",
+    "stock": 34,
+    "images": [
+      "https://images.unsplash.com/photo-1541348263662-e068662d82af?w=800"
+    ],
+    "specifications": {
+      "capacity": "32GB (2x16GB)",
+      "type": "DDR5",
+      "speed": "6000MHz",
+      "latency": "CL36",
+      "voltage": "1.35V"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 156
+  },
+  {
+    "name": "Fuente de Poder Corsair RM850x",
+    "description": "PSU modular 850W, certificación 80 PLUS Gold, ventilador de 135mm silencioso, cables completamente modulares, protecciones OVP/UVP/SCP/OCP/OTP, garantía 10 años.",
+    "price": 139.99,
+    "category": "Componentes",
+    "brand": "Corsair",
+    "stock": 27,
+    "images": [
+      "https://images.unsplash.com/photo-1562976540-1502c2145186?w=800"
+    ],
+    "specifications": {
+      "power": "850W",
+      "efficiency": "80 PLUS Gold",
+      "modular": "Completamente modular",
+      "fan_size": "135mm",
+      "warranty": "10 años"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.8,
+    "reviews_count": 234
+  },
+  {
+    "name": "Gabinete NZXT H510 Elite",
+    "description": "Case ATX Mid Tower con panel frontal de vidrio templado, 2 ventiladores RGB de 140mm incluidos, soporte para radiadores hasta 280mm, gestión de cables optimizada, filtros magnéticos.",
+    "price": 149.99,
+    "category": "Componentes",
+    "brand": "NZXT",
+    "stock": 19,
+    "images": [
+      "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=800"
+    ],
+    "specifications": {
+      "type": "Mid Tower ATX",
+      "panel": "Vidrio templado",
+      "fans_included": "2x 140mm RGB",
+      "radiator_support": "Hasta 280mm",
+      "drive_bays": "2x 3.5\" + 2x 2.5\""
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviews_count": 178
+  },
+  {
+    "name": "Refrigeración Líquida Corsair iCUE H150i",
+    "description": "Sistema de refrigeración líquida AIO 360mm, 3 ventiladores ML RGB de 120mm, bomba de alto rendimiento, compatible con Intel y AMD, software iCUE para control RGB y temperatura.",
+    "price": 179.99,
+    "category": "Componentes",
+    "brand": "Corsair",
+    "stock": 23,
+    "images": [
+      "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800"
+    ],
+    "specifications": {
+      "radiator_size": "360mm",
+      "fans": "3x 120mm ML RGB",
+      "pump_speed": "2400 RPM",
+      "compatibility": "Intel LGA 1700/1200/115x, AMD AM5/AM4",
+      "warranty": "5 años"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 112
+  },
+  {
+    "name": "Router ASUS RT-AX86U Pro",
+    "description": "Router gaming WiFi 6 (802.11ax) dual-band, velocidades hasta 5700 Mbps, puerto gaming 2.5G, tecnología AiMesh, QoS adaptativo, seguridad AiProtection Pro, compatible con VPN.",
+    "price": 249.99,
+    "category": "Redes",
+    "brand": "ASUS",
+    "stock": 16,
+    "images": [
+      "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=800"
+    ],
+    "specifications": {
+      "standard": "WiFi 6 (802.11ax)",
+      "speed": "5700 Mbps",
+      "ports": "1x 2.5G WAN + 4x 1G LAN + 1x USB 3.2",
+      "coverage": "Hasta 250 m²",
+      "security": "WPA3"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.8,
+    "reviews_count": 145
+  },
+  {
+    "name": "NAS Synology DS923+",
+    "description": "Servidor de almacenamiento en red 4 bahías, procesador AMD Ryzen R1600, 4GB RAM expandible, soporte RAID, transcoding 4K, aplicaciones DSM, ideal para backup y multimedia.",
+    "price": 599.99,
+    "category": "Almacenamiento",
+    "brand": "Synology",
+    "stock": 9,
+    "images": [
+      "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800"
+    ],
+    "specifications": {
+      "bays": "4 bahías 3.5\"/2.5\"",
+      "processor": "AMD Ryzen R1600",
+      "ram": "4GB DDR4 (expandible a 32GB)",
+      "network": "2x 1GbE",
+      "raid": "RAID 0/1/5/6/10"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.9,
+    "reviews_count": 67
+  },
+  {
+    "name": "Tablet iPad Air M2 256GB",
+    "description": "Tablet con chip M2, pantalla Liquid Retina 10.9\", 256GB almacenamiento, cámara frontal 12MP ultra gran angular, compatible con Apple Pencil 2 y Magic Keyboard, WiFi 6E.",
+    "price": 749.99,
+    "category": "Tablets",
+    "brand": "Apple",
+    "stock": 14,
+    "images": [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800"
+    ],
+    "specifications": {
+      "chip": "Apple M2",
+      "screen": "10.9\" Liquid Retina",
+      "storage": "256GB",
+      "camera": "12MP frontal + 12MP trasera",
+      "connectivity": "WiFi 6E + Bluetooth 5.3"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.8,
+    "reviews_count": 201
+  },
+  {
+    "name": "Impresora HP LaserJet Pro M404dn",
+    "description": "Impresora láser monocromo profesional, velocidad 40 ppm, impresión dúplex automática, bandeja 350 hojas, Ethernet y USB, ideal para oficina, bajo costo por página.",
+    "price": 299.99,
+    "category": "Impresoras",
+    "brand": "HP",
+    "stock": 11,
+    "images": [
+      "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=800"
+    ],
+    "specifications": {
+      "type": "Láser monocromo",
+      "speed": "40 ppm",
+      "duplex": "Automático",
+      "tray_capacity": "350 hojas",
+      "connectivity": "Ethernet + USB 2.0"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.5,
+    "reviews_count": 93
+  },
+  {
+    "name": "Switch TP-Link TL-SG108 8 Puertos",
+    "description": "Switch Gigabit Ethernet no administrable de 8 puertos, velocidad 10/100/1000 Mbps, carcasa metálica, plug and play, bajo consumo energético, ideal para redes domésticas y pequeñas oficinas.",
+    "price": 29.99,
+    "category": "Redes",
+    "brand": "TP-Link",
+    "stock": 58,
+    "images": [
+      "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=800"
+    ],
+    "specifications": {
+      "ports": "8x RJ45 Gigabit",
+      "speed": "10/100/1000 Mbps",
+      "switching_capacity": "16 Gbps",
+      "mac_table": "4K entradas",
+      "power": "4.16W máximo"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 312
+  },
+  {
+    "name": "UPS APC Back-UPS Pro 1500VA",
+    "description": "Sistema de alimentación ininterrumpida 1500VA/865W, 10 tomas con respaldo de batería, protección contra sobretensiones, software PowerChute, pantalla LCD, puerto USB.",
+    "price": 249.99,
+    "category": "Accesorios",
+    "brand": "APC",
+    "stock": 13,
+    "images": [
+      "https://images.unsplash.com/photo-1562976540-1502c2145186?w=800"
+    ],
+    "specifications": {
+      "capacity": "1500VA / 865W",
+      "outlets": "10 tomas (6 con batería)",
+      "runtime": "~15 min a media carga",
+      "display": "LCD multifunción",
+      "ports": "USB + RJ45"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviews_count": 187
+  },
+  {
+    "name": "Micrófono Blue Yeti USB",
+    "description": "Micrófono condensador USB profesional, 4 patrones polares (cardioide, bidireccional, omnidireccional, estéreo), monitoreo sin latencia, controles de ganancia y mute, soporte ajustable.",
+    "price": 129.99,
+    "category": "Audio",
+    "brand": "Blue",
+    "stock": 31,
+    "images": [
+      "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800"
+    ],
+    "specifications": {
+      "type": "Condensador USB",
+      "patterns": "4 patrones polares",
+      "sample_rate": "48kHz/16-bit",
+      "frequency_response": "20Hz - 20kHz",
+      "connection": "USB"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 456
+  },
+  {
+    "name": "Silla Gaming Secretlab Titan Evo",
+    "description": "Silla ergonómica gaming con respaldo reclinable hasta 165°, reposabrazos 4D ajustables, soporte lumbar magnético, tapicería NEO Hybrid Leatherette, capacidad 130kg, garantía 5 años.",
+    "price": 549.99,
+    "category": "Muebles",
+    "brand": "Secretlab",
+    "stock": 7,
+    "images": [
+      "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=800"
+    ],
+    "specifications": {
+      "recline": "85° - 165°",
+      "armrests": "4D ajustables",
+      "lumbar_support": "Magnético ajustable",
+      "max_weight": "130 kg",
+      "warranty": "5 años"
+    },
+    "is_active": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviews_count": 234
+  },
+  {
+    "name": "Escritorio Gaming IKEA UPPSPEL",
+    "description": "Escritorio gaming 140x80cm con superficie resistente a manchas, sistema de gestión de cables integrado, patas ajustables en altura, soporte para monitor opcional, diseño minimalista.",
+    "price": 299.99,
+    "category": "Muebles",
+    "brand": "IKEA",
+    "stock": 5,
+    "images": [
+      "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=800"
+    ],
+    "specifications": {
+      "dimensions": "140x80 cm",
+      "height": "Ajustable 68-78 cm",
+      "surface": "Resistente a manchas",
+      "cable_management": "Integrado",
+      "max_load": "50 kg"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.5,
+    "reviews_count": 89
+  },
+  {
+    "name": "Cable HDMI 2.1 8K Belkin",
+    "description": "Cable HDMI Ultra High Speed certificado, soporte 8K@60Hz y 4K@120Hz, eARC, VRR, ALLM, HDR dinámico, longitud 2 metros, conectores chapados en oro, ideal para gaming y home theater.",
+    "price": 39.99,
+    "category": "Accesorios",
+    "brand": "Belkin",
+    "stock": 72,
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+    ],
+    "specifications": {
+      "version": "HDMI 2.1",
+      "resolution": "8K@60Hz / 4K@120Hz",
+      "bandwidth": "48 Gbps",
+      "length": "2 metros",
+      "features": "eARC, VRR, ALLM, HDR"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviews_count": 145
+  },
+  {
+    "name": "Hub USB-C Anker 7 en 1",
+    "description": "Hub multipuerto USB-C con HDMI 4K@60Hz, 2x USB 3.0, USB-C PD 100W, lector SD/microSD, Ethernet Gigabit, carcasa de aluminio, compatible con MacBook, iPad Pro, laptops USB-C.",
+    "price": 69.99,
+    "category": "Accesorios",
+    "brand": "Anker",
+    "stock": 43,
+    "images": [
+      "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=800"
+    ],
+    "specifications": {
+      "ports": "HDMI + 2x USB 3.0 + USB-C PD + SD/microSD + Ethernet",
+      "hdmi_output": "4K@60Hz",
+      "power_delivery": "100W",
+      "data_transfer": "5 Gbps",
+      "material": "Aluminio"
+    },
+    "is_active": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviews_count": 267
+  }
+]

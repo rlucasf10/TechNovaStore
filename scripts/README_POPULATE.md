@@ -4,7 +4,7 @@
 
 ```bash
 # Desde la raíz del proyecto
-node scripts/populate-free-products.js
+node scripts/utilities/populate-free-products.js
 ```
 
 **¡Eso es todo!** En 30-60 segundos tendrás ~50 productos en tu base de datos.

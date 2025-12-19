@@ -61,7 +61,8 @@ api-gateway/
 - Validación de JWT tokens
 - Verificación de roles y permisos
 - Integración con User Service
-- Sesiones seguras
+- **Sesiones seguras con httpOnly cookies** (NO usar localStorage)
+- Protección contra ataques XSS mediante cookies httpOnly
 
 ### 3. Seguridad
 - Rate limiting por IP y usuario
@@ -126,6 +127,38 @@ api-gateway/
 ### Sincronización (Sync Engine)
 - `POST /api/sync/*` → `http://sync-engine:3006` (requiere auth admin)
 - `GET /api/sync/*` → `http://sync-engine:3006` (requiere auth admin)
+
+## HttpOnly Cookies para Autenticación
+
+**IMPORTANTE**: Este gateway está configurado para soportar httpOnly cookies para autenticación.
+
+### Configuración CORS
+El gateway tiene configurado `credentials: true` en CORS, lo cual es **CRÍTICO** para que las cookies httpOnly funcionen correctamente entre el frontend y backend.
+
+```typescript
+cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true  // CRÍTICO para cookies httpOnly
+})
+```
+
+### Frontend Configuration
+El frontend debe configurar `withCredentials: true` en todas las requests:
+
+```typescript
+// Axios
+axios.defaults.withCredentials = true;
+
+// Fetch
+fetch(url, {
+  credentials: 'include'
+});
+```
+
+### Ventajas de httpOnly Cookies
+- **Protección contra XSS**: Las cookies httpOnly no son accesibles desde JavaScript
+- **Envío automático**: El navegador envía automáticamente las cookies en cada request
+- **Seguridad mejorada**: Flags `Secure` y `SameSite` proporcionan protección adicional
 
 ## Middleware Pipeline
 

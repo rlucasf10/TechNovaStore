@@ -7,10 +7,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { connectPostgreSQL } from './shared/config/database';
 import { logger } from './shared/utils/logger';
 import { errorHandler } from '@technovastore/shared-utils';
-import { authRoutes, userRoutes, gdprRoutes } from './api/routes';
+import { authRoutes, userRoutes, gdprRoutes, wishlistRoutes } from './api/routes';
 import { scheduleTokenCleanup } from './shared/services/cleanupService';
 import { GdprCleanupService } from './shared/services/gdprCleanupService';
 
@@ -20,6 +21,7 @@ import './shared/models/RefreshToken';
 import './shared/models/PasswordReset';
 import './shared/models/UserConsent';
 import './shared/models/AccountDeletionRequest';
+import './shared/models/Wishlist';
 
 const app = express();
 
@@ -36,6 +38,10 @@ app.use(cors({
   maxAge: 86400,
 }));
 
+// Cookie parser middleware - DEBE estar ANTES de las rutas
+// CRÍTICO: Necesario para leer cookies httpOnly en el middleware de autenticación
+app.use(cookieParser());
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -51,6 +57,7 @@ app.use(morgan('combined', {
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/gdpr', gdprRoutes);
+app.use('/wishlist', wishlistRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {

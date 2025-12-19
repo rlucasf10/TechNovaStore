@@ -5,9 +5,13 @@
  * y arranca el sistema de auto-compra.
  * 
  * REFACTORIZADO A SCREAMING ARCHITECTURE
+ * 
+ * SEGURIDAD: Este servicio es CRÍTICO y todas las rutas de negocio
+ * requieren autenticación y rol admin.
  */
 
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { logger } from './shared/utils/logger';
 import { TEST_CONFIG } from './shared/config/test';
 
@@ -34,7 +38,9 @@ import { createRoutes } from './api/routes';
 const app = express();
 const port = process.env.PORT || 3005;
 
+// Middleware para parsear JSON y cookies
 app.use(express.json());
+app.use(cookieParser());
 
 // Default configuration
 const defaultConfig: AutoPurchaseConfig = {

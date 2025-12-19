@@ -1,5 +1,6 @@
 import nodemailer, { Transporter } from 'nodemailer';
 import { EmailConfig, EmailTemplate } from '../types/index';
+import { logger } from '../utils/logger';
 
 export class EmailService {
   private transporter: Transporter;
@@ -26,9 +27,9 @@ export class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      console.log(`Email sent successfully to ${to}:`, result.messageId);
+      logger.info('Email sent successfully', { to, messageId: result.messageId });
     } catch (error) {
-      console.error(`Failed to send email to ${to}:`, error);
+      logger.error('Failed to send email', { to, error: error instanceof Error ? error.message : error });
       throw new Error(`Email delivery failed: ${error}`);
     }
   }
@@ -36,10 +37,10 @@ export class EmailService {
   async verifyConnection(): Promise<boolean> {
     try {
       await this.transporter.verify();
-      console.log('SMTP connection verified successfully');
+      logger.info('SMTP connection verified successfully');
       return true;
     } catch (error) {
-      console.error('SMTP connection verification failed:', error);
+      logger.error('SMTP connection verification failed', { error: error instanceof Error ? error.message : error });
       return false;
     }
   }

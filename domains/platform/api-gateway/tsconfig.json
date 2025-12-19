@@ -5,7 +5,8 @@
     "rootDir": ".",
     "noImplicitReturns": false,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "typeRoots": ["./node_modules/@types", "../../../node_modules/@types"]
   },
   "include": [
     "index.ts",

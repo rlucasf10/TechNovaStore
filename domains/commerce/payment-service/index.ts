@@ -6,10 +6,12 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { config } from './config';
 import { logger } from './shared/utils/logger';
 import paymentRoutes from './api/routes';
 import { register, metricsMiddleware, HealthChecker, createMemoryCheck } from '@technovastore/shared-utils';
+import { apiRateLimiter } from './shared/middleware/rateLimiter';
 
 const app = express();
 const PORT = config.port;
@@ -27,6 +29,9 @@ app.use(cors({
 
 // Metrics middleware
 app.use(metricsMiddleware);
+
+// Cookie parsing middleware
+app.use(cookieParser());
 
 // Body parsing middleware
 app.use(express.json());
@@ -70,6 +75,11 @@ app.get('/health', async (_req: Request, res: Response) => {
   }
 });
 
+// Rate limiting para todas las rutas /api/
+// Configuración: 100 requests por 15 minutos por IP
+// Requirements: 7.1, 7.2, 7.3, 7.4
+app.use('/api', apiRateLimiter);
+
 // Payment routes
 app.use('/api/payments', paymentRoutes);
 
@@ -93,7 +103,10 @@ const startServer = async () => {
       logger.info(`Payment Service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    logger.error('Failed to start server', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     process.exit(1);
   }
 };

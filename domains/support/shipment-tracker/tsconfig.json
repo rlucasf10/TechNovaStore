@@ -4,7 +4,10 @@
     "outDir": "./dist",
     "rootDir": ".",
     "baseUrl": ".",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "../../../node_modules/@types"]
   },
   "include": [
     "index.ts",

@@ -35,7 +35,7 @@ Write-Host ""
 
 # FASE 3: Servicios core
 Write-Host "[4/7] FASE 3: Reiniciando servicios principales..." -ForegroundColor Yellow
-docker-compose -f docker-compose.optimized.yml restart api-gateway product-service order-service user-service payment-service notification-service ticket-service
+docker-compose -f docker-compose.optimized.yml restart api-gateway product-service order-service user-service payment-service notification-service ticket-service campaign-manager-service
 Write-Host "  Esperando 30 segundos..." -ForegroundColor Gray
 Start-Sleep -Seconds 30
 Write-Host "✓ Servicios principales reiniciados" -ForegroundColor Green

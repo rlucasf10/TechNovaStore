@@ -2,11 +2,14 @@
  * Rutas del servicio de tickets
  * Extraído de src/routes/ticketRoutes.ts
  * TODOS LOS CASOS DE USO INCLUIDOS
+ * 
+ * ✅ SEGURIDAD: Todas las rutas protegidas con autenticación (Defense in Depth)
  */
 
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { TicketController } from './TicketController';
+import { authMiddleware, requireRole } from '../shared/middleware/auth';
 import { CreateTicket } from '../create-ticket/CreateTicket';
 import { CreateTicketFromChatbot } from '../create-ticket-from-chatbot/CreateTicketFromChatbot';
 import { GetTicket } from '../get-ticket/GetTicket';
@@ -98,42 +101,42 @@ export function createTicketRoutes(pool: Pool): Router {
     ticketRepository
   );
 
-  // Ticket CRUD routes
-  router.post('/tickets', ticketController.createTicketHandler);
-  router.get('/tickets', ticketController.getTicketsHandler);
-  router.get('/tickets/:id', ticketController.getTicketHandler);
-  router.get('/tickets/number/:number', ticketController.getTicketByNumberHandler);
-  router.put('/tickets/:id', ticketController.updateTicketHandler);
+  // ✅ SEGURIDAD: Ticket CRUD routes - Requieren autenticación
+  router.post('/tickets', authMiddleware, ticketController.createTicketHandler);
+  router.get('/tickets', authMiddleware, ticketController.getTicketsHandler);
+  router.get('/tickets/:id', authMiddleware, ticketController.getTicketHandler);
+  router.get('/tickets/number/:number', authMiddleware, ticketController.getTicketByNumberHandler);
+  router.put('/tickets/:id', authMiddleware, ticketController.updateTicketHandler);
 
-  // Ticket actions
-  router.post('/tickets/:id/resolve', ticketController.resolveTicketHandler);
-  router.post('/tickets/:id/close', ticketController.closeTicketHandler);
+  // ✅ SEGURIDAD: Ticket actions - Requieren autenticación
+  router.post('/tickets/:id/resolve', authMiddleware, ticketController.resolveTicketHandler);
+  router.post('/tickets/:id/close', authMiddleware, ticketController.closeTicketHandler);
 
-  // Message routes
-  router.post('/tickets/:id/messages', ticketController.addMessageHandler);
-  router.get('/tickets/:id/messages', ticketController.getMessagesHandler);
+  // ✅ SEGURIDAD: Message routes - Requieren autenticación
+  router.post('/tickets/:id/messages', authMiddleware, ticketController.addMessageHandler);
+  router.get('/tickets/:id/messages', authMiddleware, ticketController.getMessagesHandler);
 
-  // Satisfaction survey routes
-  router.post('/tickets/:id/satisfaction', ticketController.createSatisfactionSurveyHandler);
-  router.post('/tickets/:id/satisfaction/send', ticketController.sendSatisfactionSurveyHandler);
+  // ✅ SEGURIDAD: Satisfaction survey routes - Requieren autenticación
+  router.post('/tickets/:id/satisfaction', authMiddleware, ticketController.createSatisfactionSurveyHandler);
+  router.post('/tickets/:id/satisfaction/send', authMiddleware, ticketController.sendSatisfactionSurveyHandler);
 
-  // Escalation routes
-  router.post('/escalate', ticketController.escalateFromChatbotHandler);
+  // ✅ SEGURIDAD: Escalation routes - Requieren autenticación
+  router.post('/escalate', authMiddleware, ticketController.escalateFromChatbotHandler);
 
-  // Metrics routes
-  router.get('/metrics/tickets', ticketController.getMetricsHandler);
-  router.get('/metrics/detailed', ticketController.getDetailedMetricsHandler);
-  router.get('/metrics/response-time', ticketController.getResponseTimeMetricsHandler);
-  router.get('/metrics/satisfaction', ticketController.getSatisfactionMetricsHandler);
-  router.get('/metrics/sla-breaches', ticketController.getTicketsApproachingSLABreachHandler);
+  // ✅ SEGURIDAD: Metrics routes - Requieren autenticación + rol admin
+  router.get('/metrics/tickets', authMiddleware, requireRole(['admin']), ticketController.getMetricsHandler);
+  router.get('/metrics/detailed', authMiddleware, requireRole(['admin']), ticketController.getDetailedMetricsHandler);
+  router.get('/metrics/response-time', authMiddleware, requireRole(['admin']), ticketController.getResponseTimeMetricsHandler);
+  router.get('/metrics/satisfaction', authMiddleware, requireRole(['admin']), ticketController.getSatisfactionMetricsHandler);
+  router.get('/metrics/sla-breaches', authMiddleware, requireRole(['admin']), ticketController.getTicketsApproachingSLABreachHandler);
 
-  // Audit routes
-  router.get('/tickets/:id/audit', ticketController.getTicketAuditTrailHandler);
-  router.get('/tickets/:id/audit/summary', ticketController.getTicketAuditSummaryHandler);
+  // ✅ SEGURIDAD: Audit routes - Requieren autenticación
+  router.get('/tickets/:id/audit', authMiddleware, ticketController.getTicketAuditTrailHandler);
+  router.get('/tickets/:id/audit/summary', authMiddleware, ticketController.getTicketAuditSummaryHandler);
 
-  // SLA management routes
-  router.get('/sla/benchmarks', ticketController.getSLABenchmarksHandler);
-  router.put('/sla/benchmarks', ticketController.updateSLABenchmarkHandler);
+  // ✅ SEGURIDAD: SLA management routes - Requieren autenticación + rol admin
+  router.get('/sla/benchmarks', authMiddleware, requireRole(['admin']), ticketController.getSLABenchmarksHandler);
+  router.put('/sla/benchmarks', authMiddleware, requireRole(['admin']), ticketController.updateSLABenchmarkHandler);
 
   return router;
 }

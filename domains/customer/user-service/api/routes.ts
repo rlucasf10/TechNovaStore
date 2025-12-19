@@ -39,10 +39,15 @@ import { ExportPersonalData } from '../export-personal-data/ExportPersonalData';
 import { RequestAccountDeletion } from '../request-account-deletion/RequestAccountDeletion';
 import { CancelAccountDeletion } from '../cancel-account-deletion/CancelAccountDeletion';
 import { ManageConsent } from '../manage-consent/ManageConsent';
+import { GetWishlist } from '../get-wishlist/GetWishlist';
+import { AddToWishlist } from '../add-to-wishlist/AddToWishlist';
+import { RemoveFromWishlist } from '../remove-from-wishlist/RemoveFromWishlist';
+import { LogoutUser } from '../logout-user/LogoutUser';
 
 // Crear instancias de casos de uso
 const registerUser = new RegisterUser();
 const authenticateUser = new AuthenticateUser();
+const logoutUser = new LogoutUser();
 const refreshTokenUseCase = new RefreshTokenUseCase();
 const requestPasswordReset = new RequestPasswordReset();
 const confirmPasswordReset = new ConfirmPasswordReset();
@@ -56,6 +61,9 @@ const exportPersonalData = new ExportPersonalData();
 const requestAccountDeletion = new RequestAccountDeletion();
 const cancelAccountDeletion = new CancelAccountDeletion();
 const manageConsent = new ManageConsent();
+const getWishlist = new GetWishlist();
+const addToWishlist = new AddToWishlist();
+const removeFromWishlist = new RemoveFromWishlist();
 
 // Crear controlador
 const controller = new UserController(
@@ -73,17 +81,22 @@ const controller = new UserController(
   exportPersonalData,
   requestAccountDeletion,
   cancelAccountDeletion,
-  manageConsent
+  manageConsent,
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist
 );
 
 export const authRoutes = Router();
 export const userRoutes = Router();
 export const gdprRoutes = Router();
+export const wishlistRoutes = Router();
 
 // ============ AUTH ROUTES ============
 // Public routes
 authRoutes.post('/register', validateRegister, controller.register);
 authRoutes.post('/login', validateLogin, controller.login);
+authRoutes.post('/logout', (req, res) => logoutUser.execute(req, res));
 authRoutes.post('/refresh', validateRefreshToken, controller.refreshToken);
 authRoutes.post('/password-reset/request', validatePasswordResetRequest, controller.requestPasswordResetHandler);
 authRoutes.post('/password-reset/confirm', validatePasswordReset, controller.resetPassword);
@@ -93,6 +106,9 @@ authRoutes.post('/oauth/callback', validateOAuthCallback, controller.oauthCallba
 
 // Token validation
 authRoutes.post('/validate', controller.validateToken);
+
+// Get current user (requires authentication)
+authRoutes.get('/me', authMiddleware, controller.getProfile);
 
 // ============ USER ROUTES ============
 // All user routes require authentication
@@ -154,3 +170,16 @@ gdprRoutes.post(
   ],
   controller.updateConsent
 );
+
+// ============ WISHLIST ROUTES ============
+// All wishlist routes require authentication
+wishlistRoutes.use(authMiddleware);
+
+// Get user's wishlist
+wishlistRoutes.get('/', controller.getWishlistHandler);
+
+// Add product to wishlist
+wishlistRoutes.post('/', controller.addToWishlistHandler);
+
+// Remove product from wishlist
+wishlistRoutes.delete('/:productId', controller.removeFromWishlistHandler);

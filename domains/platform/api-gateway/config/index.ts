@@ -2,6 +2,18 @@
  * Configuración del API Gateway
  */
 
+// Validación de JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('CRITICAL SECURITY ERROR: JWT_SECRET environment variable is not set');
+  throw new Error('JWT_SECRET must be configured. Application cannot start.');
+}
+
+if (JWT_SECRET.length < 32) {
+  console.warn('WARNING: JWT_SECRET is shorter than 32 characters. Consider using a longer secret for better security.');
+}
+
 export const config = {
   // Puerto del servicio
   port: parseInt(process.env.PORT || '3000', 10),
@@ -11,7 +23,7 @@ export const config = {
 
   // JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    secret: JWT_SECRET,
   },
 
   // CORS

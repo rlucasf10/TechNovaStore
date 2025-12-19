@@ -1,11 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Product } from '@/types'
 import { Button, Rating, Badge, Tabs } from '@/ui'
 import { PriceComparator, ProductGallery, ProductReviews, ProductQA, RelatedProducts } from './index'
 import { useCartStore } from '@/commerce'
+import { useAuthStore } from '@/customer/store/auth.store'
 import { useToast } from '@/hooks/useToast'
+import { useComparisonStore } from '@/store/comparison.store'
+import { ProductStructuredData, BreadcrumbStructuredData } from '@/shared/components/seo/StructuredData'
 
 interface ProductDetailProps {
   product: Product
@@ -15,7 +19,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedQuantity, setSelectedQuantity] = useState(1)
   const [showComparator, setShowComparator] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const toast = useToast()
+  const { addProduct, products, canAddMore, openModal } = useComparisonStore()
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -76,6 +83,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
   }
 
   const handleBuyNow = () => {
+    // Verificar si el usuario está autenticado
+    if (!isAuthenticated) {
+      // Guardar la URL actual para redirigir después del login
+      const returnUrl = encodeURIComponent(window.location.pathname)
+      router.push(`/login?returnUrl=${returnUrl}`)
+      return
+    }
+    
     try {
       // Convertir Product a CartItem format
       addItem({
@@ -90,7 +105,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       }, selectedQuantity)
       
       // Redirigir al checkout
-      window.location.href = '/checkout'
+      router.push('/checkout')
     } catch (error) {
       console.error('Error al comprar:', error)
       toast.error(
@@ -107,21 +122,76 @@ export function ProductDetail({ product }: ProductDetailProps) {
     }
   }
 
+  const handleAddToCompare = () => {
+    if (!canAddMore()) {
+      toast.warning(
+        'Ya tienes 5 productos en comparación. Elimina uno para agregar otro.',
+        'Límite alcanzado'
+      )
+      openModal()
+      return
+    }
+
+    const isAlreadyInComparison = products.some(p => p.id === product.id)
+    if (isAlreadyInComparison) {
+      toast.info(
+        'Este producto ya está en la comparación',
+        'Ya agregado'
+      )
+      openModal()
+      return
+    }
+
+    addProduct(product)
+    toast.success(
+      'Producto agregado a la comparación',
+      '¡Listo!'
+    )
+  }
+
+  const isInComparison = products.some(p => p.id === product.id)
+
+  // Preparar datos para structured data
+  const productUrl = typeof window !== 'undefined' ? window.location.href : `http://localhost:3020/productos/${product.id}`
+  const breadcrumbItems = [
+    { name: 'Inicio', url: 'http://localhost:3020/' },
+    { name: 'Productos', url: 'http://localhost:3020/productos' },
+    { name: product.category, url: `http://localhost:3020/productos?category=${encodeURIComponent(product.category)}` },
+    { name: product.name, url: productUrl },
+  ]
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        {/* Product Images */}
-        <div>
-          <ProductGallery images={product.images} productName={product.name} />
-        </div>
+    <>
+      {/* Structured Data para SEO */}
+      <ProductStructuredData
+        name={product.name}
+        description={product.description || `${product.name} - ${product.brand || 'TechNovaStore'}`}
+        images={product.images || []}
+        sku={product.sku}
+        brand={product.brand}
+        price={product.our_price}
+        currency="EUR"
+        availability={product.is_active ? 'InStock' : 'OutOfStock'}
+        url={productUrl}
+        rating={product.rating}
+        reviewCount={product.review_count}
+      />
+      <BreadcrumbStructuredData items={breadcrumbItems} />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Product Images */}
+          <div>
+            <ProductGallery images={product.images} productName={product.name} />
+          </div>
 
         {/* Product Info - Sección de información principal */}
         <div className="space-y-6">
           {/* Breadcrumb */}
-          <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
+          <nav className="text-sm text-gray-500 dark:text-gray-400" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
               <li>
-                <a href="/" className="hover:text-primary-600 transition-colors">
+                <a href="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   Inicio
                 </a>
               </li>
@@ -129,7 +199,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <span className="mx-2">/</span>
               </li>
               <li>
-                <a href={`/productos?category=${encodeURIComponent(product.category)}`} className="hover:text-primary-600 transition-colors">
+                <a href={`/productos?category=${encodeURIComponent(product.category)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   {product.category}
                 </a>
               </li>
@@ -138,7 +208,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   <li>
                     <span className="mx-2">/</span>
                   </li>
-                  <li className="text-gray-900 font-medium">
+                  <li className="text-gray-900 dark:text-gray-100 font-medium">
                     {product.subcategory}
                   </li>
                 </>
@@ -148,26 +218,26 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Nombre, Marca y SKU */}
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
               {product.name}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-sm">
               {product.brand && (
                 <div className="flex items-center">
-                  <span className="text-gray-500">Marca:</span>
-                  <span className="ml-1 font-medium text-gray-900">{product.brand}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Marca:</span>
+                  <span className="ml-1 font-medium text-gray-900 dark:text-gray-100">{product.brand}</span>
                 </div>
               )}
               <div className="flex items-center">
-                <span className="text-gray-500">SKU:</span>
-                <span className="ml-1 font-mono text-gray-900">{product.sku}</span>
+                <span className="text-gray-500 dark:text-gray-400">SKU:</span>
+                <span className="ml-1 font-mono text-gray-900 dark:text-gray-100">{product.sku}</span>
               </div>
             </div>
           </div>
 
           {/* Rating con Reviews */}
           {product.rating !== undefined && product.rating > 0 && (
-            <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-200 dark:border-slate-700">
               <Rating 
                 value={product.rating} 
                 size="lg" 
@@ -177,7 +247,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {product.review_count !== undefined && product.review_count > 0 && (
                 <a 
                   href="#reviews" 
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                  className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
                 >
                   ({product.review_count} {product.review_count === 1 ? 'reseña' : 'reseñas'})
                 </a>
@@ -186,13 +256,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
 
           {/* Precio con Descuento */}
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 {/* Precio original tachado si hay descuento */}
                 {originalPrice && discountPercentage > 0 && (
                   <div className="flex items-center gap-3">
-                    <span className="text-lg text-gray-500 line-through">
+                    <span className="text-lg text-gray-500 dark:text-gray-400 line-through">
                       {formatPrice(originalPrice)}
                     </span>
                     <Badge variant="error" size="md" className="font-bold">
@@ -203,7 +273,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 
                 {/* Precio final */}
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-gray-900">
+                  <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                     {formatPrice(product.our_price)}
                   </span>
                 </div>
@@ -232,18 +302,30 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 </svg>
                 {showComparator ? 'Ocultar' : 'Comparar'} precios
               </Button>
+
+              <Button
+                variant={isInComparison ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={handleAddToCompare}
+                className="flex-shrink-0"
+              >
+                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {isInComparison ? 'En comparación' : 'Comparar producto'}
+              </Button>
             </div>
 
             {/* Disponibilidad en Stock */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
               {product.is_active && bestProvider ? (
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" aria-hidden="true"></div>
-                    <span className="text-lg font-semibold text-green-600">En stock</span>
+                    <span className="text-lg font-semibold text-green-600 dark:text-green-400">En stock</span>
                   </div>
                   {bestProvider.delivery_time && (
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -254,24 +336,24 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full" aria-hidden="true"></div>
-                  <span className="text-lg font-semibold text-red-600">No disponible</span>
+                  <span className="text-lg font-semibold text-red-600 dark:text-red-400">No disponible</span>
                 </div>
               )}
             </div>
 
             {/* Selector de Cantidad */}
             {product.is_active && bestProvider && (
-              <div className="pt-4 border-t border-gray-200">
-                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
+              <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Cantidad:
                 </label>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                  <div className="flex items-center border border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden">
                     <button
                       type="button"
                       onClick={() => handleQuantityChange(-1)}
                       disabled={selectedQuantity <= 1}
-                      className="px-4 py-3 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-3 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-900 dark:text-gray-100"
                       aria-label="Disminuir cantidad"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +361,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       </svg>
                     </button>
                     <input
-                      id="quantity"
+                      id="product-quantity"
+                      name="product-quantity"
                       type="number"
                       min="1"
                       max="99"
@@ -290,14 +373,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
                           setSelectedQuantity(value)
                         }
                       }}
-                      className="w-16 text-center border-0 focus:ring-0 font-semibold text-gray-900"
+                      className="w-16 text-center border-0 focus:ring-0 font-semibold text-gray-900 dark:text-gray-100 bg-white dark:bg-slate-700"
                       aria-label="Cantidad"
                     />
                     <button
                       type="button"
                       onClick={() => handleQuantityChange(1)}
                       disabled={selectedQuantity >= 99}
-                      className="px-4 py-3 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-3 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-900 dark:text-gray-100"
                       aria-label="Aumentar cantidad"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,8 +390,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   </div>
                   {selectedQuantity > 1 && (
                     <div className="text-sm">
-                      <span className="text-gray-500">Total:</span>
-                      <span className="ml-2 text-lg font-bold text-gray-900">
+                      <span className="text-gray-500 dark:text-gray-400">Total:</span>
+                      <span className="ml-2 text-lg font-bold text-gray-900 dark:text-gray-100">
                         {formatPrice(totalPrice)}
                       </span>
                     </div>
@@ -361,16 +444,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Provider Info */}
           {bestProvider && (
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-blue-900 mb-2">
+                  <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
                     Información del proveedor
                   </h3>
-                  <div className="text-sm text-blue-800 space-y-1">
+                  <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                     <p><span className="font-medium">Proveedor:</span> {bestProvider.name}</p>
                     <p><span className="font-medium">Precio base:</span> {formatPrice(bestProvider.price)}</p>
                     {bestProvider.shipping_cost > 0 && (
@@ -491,45 +574,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ),
               content: (
                 <ProductReviews
-                  productId={product.id}
+                  productId={product.id || (product as any)._id}
                   averageRating={product.rating || 0}
                   totalReviews={product.review_count || 0}
-                  reviews={[
-                    // Datos de ejemplo - en producción vendrían del backend
-                    {
-                      id: '1',
-                      userId: 'user1',
-                      userName: 'Carlos Martínez',
-                      rating: 5,
-                      title: 'Excelente producto',
-                      comment: 'Superó mis expectativas. La calidad es excepcional y llegó antes de lo esperado. Totalmente recomendado.',
-                      date: new Date('2024-10-15'),
-                      verified: true,
-                      helpful: 12
-                    },
-                    {
-                      id: '2',
-                      userId: 'user2',
-                      userName: 'Ana García',
-                      rating: 4,
-                      title: 'Muy bueno',
-                      comment: 'Buen producto en general. La única pega es que el embalaje podría ser mejor, pero el producto en sí es de calidad.',
-                      date: new Date('2024-10-10'),
-                      verified: true,
-                      helpful: 8
-                    },
-                    {
-                      id: '3',
-                      userId: 'user3',
-                      userName: 'Miguel López',
-                      rating: 5,
-                      title: 'Perfecto para mis necesidades',
-                      comment: 'Exactamente lo que buscaba. Funciona perfectamente y el precio es muy competitivo.',
-                      date: new Date('2024-10-05'),
-                      verified: false,
-                      helpful: 5
-                    }
-                  ]}
                 />
               )
             }
@@ -553,5 +600,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
         />
       </div>
     </div>
+    </>
   )
 }

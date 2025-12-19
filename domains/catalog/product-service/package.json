@@ -13,6 +13,8 @@
     "express-validator": "^7.0.1",
     "mongoose": "^8.0.3",
     "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.6",
     "redis": "^4.6.12",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
@@ -24,12 +26,16 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "fast-check": "^3.15.0",
+    "hpagent": "^1.2.0"
   }
 }

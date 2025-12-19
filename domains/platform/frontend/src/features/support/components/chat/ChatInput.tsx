@@ -1,4 +1,6 @@
-import React, { useState, useRef, KeyboardEvent } from 'react'
+'use client'
+
+import React, { useState, useRef, useEffect } from 'react'
 
 interface ChatInputProps {
   onSendMessage: (_message: string) => void
@@ -12,46 +14,61 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   placeholder = 'Escribe tu mensaje...'
 }) => {
   const [message, setMessage] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Ajustar altura del textarea automáticamente según el contenido
+  useEffect(() => {
+    if (textareaRef.current) {
+      // Resetear altura para calcular correctamente
+      textareaRef.current.style.height = 'auto'
+      // Calcular nueva altura (máximo 120px para ~5 líneas)
+      const scrollHeight = textareaRef.current.scrollHeight
+      textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`
+    }
+  }, [message])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (message.trim() && !disabled) {
       onSendMessage(message.trim())
       setMessage('')
-      inputRef.current?.focus()
+      textareaRef.current?.focus()
     }
   }
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  // Manejar teclas: Enter envía, Shift+Enter hace salto de línea
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter sin Shift: enviar mensaje
       e.preventDefault()
       handleSubmit(e)
     }
+    // Shift+Enter: comportamiento por defecto del textarea (nueva línea)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+    <form onSubmit={handleSubmit} className="flex items-end space-x-2">
       <div className="flex-1 relative">
-        <input
-          ref={inputRef}
+        <textarea
+          ref={textareaRef}
           id="chat-message-input"
           name="message"
-          type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
-          maxLength={500}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm resize-none overflow-y-auto"
+          maxLength={2000}
           autoComplete="off"
+          rows={1}
+          style={{ minHeight: '38px', maxHeight: '120px' }}
         />
         
-        {/* Character counter */}
-        {message.length > 400 && (
+        {/* Contador de caracteres */}
+        {message.length > 1800 && (
           <div className="absolute -top-6 right-0 text-xs text-gray-500">
-            {message.length}/500
+            {message.length}/2000
           </div>
         )}
       </div>

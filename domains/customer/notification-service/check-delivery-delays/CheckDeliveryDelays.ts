@@ -4,6 +4,7 @@
  */
 
 import { SendDelayAlert } from '../send-delay-alert/SendDelayAlert';
+import { logger } from '../shared/utils/logger';
 
 export interface OrderForDelayCheck {
   orderId: string;
@@ -24,10 +25,10 @@ export class CheckDeliveryDelays {
         return estimatedDelivery < now && !['delivered', 'cancelled'].includes(order.currentStatus);
       });
 
-      console.log(`Checking for delayed orders...`);
+      logger.info('Checking for delayed orders...');
       
       if (delayedOrders.length > 0) {
-        console.log(`Found ${delayedOrders.length} delayed orders`);
+        logger.info('Found delayed orders', { count: delayedOrders.length });
         
         for (const order of delayedOrders) {
           const newEstimatedDelivery = new Date(order.estimatedDelivery);
@@ -42,10 +43,10 @@ export class CheckDeliveryDelays {
           });
         }
       } else {
-        console.log('No delayed orders found');
+        logger.info('No delayed orders found');
       }
     } catch (error) {
-      console.error('Error checking for delays:', error);
+      logger.error('Error checking for delays', { error: error instanceof Error ? error.message : error });
       throw error;
     }
   }

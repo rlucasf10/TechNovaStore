@@ -6,13 +6,14 @@
 
 import { Order } from '../shared/models/Order';
 import { UpdateTrackingInfo } from '../update-tracking-info/UpdateTrackingInfo';
+import { logger } from '../shared/utils/logger';
 
 export class UpdateAllActiveShipments {
   constructor(private updateTrackingInfo: UpdateTrackingInfo) {}
 
   async execute(): Promise<void> {
     try {
-      console.log('Starting bulk tracking update for active shipments...');
+      logger.info('Starting bulk tracking update for active shipments', { component: 'bulk-update' });
 
       // Get all orders that are shipped but not delivered (LÓGICA ORIGINAL)
       const activeOrders = await Order.findAll({
@@ -21,13 +22,20 @@ export class UpdateAllActiveShipments {
         }
       });
 
-      console.log(`Found ${activeOrders.length} active shipments to update`);
+      logger.info('Found active shipments to update', { 
+        count: activeOrders.length,
+        component: 'bulk-update'
+      });
 
       const updatePromises = activeOrders.map(async (order: Order) => {
         try {
           await this.updateTrackingInfo.execute(order.orderNumber);
         } catch (error) {
-          console.error(`Failed to update tracking for order ${order.orderNumber}:`, error);
+          logger.error('Failed to update tracking for order', { 
+            orderNumber: order.orderNumber,
+            error: error instanceof Error ? error.message : String(error),
+            component: 'bulk-update'
+          });
         }
       });
 
@@ -43,9 +51,12 @@ export class UpdateAllActiveShipments {
         }
       }
 
-      console.log('Bulk tracking update completed');
+      logger.info('Bulk tracking update completed', { component: 'bulk-update' });
     } catch (error) {
-      console.error('Error in bulk tracking update:', error);
+      logger.error('Error in bulk tracking update', { 
+        error: error instanceof Error ? error.message : String(error),
+        component: 'bulk-update'
+      });
       throw error;
     }
   }

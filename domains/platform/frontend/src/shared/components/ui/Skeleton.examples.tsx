@@ -4,7 +4,6 @@
  * Ejemplos de uso del componente Skeleton
  */
 
-import React from 'react';
 import { Skeleton, SkeletonText } from './Skeleton';
 
 export const SkeletonExamples = () => {

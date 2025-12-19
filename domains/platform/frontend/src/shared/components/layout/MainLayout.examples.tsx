@@ -5,7 +5,6 @@
  * en diferentes escenarios.
  */
 
-import React from 'react'
 import { MainLayout } from './MainLayout'
 import { useToast } from '@/hooks/useToast'
 

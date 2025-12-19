@@ -1,6 +1,14 @@
 /**
  * Caso de uso: Autenticar usuario
  * Extraído de AuthService.login()
+ * 
+ * NOTA IMPORTANTE: Este caso de uso genera tokens JWT que serán establecidos
+ * como httpOnly cookies por el controlador. NO se debe almacenar el token en
+ * localStorage en el frontend, ya que las cookies httpOnly son más seguras
+ * y protegen contra ataques XSS.
+ * 
+ * El token se envía en el body de la respuesta temporalmente para compatibilidad,
+ * pero el método principal de autenticación es mediante httpOnly cookies.
  */
 
 import { User } from '../shared/models/User';

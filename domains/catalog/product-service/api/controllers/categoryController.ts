@@ -69,15 +69,8 @@ export class CategoryController {
   });
 
   // Create category (admin only)
+  // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
   static createCategory = asyncHandler(async (req: Request, res: Response) => {
-    const userRole = req.headers['x-user-role'] as string;
-
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
-
     const category = await Category.create(req.body);
 
     logger.info(`Category created: ${category.slug}`, {
@@ -92,15 +85,9 @@ export class CategoryController {
   });
 
   // Update category (admin only)
+  // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
   static updateCategory = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userRole = req.headers['x-user-role'] as string;
-
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
 
     const category = await Category.findByIdAndUpdate(
       id,
@@ -126,15 +113,9 @@ export class CategoryController {
   });
 
   // Delete category (admin only)
+  // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
   static deleteCategory = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userRole = req.headers['x-user-role'] as string;
-
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
 
     const category = await Category.findByIdAndDelete(id);
 

@@ -1,0 +1,57 @@
+# ============================================
+# Dockerfile para Desarrollo con Hot Reload
+# ============================================
+FROM node:20-alpine
+
+# Instalar curl y wget para healthcheck
+RUN apk add --no-cache curl wget
+
+# Actualizar npm a la última versión
+RUN npm install -g npm@latest
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar dependencias (incluyendo devDependencies)
+# Usamos npm install porque el package-lock.json está en la raíz del monorepo
+RUN npm install --legacy-peer-deps
+
+# Copiar código fuente
+COPY . .
+
+# Aceptar argumentos de build para variables NEXT_PUBLIC_
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ARG NEXT_PUBLIC_GITHUB_CLIENT_ID
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_CHATBOT_URL
+ARG NEXT_PUBLIC_SOCKET_URL
+ARG NEXT_PUBLIC_APP_URL
+
+# Configurar variables de entorno para Next.js
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ENV NEXT_PUBLIC_GITHUB_CLIENT_ID=$NEXT_PUBLIC_GITHUB_CLIENT_ID
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_CHATBOT_URL=$NEXT_PUBLIC_CHATBOT_URL
+ENV NEXT_PUBLIC_SOCKET_URL=$NEXT_PUBLIC_SOCKET_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
+# Configurar entorno de desarrollo
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+
+# Habilitar polling para hot-reload en Docker (necesario en Windows)
+ENV WATCHPACK_POLLING=true
+ENV CHOKIDAR_USEPOLLING=true
+
+# Exponer puerto
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
+
+# Iniciar servidor de desarrollo con hot-reload
+CMD ["npm", "run", "dev"]

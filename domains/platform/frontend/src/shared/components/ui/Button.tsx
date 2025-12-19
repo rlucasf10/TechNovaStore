@@ -32,8 +32,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Variantes de color y estilo
     const variants = {
       primary: 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white focus:ring-primary-500 shadow-sm hover:shadow-md',
-      secondary: 'border-2 border-primary-600 bg-transparent hover:bg-primary-50 active:bg-primary-100 text-primary-600 focus:ring-primary-500',
-      ghost: 'bg-transparent hover:bg-gray-100 active:bg-gray-200 text-gray-700 focus:ring-gray-400',
+      secondary: 'border-2 border-primary-600 dark:border-primary-400 bg-transparent hover:bg-primary-50 dark:hover:bg-primary-900/30 active:bg-primary-100 dark:active:bg-primary-900/50 text-primary-600 dark:text-primary-400 focus:ring-primary-500',
+      ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-slate-700 active:bg-gray-200 dark:active:bg-slate-600 text-gray-700 dark:text-gray-300 focus:ring-gray-400',
       danger: 'bg-error hover:bg-red-600 active:bg-red-700 text-white focus:ring-red-500 shadow-sm hover:shadow-md',
     }
     
@@ -62,6 +62,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         disabled={disabled || loading}
+        aria-busy={loading}
+        aria-disabled={disabled || loading}
         {...props}
       >
         {/* Spinner de carga */}

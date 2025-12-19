@@ -24,12 +24,17 @@ export function Loading({ size = 'md', className }: LoadingProps) {
   }
 
   return (
-    <div className={cn('flex items-center justify-center', className)}>
+    <div 
+      className={cn('flex items-center justify-center', className)}
+      role="status"
+      aria-live="polite"
+      aria-label="Cargando contenido"
+    >
       <svg
         className={cn('animate-spin text-primary-600', sizes[size])}
         fill="none"
         viewBox="0 0 24 24"
-        aria-label="Cargando"
+        aria-hidden="true"
       >
         <circle
           className="opacity-25"
@@ -45,6 +50,7 @@ export function Loading({ size = 'md', className }: LoadingProps) {
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         />
       </svg>
+      <span className="sr-only">Cargando, por favor espere...</span>
     </div>
   )
 }
@@ -65,7 +71,7 @@ export function LoadingOverlay({
         'fixed inset-0 z-50 flex items-center justify-center',
         transparent 
           ? 'bg-black/30 backdrop-blur-sm' 
-          : 'bg-white'
+          : 'bg-white dark:bg-slate-900'
       )}
       role="status"
       aria-live="polite"
@@ -75,7 +81,7 @@ export function LoadingOverlay({
         {text && (
           <p className={cn(
             'mt-4 font-medium',
-            transparent ? 'text-white' : 'text-gray-600'
+            transparent ? 'text-white' : 'text-gray-600 dark:text-gray-300'
           )}>
             {text}
           </p>
@@ -87,10 +93,15 @@ export function LoadingOverlay({
 
 export function LoadingPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900"
+      role="status"
+      aria-live="polite"
+      aria-label="Cargando página"
+    >
       <div className="text-center">
         <Loading size="lg" />
-        <p className="mt-4 text-gray-600">Cargando...</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-300" aria-hidden="true">Cargando...</p>
       </div>
     </div>
   )

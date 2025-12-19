@@ -18,41 +18,59 @@ class SecurityMonitor {
   private events: SecurityEvent[] = [];
   private ipAttempts: Map<string, { count: number; lastAttempt: Date }> = new Map();
   private suspiciousIPs: Set<string> = new Set();
+  // Flag para evitar recursión infinita
+  private isProcessingEvent: boolean = false;
 
   /**
    * Log a security event
    */
   logEvent(event: Omit<SecurityEvent, 'timestamp'>): void {
-    const fullEvent: SecurityEvent = {
-      ...event,
-      timestamp: new Date()
-    };
-
-    this.events.push(fullEvent);
-    
-    // Keep only last 1000 events in memory
-    if (this.events.length > 1000) {
-      this.events = this.events.slice(-1000);
+    // Evitar recursión infinita
+    if (this.isProcessingEvent) {
+      return;
     }
 
-    // Log to Winston
-    const logLevel = this.getLogLevel(event.severity);
-    logger[logLevel]('Security event detected', fullEvent);
+    this.isProcessingEvent = true;
 
-    // Track IP attempts
-    this.trackIPAttempts(fullEvent.ip, fullEvent.type);
+    try {
+      const fullEvent: SecurityEvent = {
+        ...event,
+        timestamp: new Date()
+      };
 
-    // Check for suspicious patterns
-    this.checkSuspiciousActivity(fullEvent);
+      this.events.push(fullEvent);
+      
+      // Keep only last 1000 events in memory
+      if (this.events.length > 1000) {
+        this.events = this.events.slice(-1000);
+      }
 
-    // Send alerts if configured
-    if (securityConfig.monitoring.alertOnSuspiciousActivity) {
-      this.checkAlertConditions(fullEvent);
+      // Log to Winston
+      const logLevel = this.getLogLevel(event.severity);
+      logger[logLevel]('Security event detected', fullEvent);
+
+      // Track IP attempts (solo para eventos que no son SUSPICIOUS_REQUEST para evitar loops)
+      if (event.type !== 'SUSPICIOUS_REQUEST') {
+        this.trackIPAttempts(fullEvent.ip, fullEvent.type);
+      }
+
+      // Check for suspicious patterns (solo para eventos que no son SUSPICIOUS_REQUEST)
+      if (event.type !== 'SUSPICIOUS_REQUEST') {
+        this.checkSuspiciousActivity(fullEvent);
+      }
+
+      // Send alerts if configured
+      if (securityConfig.monitoring.alertOnSuspiciousActivity) {
+        this.checkAlertConditions(fullEvent);
+      }
+    } finally {
+      this.isProcessingEvent = false;
     }
   }
 
   /**
    * Track failed attempts per IP
+   * Nota: No llama a logEvent para evitar recursión
    */
   private trackIPAttempts(ip: string, eventType: SecurityEvent['type']): void {
     const current = this.ipAttempts.get(ip) || { count: 0, lastAttempt: new Date() };
@@ -71,23 +89,20 @@ class SecurityMonitor {
     if (current.count >= securityConfig.monitoring.maxFailedAttempts) {
       this.suspiciousIPs.add(ip);
       
-      this.logEvent({
+      // Solo loguear sin llamar a logEvent para evitar recursión
+      logger.error('Suspicious IP detected: Too many failed attempts', {
         type: 'SUSPICIOUS_REQUEST',
         severity: 'HIGH',
         ip,
-        url: '',
-        method: '',
-        details: {
-          reason: 'Too many failed attempts',
-          attemptCount: current.count,
-          eventType
-        }
+        attemptCount: current.count,
+        eventType
       });
     }
   }
 
   /**
    * Check for suspicious activity patterns
+   * Nota: No llama a logEvent para evitar recursión
    */
   private checkSuspiciousActivity(event: SecurityEvent): void {
     const recentEvents = this.events.filter(e => 
@@ -97,33 +112,29 @@ class SecurityMonitor {
     // Check for rapid-fire requests from same IP
     const sameIPEvents = recentEvents.filter(e => e.ip === event.ip);
     if (sameIPEvents.length > 20) {
-      this.logEvent({
+      // Solo loguear sin llamar a logEvent para evitar recursión
+      logger.warn('Suspicious activity: Rapid requests detected', {
         type: 'SUSPICIOUS_REQUEST',
         severity: 'MEDIUM',
         ip: event.ip,
         url: event.url,
         method: event.method,
-        details: {
-          reason: 'Rapid requests detected',
-          eventCount: sameIPEvents.length
-        }
+        eventCount: sameIPEvents.length
       });
     }
 
     // Check for distributed attacks (many IPs, same pattern)
     const uniqueIPs = new Set(recentEvents.map(e => e.ip));
     if (uniqueIPs.size > 10 && recentEvents.length > 50) {
-      this.logEvent({
+      // Solo loguear sin llamar a logEvent para evitar recursión
+      logger.error('Suspicious activity: Potential distributed attack', {
         type: 'SUSPICIOUS_REQUEST',
         severity: 'HIGH',
         ip: event.ip,
         url: event.url,
         method: event.method,
-        details: {
-          reason: 'Potential distributed attack',
-          uniqueIPs: uniqueIPs.size,
-          totalEvents: recentEvents.length
-        }
+        uniqueIPs: uniqueIPs.size,
+        totalEvents: recentEvents.length
       });
     }
   }

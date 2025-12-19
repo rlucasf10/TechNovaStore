@@ -6,6 +6,7 @@
  */
 
 import { ContentBasedFiltering } from '../shared/algorithms/ContentBasedFiltering';
+import { logger } from '../shared/utils/logger';
 
 export class UpdateModels {
   private contentFilter: ContentBasedFiltering;
@@ -18,7 +19,7 @@ export class UpdateModels {
 
   async execute(): Promise<void> {
     try {
-      console.log('Starting model update...');
+      logger.info('Starting model update');
       
       // Update content-based features
       await this.contentFilter.updateProductFeatures();
@@ -26,9 +27,9 @@ export class UpdateModels {
       // Clear all caches to force fresh recommendations
       await this.redisClient.flushDb();
       
-      console.log('Model update completed');
+      logger.info('Model update completed');
     } catch (error) {
-      console.error('Error updating models:', error);
+      logger.error('Error updating models', { error: error instanceof Error ? error.message : error });
       throw error;
     }
   }

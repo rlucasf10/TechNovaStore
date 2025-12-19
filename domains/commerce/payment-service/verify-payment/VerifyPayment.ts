@@ -46,7 +46,10 @@ export class VerifyPayment {
 
       return result;
     } catch (error) {
-      logger.error('Payment verification error:', error);
+      logger.error('Payment verification error', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return null;
     }
   }

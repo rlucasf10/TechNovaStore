@@ -1,6 +1,11 @@
 /**
  * Caso de uso: Renovar token de acceso
  * Extraído de AuthService.refreshToken()
+ * 
+ * NOTA IMPORTANTE: Este caso de uso genera nuevos tokens JWT que serán establecidos
+ * como httpOnly cookies por el controlador. El token actual se lee desde la cookie
+ * httpOnly, NO desde localStorage. Las cookies httpOnly son más seguras y protegen
+ * contra ataques XSS.
  */
 
 import { User } from '../shared/models/User';

@@ -149,25 +149,87 @@ export const addressSchema = z.object({
 export type AddressFormData = z.infer<typeof addressSchema>;
 
 /**
- * Esquema de Tarjeta de Crédito
+ * Validación del algoritmo de Luhn para números de tarjeta
+ */
+function isValidLuhn(cardNumber: string): boolean {
+  const cleanNumber = cardNumber.replace(/\s/g, '');
+  if (!/^\d+$/.test(cleanNumber)) return false;
+
+  let sum = 0;
+  let isEven = false;
+
+  for (let i = cleanNumber.length - 1; i >= 0; i--) {
+    let digit = parseInt(cleanNumber[i], 10);
+
+    if (isEven) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+
+    sum += digit;
+    isEven = !isEven;
+  }
+
+  return sum % 10 === 0;
+}
+
+/**
+ * Esquema de Tarjeta de Crédito con validación Luhn
  */
 export const creditCardSchema = z.object({
   cardNumber: z.string()
-    .min(13, 'Número de tarjeta inválido')
-    .max(19, 'Número de tarjeta inválido')
-    .regex(/^[0-9]+$/, 'Solo números'),
-  cardholderName: z.string().min(3, 'Nombre del titular requerido'),
+    .min(1, 'Número de tarjeta es obligatorio')
+    .transform((val) => val.replace(/\s/g, '')) // Remover espacios
+    .refine(
+      (val) => val.length >= 13 && val.length <= 19,
+      'Número de tarjeta debe tener entre 13 y 19 dígitos'
+    )
+    .refine(
+      (val) => /^\d+$/.test(val),
+      'Número de tarjeta solo puede contener dígitos'
+    )
+    .refine(
+      (val) => isValidLuhn(val),
+      'Número de tarjeta inválido (verificación Luhn falló)'
+    ),
+  cardholderName: z.string()
+    .min(1, 'Nombre del titular es obligatorio')
+    .min(3, 'Nombre debe tener al menos 3 caracteres')
+    .max(100, 'Nombre no puede exceder 100 caracteres')
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, 'Nombre solo puede contener letras'),
   expiryMonth: z.string()
-    .regex(/^(0[1-9]|1[0-2])$/, 'Mes inválido (01-12)'),
+    .min(1, 'Mes es obligatorio')
+    .regex(/^(0[1-9]|1[0-2])$/, 'Mes inválido (debe ser 01-12)'),
   expiryYear: z.string()
-    .regex(/^[0-9]{2}$/, 'Año inválido (YY)')
+    .min(1, 'Año es obligatorio')
+    .regex(/^\d{4}$/, 'Año inválido (debe ser YYYY)')
     .refine((year: string) => {
-      const currentYear = new Date().getFullYear() % 100;
-      return parseInt(year) >= currentYear;
-    }, 'La tarjeta está vencida'),
+      const currentYear = new Date().getFullYear();
+      const yearNum = parseInt(year);
+      return yearNum >= currentYear && yearNum <= currentYear + 20;
+    }, 'La tarjeta está expirada o el año es inválido'),
   cvv: z.string()
-    .regex(/^[0-9]{3,4}$/, 'CVV inválido (3-4 dígitos)'),
+    .min(1, 'CVV es obligatorio')
+    .regex(/^\d{3,4}$/, 'CVV debe tener 3 o 4 dígitos'),
   saveCard: z.boolean().optional(),
+}).refine((data) => {
+  // Validar que la tarjeta no esté expirada considerando mes y año
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // 0-indexed
+  
+  const expiryYear = parseInt(data.expiryYear);
+  const expiryMonth = parseInt(data.expiryMonth);
+  
+  if (expiryYear < currentYear) return false;
+  if (expiryYear === currentYear && expiryMonth < currentMonth) return false;
+  
+  return true;
+}, {
+  message: 'La tarjeta ha expirado',
+  path: ['expiryYear'],
 });
 
 export type CreditCardFormData = z.infer<typeof creditCardSchema>;
@@ -188,10 +250,69 @@ export type ProductReviewFormData = z.infer<typeof productReviewSchema>;
  * Esquema de Búsqueda
  */
 export const searchSchema = z.object({
-  query: z.string().min(1, 'Ingresa un término de búsqueda').max(100),
+  query: z.string()
+    .min(1, 'Ingresa un término de búsqueda')
+    .max(100, 'La búsqueda no puede exceder 100 caracteres')
+    .trim(),
 });
 
 export type SearchFormData = z.infer<typeof searchSchema>;
+
+/**
+ * Esquema de Contacto/Soporte
+ */
+export const contactSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  subject: z.string()
+    .min(5, 'El asunto debe tener al menos 5 caracteres')
+    .max(100, 'El asunto no puede exceder 100 caracteres'),
+  message: z.string()
+    .min(20, 'El mensaje debe tener al menos 20 caracteres')
+    .max(1000, 'El mensaje no puede exceder 1000 caracteres'),
+  category: z.enum(['general', 'technical', 'billing', 'shipping', 'returns'], {
+    errorMap: () => ({ message: 'Selecciona una categoría válida' }),
+  }).optional(),
+});
+
+export type ContactFormData = z.infer<typeof contactSchema>;
+
+/**
+ * Esquema de Newsletter
+ */
+export const newsletterSchema = z.object({
+  email: emailSchema,
+  acceptPrivacy: z.boolean().refine((val) => val === true, {
+    message: 'Debes aceptar la política de privacidad',
+  }),
+});
+
+export type NewsletterFormData = z.infer<typeof newsletterSchema>;
+
+/**
+ * Esquema de Cantidad de Producto
+ */
+export const productQuantitySchema = z.object({
+  quantity: z.number()
+    .int('La cantidad debe ser un número entero')
+    .min(1, 'La cantidad mínima es 1')
+    .max(99, 'La cantidad máxima es 99'),
+});
+
+export type ProductQuantityFormData = z.infer<typeof productQuantitySchema>;
+
+/**
+ * Esquema de Código de Descuento
+ */
+export const discountCodeSchema = z.object({
+  code: z.string()
+    .min(1, 'Ingresa un código de descuento')
+    .max(50, 'Código inválido')
+    .trim()
+    .toUpperCase(),
+});
+
+export type DiscountCodeFormData = z.infer<typeof discountCodeSchema>;
 
 /**
  * Helper para validar fortaleza de contraseña

@@ -5,6 +5,7 @@
 
 import { EmailService } from '../shared/email/EmailService';
 import { TemplateService } from '../shared/templates/TemplateService';
+import { logger } from '../shared/utils/logger';
 
 export interface OrderConfirmationData {
   orderId: string;
@@ -37,9 +38,9 @@ export class SendOrderConfirmation {
       const template = this.templateService.getTemplate('order_confirmation', notificationData);
       await this.emailService.sendEmail(data.customerEmail, template);
       
-      console.log(`Order confirmation sent to ${data.customerEmail} for order ${data.orderId}`);
+      logger.info('Order confirmation sent', { customerEmail: data.customerEmail, orderId: data.orderId });
     } catch (error) {
-      console.error(`Failed to send order confirmation for ${data.orderId}:`, error);
+      logger.error('Failed to send order confirmation', { orderId: data.orderId, error: error instanceof Error ? error.message : error });
       throw error;
     }
   }

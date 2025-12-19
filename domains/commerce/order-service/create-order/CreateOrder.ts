@@ -10,6 +10,7 @@ import { OrderItem } from '../shared/models/OrderItem';
 import { logger } from '../shared/utils/logger';
 import { sequelize } from '../config/database';
 import { orderEventService } from '../shared/services/eventService';
+import { SpanishTaxCalculator } from '../shared/utils/spanishTaxCalculator';
 
 export interface CreateOrderData {
   user_id: number;
@@ -42,15 +43,38 @@ export class CreateOrder {
     const transaction = await sequelize.transaction();
     
     try {
-      // Calcular monto total
-      const total_amount = orderData.items.reduce(
-        (sum, item) => sum + (item.unit_price * item.quantity),
-        0
-      );
+      // Preparar items para cálculo de impuestos
+      const itemsForTax = orderData.items.map(item => ({
+        product_name: item.product_name,
+        product_sku: item.product_sku,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.unit_price * item.quantity,
+      }));
+
+      // Calcular impuestos usando SpanishTaxCalculator
+      const taxCalculation = SpanishTaxCalculator.calculateTaxes(itemsForTax, true);
+
+      // Extraer valores calculados
+      const subtotal = taxCalculation.subtotal;
+      const tax_amount = taxCalculation.totalTax;
+
+      // Calcular envío (gratis por ahora, puede ser dinámico en el futuro)
+      const shipping_cost = 0;
+
+      // Calcular descuentos (por ahora 0, se puede agregar lógica de cupones)
+      const discount_amount = 0;
+
+      // Calcular total final (subtotal + IVA + envío - descuentos)
+      const total_amount = taxCalculation.totalWithTax + shipping_cost - discount_amount;
 
       // Crear pedido
       const order = await Order.create({
         user_id: orderData.user_id,
+        subtotal,
+        shipping_cost,
+        tax_amount,
+        discount_amount,
         total_amount,
         shipping_address: orderData.shipping_address,
         billing_address: orderData.billing_address,

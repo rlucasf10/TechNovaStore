@@ -6,15 +6,15 @@ Este documento describe el sistema de diseño completo del frontend de TechNovaS
 
 ## 📋 Tabla de Contenidos
 
-- [Colores](#colores)
-- [Tipografía](#tipografía)
-- [Espaciado](#espaciado)
-- [Breakpoints Responsivos](#breakpoints-responsivos)
-- [Sombras](#sombras)
-- [Bordes](#bordes)
-- [Animaciones](#animaciones)
-- [Accesibilidad](#accesibilidad)
-- [Uso](#uso)
+- [Colores](#-colores)
+- [Tipografía](#-tipografía)
+- [Espaciado](#-espaciado)
+- [Breakpoints Responsivos](#-breakpoints-responsivos)
+- [Sombras](#-sombras)
+- [Bordes Redondeados](#-bordes-redondeados)
+- [Animaciones](#-animaciones)
+- [Accesibilidad](#-accesibilidad)
+- [Uso](#-uso)
 
 ## 🎨 Colores
 

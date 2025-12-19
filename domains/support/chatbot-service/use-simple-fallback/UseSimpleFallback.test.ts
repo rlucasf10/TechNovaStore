@@ -17,7 +17,8 @@ describe('UseSimpleFallback', () => {
 
   beforeEach(() => {
     mockRetrieveProductsRAG = {
-      execute: jest.fn()
+      execute: jest.fn(),
+      extractRequestedLimit: jest.fn().mockReturnValue(null)
     } as any;
 
     mockSimpleFallbackRecognizer = {
@@ -38,7 +39,8 @@ describe('UseSimpleFallback', () => {
       sessionId: 'test-session',
       previousIntents: [],
       userPreferences: { categories: [], brands: [] },
-      conversationHistory: []
+      conversationHistory: [],
+      shownProductSkus: []
     };
   });
 
@@ -61,11 +63,64 @@ describe('UseSimpleFallback', () => {
       const result = await useSimpleFallback.execute('Hola', mockContext);
 
       // Assert
-      expect(mockRetrieveProductsRAG.execute).toHaveBeenCalledWith('Hola');
+      expect(mockRetrieveProductsRAG.execute).toHaveBeenCalledWith('Hola', expect.any(Object));
       expect(mockSimpleFallbackRecognizer.recognizeIntent).toHaveBeenCalledWith('Hola');
       expect(mockGenerateResponse.execute).toHaveBeenCalled();
       expect(result.usingFallback).toBe(true);
       expect(result.message).toContain('Modo básico activo');
+    });
+
+    it('debe excluir productos ya mostrados cuando el usuario pide diferentes', async () => {
+      // Arrange
+      mockContext.shownProductSkus = ['SKU-1', 'SKU-2'];
+      mockRetrieveProductsRAG.execute.mockResolvedValue([]);
+      mockSimpleFallbackRecognizer.recognizeIntent.mockReturnValue({
+        name: 'product_recommendation',
+        confidence: 0.8,
+        entities: {}
+      });
+      mockGenerateResponse.execute.mockResolvedValue({
+        message: 'Aquí tienes otros productos',
+        intent: { name: 'product_recommendation', confidence: 0.8, entities: {} },
+        confidence: 0.8
+      });
+
+      // Act
+      await useSimpleFallback.execute('otros productos diferentes', mockContext);
+
+      // Assert - Debe pasar los SKUs a excluir
+      expect(mockRetrieveProductsRAG.execute).toHaveBeenCalledWith(
+        'otros productos diferentes',
+        expect.objectContaining({
+          excludeSkus: ['SKU-1', 'SKU-2']
+        })
+      );
+    });
+
+    it('debe registrar los SKUs de productos mostrados en el contexto', async () => {
+      // Arrange
+      const mockProducts = [
+        { sku: 'NEW-SKU-1', name: 'Product 1', brand: 'Brand', price: 100, availability: true, category: 'test', subcategory: 'test', description: '', specifications: {}, images: [], keywords: [], features: [], compatibilities: [], useCases: [] },
+        { sku: 'NEW-SKU-2', name: 'Product 2', brand: 'Brand', price: 200, availability: true, category: 'test', subcategory: 'test', description: '', specifications: {}, images: [], keywords: [], features: [], compatibilities: [], useCases: [] }
+      ];
+      mockRetrieveProductsRAG.execute.mockResolvedValue(mockProducts);
+      mockSimpleFallbackRecognizer.recognizeIntent.mockReturnValue({
+        name: 'product_search',
+        confidence: 0.8,
+        entities: {}
+      });
+      mockGenerateResponse.execute.mockResolvedValue({
+        message: 'Productos encontrados',
+        intent: { name: 'product_search', confidence: 0.8, entities: {} },
+        confidence: 0.8
+      });
+
+      // Act
+      await useSimpleFallback.execute('busco laptop', mockContext);
+
+      // Assert - Los SKUs deben estar registrados
+      expect(mockContext.shownProductSkus).toContain('NEW-SKU-1');
+      expect(mockContext.shownProductSkus).toContain('NEW-SKU-2');
     });
 
     it('debe incluir productos recuperados en la respuesta', async () => {

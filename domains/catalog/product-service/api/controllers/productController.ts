@@ -3,11 +3,14 @@ import { validationResult } from 'express-validator';
 import { ListProducts, ProductQuery } from '../../list-products/ListProducts';
 import { GetProductById } from '../../get-product-by-id/GetProductById';
 import { GetProductBySku } from '../../get-product-by-sku/GetProductBySku';
+import { GetProductsBatch } from '../../get-products-batch/GetProductsBatch';
 import { CreateProduct } from '../../create-product/CreateProduct';
 import { UpdateProduct } from '../../update-product/UpdateProduct';
 import { DeleteProduct } from '../../delete-product/DeleteProduct';
 import { SearchProducts } from '../../search-products/SearchProducts';
 import { GetRelatedProducts } from '../../get-related-products/GetRelatedProducts';
+import { UpdateProductCampaign } from '../../update-product-campaign/UpdateProductCampaign';
+import { ClearProductCampaign } from '../../clear-product-campaign/ClearProductCampaign';
 import { asyncHandler } from '../middleware/errorHandler';
 import { logger } from '../../shared/infrastructure/logger';
 
@@ -78,6 +81,37 @@ export class ProductController {
     });
   });
 
+  /**
+   * Obtener múltiples productos por IDs (batch)
+   * Útil para wishlist, carrito, etc.
+   */
+  static getProductsBatch = asyncHandler(async (req: Request, res: Response) => {
+    const { ids } = req.body;
+
+    // Validar que se proporcionen IDs
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({
+        error: 'Se requiere un array de IDs',
+      });
+    }
+
+    if (ids.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        notFound: [],
+      });
+    }
+
+    const result = await GetProductsBatch.execute({ ids });
+
+    return res.json({
+      success: true,
+      data: result.products,
+      notFound: result.notFound,
+    });
+  });
+
   static createProduct = asyncHandler(async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -87,13 +121,8 @@ export class ProductController {
       });
     }
 
-    // Check if user has admin role (passed from API Gateway)
-    const userRole = req.headers['x-user-role'] as string;
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
+    // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
+    // No es necesario verificar aquí de nuevo
 
     const product = await CreateProduct.execute(req.body);
 
@@ -118,13 +147,9 @@ export class ProductController {
     }
 
     const { id } = req.params;
-    const userRole = req.headers['x-user-role'] as string;
-
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
+    
+    // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
+    // No es necesario verificar aquí de nuevo
 
     const product = await UpdateProduct.execute(id, req.body);
 
@@ -147,13 +172,9 @@ export class ProductController {
 
   static deleteProduct = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userRole = req.headers['x-user-role'] as string;
-
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-      });
-    }
+    
+    // NOTA: La verificación de rol ya se hace en el middleware requireRole(['admin'])
+    // No es necesario verificar aquí de nuevo
 
     const deleted = await DeleteProduct.execute(id);
 
@@ -194,9 +215,34 @@ export class ProductController {
 
   static getRelatedProducts = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const limit = Math.min(parseInt(req.query.limit as string) || 4, 20);
+    const limit = Math.min(parseInt(req.query.limit as string) || 5, 20);
 
-    const product = await GetProductById.execute(id);
+    // El nuevo algoritmo no necesita verificar si el producto existe primero
+    // ya que lo hace internamente y retorna [] si no existe
+    const relatedProducts = await GetRelatedProducts.execute(id, limit);
+
+    return res.json({
+      success: true,
+      data: relatedProducts,
+    });
+  });
+
+  static updateProductCampaign = asyncHandler(async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array(),
+      });
+    }
+
+    const { id } = req.params;
+
+    // Este endpoint es solo para el Campaign Manager Service
+    // No requiere autenticación de usuario, pero debería estar protegido
+    // por el API Gateway para que solo el Campaign Manager pueda acceder
+
+    const product = await UpdateProductCampaign.execute(id, req.body);
 
     if (!product) {
       return res.status(404).json({
@@ -204,11 +250,40 @@ export class ProductController {
       });
     }
 
-    const relatedProducts = await GetRelatedProducts.execute(id, product.category, limit);
+    logger.info(`Product campaign updated: ${product.sku}`, {
+      productId: product._id,
+      campaignId: req.body.campaign_id,
+    });
 
     return res.json({
       success: true,
-      data: relatedProducts,
+      data: product,
+    });
+  });
+
+  static clearProductCampaign = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    // Este endpoint es solo para el Campaign Manager Service
+    // No requiere autenticación de usuario, pero debería estar protegido
+    // por el API Gateway para que solo el Campaign Manager pueda acceder
+
+    const product = await ClearProductCampaign.execute(id);
+
+    if (!product) {
+      return res.status(404).json({
+        error: 'Product not found',
+      });
+    }
+
+    logger.info(`Product campaign cleared: ${product.sku}`, {
+      productId: product._id,
+    });
+
+    return res.json({
+      success: true,
+      data: product,
+      message: 'Campaign fields cleared successfully',
     });
   });
 }

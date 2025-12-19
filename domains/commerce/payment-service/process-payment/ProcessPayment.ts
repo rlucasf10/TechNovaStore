@@ -36,13 +36,7 @@ export interface PaymentResponse {
 }
 
 export class ProcessPayment {
-  private orderServiceClient: OrderServiceClient;
-
-  constructor(orderServiceClient?: OrderServiceClient) {
-    this.orderServiceClient = orderServiceClient || new OrderServiceClient();
-  }
-
-  async execute(paymentRequest: PaymentRequest): Promise<PaymentResponse> {
+  async execute(paymentRequest: PaymentRequest, authHeaders?: Record<string, string>): Promise<PaymentResponse> {
     try {
       logger.info(`Processing payment for order ${paymentRequest.orderId}`, {
         orderId: paymentRequest.orderId,
@@ -50,12 +44,15 @@ export class ProcessPayment {
         paymentMethod: paymentRequest.paymentMethod,
       });
 
+      // Crear cliente con headers de autenticación si se proporcionan
+      const orderServiceClient = new OrderServiceClient(undefined, authHeaders);
+
       // Simular procesamiento de pago basado en el método de pago
       const response = await this.simulatePaymentProcessing(paymentRequest);
 
       if (response.success) {
         // Notificar al Order Service sobre el pago exitoso
-        await this.orderServiceClient.updatePaymentStatus(
+        await orderServiceClient.updatePaymentStatus(
           paymentRequest.orderId,
           'completed',
           response.transactionId
@@ -67,7 +64,7 @@ export class ProcessPayment {
         });
       } else {
         // Notificar al Order Service sobre el pago fallido
-        await this.orderServiceClient.updatePaymentStatus(
+        await orderServiceClient.updatePaymentStatus(
           paymentRequest.orderId,
           'failed'
         );
@@ -81,13 +78,19 @@ export class ProcessPayment {
 
       return response;
     } catch (error) {
-      logger.error('Payment processing error:', error);
+      logger.error('Payment processing error', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       
       // Notificar al Order Service sobre el error
       try {
-        await this.orderServiceClient.updatePaymentStatus(paymentRequest.orderId, 'failed');
+        const orderServiceClient = new OrderServiceClient(undefined, authHeaders);
+        await orderServiceClient.updatePaymentStatus(paymentRequest.orderId, 'failed');
       } catch (notifyError) {
-        logger.error('Failed to notify order service:', notifyError);
+        logger.error('Failed to notify order service', {
+          message: notifyError instanceof Error ? notifyError.message : 'Unknown error',
+        });
       }
       
       return {

@@ -1,5 +1,6 @@
 import { BaseTrackingProvider } from './BaseTrackingProvider';
 import { ProviderTrackingResponse, DeliveryEstimate, TrackingInfo, TrackingEvent } from '../types/tracking';
+import { logger } from '../utils/logger';
 
 export class AmazonTrackingProvider extends BaseTrackingProvider {
   constructor(apiKey?: string) {
@@ -47,7 +48,11 @@ export class AmazonTrackingProvider extends BaseTrackingProvider {
         trackingInfo
       };
     } catch (error: any) {
-      console.error(`Amazon tracking error for ${trackingNumber}:`, error.message);
+      logger.error('Amazon tracking error', { 
+        trackingNumber, 
+        error: error.message,
+        provider: 'Amazon'
+      });
       
       if (error.message.includes('Rate limit')) {
         return {

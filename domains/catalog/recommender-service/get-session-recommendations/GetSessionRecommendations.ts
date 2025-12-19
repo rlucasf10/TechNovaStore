@@ -6,6 +6,7 @@
  */
 
 import { HybridRecommender, RecommendationResult } from '../shared/algorithms/HybridRecommender';
+import { logger } from '../shared/utils/logger';
 
 export interface GetSessionRecommendationsRequest {
   sessionId: string;
@@ -57,7 +58,10 @@ export class GetSessionRecommendations {
         }
       };
     } catch (error) {
-      console.error('Error getting session recommendations:', error);
+      logger.error('Error getting session recommendations', { 
+        error: error instanceof Error ? error.message : error,
+        sessionId
+      });
       throw error;
     }
   }

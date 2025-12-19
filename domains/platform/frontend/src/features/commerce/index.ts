@@ -1,33 +1,26 @@
-// Commerce Feature - Exports
+/**
+ * Barrel export para el módulo de Commerce
+ */
 
-// Components - Cart
-export { ShoppingCart } from './components/cart/ShoppingCart'
-export { CartItem } from './components/cart/CartItem'
-export { CartDropdown } from './components/cart/CartDropdown'
-export { AddToCartButton } from './components/cart/AddToCartButton'
+// Tipos
+export * from './types/checkout.types';
+export type { CartItem } from './store/cart.store';
+export type { Cart, AddToCartRequest, UpdateCartItemRequest, CartItem as CartItemService } from './services/cart.service';
 
-// Components - Checkout
-export { CheckoutSteps } from './components/checkout/CheckoutSteps'
-export * from './components/checkout/OrderSummary'
-export * from './components/checkout/ShippingForm'
-export * from './components/checkout/PaymentForm'
-export * from './components/checkout/OrderConfirmation'
+// Servicios
+export { checkoutService } from './services/checkout.service';
+export { paymentService } from './services/payment.service';
+export { cartService } from './services/cart.service';
+
+// Store
+export { useCartStore } from './store/cart.store';
 
 // Hooks
-export * from './hooks/useCart'
-export * from './hooks/useOrders'
+export { useCart, useAddToCart } from './hooks/useCart';
+export { useOrders } from './hooks/useOrders';
 
-// Services (with explicit type exports to avoid conflicts)
-export { 
-  cartService,
-  type CartItem as CartItemService,
-  type Cart,
-  type AddToCartRequest,
-  type UpdateCartItemRequest
-} from './services/cart.service'
+// Componentes - Checkout
+export * from './components/checkout';
 
-// Store (with explicit type exports to avoid conflicts)
-export { 
-  useCartStore,
-  type CartItem as CartItemStore
-} from './store/cart.store'
+// Componentes - Cart
+export * from './components/cart';

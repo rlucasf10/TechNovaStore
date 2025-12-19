@@ -96,8 +96,8 @@ export function Breadcrumbs({
                     href={item.href}
                     className={cn(
                       'inline-flex items-center gap-1.5 text-sm font-medium transition-colors',
-                      'text-gray-600 hover:text-primary-600',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md px-1'
+                      'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400',
+                      'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 rounded-md px-1'
                     )}
                     aria-label={`Navegar a ${item.label}`}
                   >
@@ -115,7 +115,7 @@ export function Breadcrumbs({
                   <span
                     className={cn(
                       'inline-flex items-center gap-1.5 text-sm font-medium',
-                      isLast ? 'text-gray-900' : 'text-gray-600'
+                      isLast ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
                     )}
                     aria-current={isLast ? 'page' : undefined}
                   >
@@ -136,7 +136,7 @@ export function Breadcrumbs({
               {!isLast && (
                 <li
                   className={cn(
-                    'flex items-center text-gray-400',
+                    'flex items-center text-gray-400 dark:text-gray-500',
                     // Ocultar separador si el siguiente elemento está oculto en móvil
                     !mobileLastOnly || index === items.length - 2 ? 'flex' : 'hidden sm:flex'
                   )}

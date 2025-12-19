@@ -103,3 +103,125 @@ groups:
         annotations:
           summary: "Auto purchase system has failures"
           description: "Auto purchase has {{ $value }} failures in the last 10 minutes"
+
+      # Campaign Manager Alerts
+      # Requirement 16.7: Alertas cuando una campaña falla al activarse o desactivarse
+      
+      - alert: CampaignManagerServiceDown
+        expr: up{job="campaign-manager-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+        annotations:
+          summary: "Campaign Manager Service is down"
+          description: "Campaign Manager Service has been down for more than 1 minute. Campaign activation/deactivation will not work."
+
+      - alert: CampaignActivationFailure
+        expr: increase(http_requests_total{job="campaign-manager-service", path=~".*apply-discounts.*", status=~"5.."}[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+        annotations:
+          summary: "Campaign activation failed"
+          description: "Campaign discount application has failed {{ $value }} times in the last 10 minutes. Check logs for details."
+
+      - alert: CampaignDeactivationFailure
+        expr: increase(http_requests_total{job="campaign-manager-service", path=~".*remove-discounts.*", status=~"5.."}[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+        annotations:
+          summary: "Campaign deactivation failed"
+          description: "Campaign discount removal has failed {{ $value }} times in the last 10 minutes. Check logs for details."
+
+      - alert: CampaignDiscountProcessingSlow
+        expr: histogram_quantile(0.95, rate(campaign_discount_application_duration_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+          service: campaign-manager
+        annotations:
+          summary: "Campaign discount processing is slow"
+          description: "95th percentile of campaign discount processing time is {{ $value }}s, which exceeds the 30s threshold."
+
+      - alert: CampaignManagerHighErrorRate
+        expr: rate(http_requests_total{job="campaign-manager-service", status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: campaign-manager
+        annotations:
+          summary: "High error rate on Campaign Manager Service"
+          description: "Campaign Manager Service has {{ $value }} errors per second."
+
+      - alert: NoCampaignsActive
+        expr: campaign_active_count == 0
+        for: 24h
+        labels:
+          severity: info
+          service: campaign-manager
+        annotations:
+          summary: "No active campaigns"
+          description: "There have been no active campaigns for 24 hours. This may be intentional or indicate a configuration issue."
+
+      # Requirement 16.8: Alertas cuando cron job falla
+      
+      # Alerta cuando el cron job de activación falla
+      - alert: CampaignActivationCronJobFailure
+        expr: increase(campaign_cron_job_failures_total{job="campaign-manager-service", job_type="activation"}[1h]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+          cron_job: activation
+        annotations:
+          summary: "Campaign activation cron job failed"
+          description: "Campaign activation cron job has failed {{ $value }} times in the last hour. Campaigns may not be activating automatically. Error type: {{ $labels.error_type }}"
+
+      # Alerta cuando el cron job de desactivación falla
+      - alert: CampaignDeactivationCronJobFailure
+        expr: increase(campaign_cron_job_failures_total{job="campaign-manager-service", job_type="deactivation"}[1h]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+          cron_job: deactivation
+        annotations:
+          summary: "Campaign deactivation cron job failed"
+          description: "Campaign deactivation cron job has failed {{ $value }} times in the last hour. Campaigns may not be deactivating automatically. Error type: {{ $labels.error_type }}"
+
+      # Alerta cuando el cron job no se ha ejecutado en más de 2 horas
+      - alert: CampaignCronJobNotRunning
+        expr: (time() - campaign_cron_job_last_execution_timestamp{job="campaign-manager-service"}) > 7200
+        for: 5m
+        labels:
+          severity: warning
+          service: campaign-manager
+        annotations:
+          summary: "Campaign cron job not running"
+          description: "Campaign {{ $labels.job_type }} cron job has not executed in over 2 hours. Last execution was {{ $value | humanizeDuration }} ago."
+
+      # Alerta cuando el cron job tarda demasiado
+      - alert: CampaignCronJobSlow
+        expr: histogram_quantile(0.95, rate(campaign_cron_job_duration_seconds_bucket{job="campaign-manager-service"}[1h])) > 120
+        for: 5m
+        labels:
+          severity: warning
+          service: campaign-manager
+        annotations:
+          summary: "Campaign cron job is slow"
+          description: "Campaign {{ $labels.job_type }} cron job 95th percentile duration is {{ $value }}s, which exceeds the 120s threshold."
+
+      # Alerta cuando hay múltiples fallos consecutivos del cron job
+      - alert: CampaignCronJobMultipleFailures
+        expr: increase(campaign_cron_job_failures_total{job="campaign-manager-service"}[3h]) >= 3
+        for: 1m
+        labels:
+          severity: critical
+          service: campaign-manager
+        annotations:
+          summary: "Multiple campaign cron job failures"
+          description: "Campaign {{ $labels.job_type }} cron job has failed {{ $value }} times in the last 3 hours. Immediate attention required."

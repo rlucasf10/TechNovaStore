@@ -1,58 +1,183 @@
+# Configuración de Alertmanager para TechNovaStore
+# Incluye rutas específicas para Campaign Manager Service
+# Requirement 16.8: Integración con Alertmanager para notificaciones de cron job
+
 global:
-  smtp_smarthost: 'localhost:587'
-  smtp_from: 'alerts@technovastore.com'
-  smtp_auth_username: 'alerts@technovastore.com'
-  smtp_auth_password: 'your-email-password'
+  resolve_timeout: 5m
+  # Configuración de SMTP (descomentar y configurar para producción)
+  # smtp_smarthost: 'smtp.example.com:587'
+  # smtp_from: 'alertmanager@technovastore.com'
+  # smtp_auth_username: 'alertmanager'
+  # smtp_auth_password: 'password'
 
 route:
-  group_by: ['alertname']
-  group_wait: 10s
-  group_interval: 10s
-  repeat_interval: 1h
-  receiver: 'web.hook'
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'null'  # Receptor por defecto (nulo para staging)
+  
   routes:
+    # Rutas específicas para Campaign Manager Service
+    # Requirement 16.8: Enviar notificaciones cuando cron job falla
+    - match:
+        service: campaign-manager
+      receiver: 'campaign-manager-alerts'
+      group_by: ['alertname', 'cron_job']
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      routes:
+        # Alertas críticas de cron job (fallos de activación/desactivación)
+        # Requirement 16.8: Notificaciones inmediatas cuando cron job falla
+        - match_re:
+            alertname: 'Campaign.*CronJob.*'
+          match:
+            severity: critical
+          receiver: 'campaign-cron-job-critical'
+          group_by: ['alertname', 'cron_job', 'error_type']
+          group_wait: 0s
+          repeat_interval: 10m
+        
+        # Alertas de warning de cron job (lentitud, no ejecución)
+        - match_re:
+            alertname: 'Campaign.*CronJob.*'
+          match:
+            severity: warning
+          receiver: 'campaign-cron-job-alerts'
+          group_wait: 30s
+          repeat_interval: 1h
+        
+        # Otras alertas críticas de Campaign Manager
+        - match:
+            severity: critical
+          receiver: 'campaign-manager-critical'
+          group_wait: 0s
+          repeat_interval: 15m
+        
+        # Alertas de warning de Campaign Manager
+        - match:
+            severity: warning
+          receiver: 'campaign-manager-alerts'
+          repeat_interval: 2h
+    
+    # Rutas generales por severidad
     - match:
         severity: critical
-      receiver: 'critical-alerts'
+      receiver: 'null'
     - match:
         severity: warning
-      receiver: 'warning-alerts'
+      receiver: 'null'
 
 receivers:
-  - name: 'web.hook'
-    webhook_configs:
-      - url: 'http://localhost:5001/webhook'
+  # Receptor nulo que no envía notificaciones (para staging/desarrollo)
+  - name: 'null'
+  
+  # Receptor para alertas generales de Campaign Manager
+  # En producción, configurar con webhook, email, Slack, etc.
+  - name: 'campaign-manager-alerts'
+    # Webhook para notificaciones (descomentar y configurar para producción)
+    # webhook_configs:
+    #   - url: 'http://notification-service:3005/api/webhooks/alertmanager'
+    #     send_resolved: true
+    #     http_config:
+    #       basic_auth:
+    #         username: 'alertmanager'
+    #         password: 'secret'
+  
+  # Receptor para alertas críticas de Campaign Manager
+  # Incluye notificaciones más urgentes (email, PagerDuty, etc.)
+  - name: 'campaign-manager-critical'
+    # Email para alertas críticas (descomentar y configurar para producción)
+    # email_configs:
+    #   - to: 'ops-team@technovastore.com'
+    #     send_resolved: true
+    #     headers:
+    #       Subject: '[CRITICAL] Campaign Manager Alert: {{ .GroupLabels.alertname }}'
+    # PagerDuty para alertas críticas (descomentar y configurar para producción)
+    # pagerduty_configs:
+    #   - service_key: 'your-pagerduty-service-key'
+    #     severity: critical
 
-  - name: 'critical-alerts'
-    email_configs:
-      - to: 'admin@technovastore.com'
-        headers:
-          Subject: 'CRITICAL: TechNovaStore Alert - {{ .GroupLabels.alertname }}'
-        html: |
-          {{ range .Alerts }}
-          Alert: {{ .Annotations.summary }}
-          Description: {{ .Annotations.description }}
-          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
-          {{ end }}
-    webhook_configs:
-      - url: 'http://localhost:5001/webhook/critical'
-        send_resolved: true
+  # Receptor para alertas de cron job de Campaign Manager (warning)
+  # Requirement 16.8: Notificaciones cuando cron job tiene problemas
+  - name: 'campaign-cron-job-alerts'
+    # Webhook para notificaciones de cron job (descomentar y configurar para producción)
+    # webhook_configs:
+    #   - url: 'http://notification-service:3005/api/webhooks/alertmanager/cron-job'
+    #     send_resolved: true
+    #     http_config:
+    #       basic_auth:
+    #         username: 'alertmanager'
+    #         password: 'secret'
 
-  - name: 'warning-alerts'
-    email_configs:
-      - to: 'monitoring@technovastore.com'
-        headers:
-          Subject: 'WARNING: TechNovaStore Alert - {{ .GroupLabels.alertname }}'
-        html: |
-          {{ range .Alerts }}
-          Alert: {{ .Annotations.summary }}
-          Description: {{ .Annotations.description }}
-          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
-          {{ end }}
+  # Receptor para alertas críticas de cron job de Campaign Manager
+  # Requirement 16.8: Notificaciones urgentes cuando cron job falla
+  - name: 'campaign-cron-job-critical'
+    # Email para alertas críticas de cron job (descomentar y configurar para producción)
+    # email_configs:
+    #   - to: 'ops-team@technovastore.com,campaign-team@technovastore.com'
+    #     send_resolved: true
+    #     headers:
+    #       Subject: '[CRITICAL] Campaign Cron Job Failed: {{ .GroupLabels.alertname }}'
+    #     html: |
+    #       <h2>Campaign Cron Job Alert</h2>
+    #       <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+    #       <p><strong>Job Type:</strong> {{ .GroupLabels.cron_job }}</p>
+    #       <p><strong>Error Type:</strong> {{ .GroupLabels.error_type }}</p>
+    #       <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
+    #       <p><strong>Time:</strong> {{ .StartsAt }}</p>
+    #       <p>Please check the Campaign Manager Service logs for more details.</p>
+    # Slack para alertas críticas de cron job (descomentar y configurar para producción)
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+    #     channel: '#campaign-alerts'
+    #     send_resolved: true
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     text: |
+    #       *Alert:* {{ .GroupLabels.alertname }}
+    #       *Job Type:* {{ .GroupLabels.cron_job }}
+    #       *Error Type:* {{ .GroupLabels.error_type }}
+    #       *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+    # PagerDuty para alertas críticas de cron job (descomentar y configurar para producción)
+    # pagerduty_configs:
+    #   - service_key: 'your-pagerduty-service-key'
+    #     severity: critical
+    #     description: 'Campaign cron job failure: {{ .GroupLabels.alertname }}'
+    #     details:
+    #       job_type: '{{ .GroupLabels.cron_job }}'
+    #       error_type: '{{ .GroupLabels.error_type }}'
 
 inhibit_rules:
+  # Inhibir alertas de warning cuando hay alertas críticas del mismo servicio
   - source_match:
       severity: 'critical'
     target_match:
       severity: 'warning'
-    equal: ['alertname', 'dev', 'instance']
+    equal: ['alertname', 'service', 'instance']
+  
+  # Inhibir alertas de Campaign Manager cuando el servicio está caído
+  - source_match:
+      alertname: 'CampaignManagerServiceDown'
+    target_match:
+      service: 'campaign-manager'
+    equal: ['service']
+  
+  # Inhibir alertas de cron job cuando el servicio está caído
+  # Requirement 16.8: No enviar alertas de cron job si el servicio no está disponible
+  - source_match:
+      alertname: 'CampaignManagerServiceDown'
+    target_match_re:
+      alertname: 'Campaign.*CronJob.*'
+    equal: ['service']
+  
+  # Inhibir alertas de cron job lento cuando hay fallos múltiples
+  - source_match:
+      alertname: 'CampaignCronJobMultipleFailures'
+    target_match:
+      alertname: 'CampaignCronJobSlow'
+    equal: ['service', 'job_type']
+
+# Templates personalizados para notificaciones
+# templates:
+#   - '/etc/alertmanager/templates/*.tmpl'

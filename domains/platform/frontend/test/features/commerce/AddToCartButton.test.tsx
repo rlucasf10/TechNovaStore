@@ -1,10 +1,17 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { AddToCartButton } from '@/commerce/components/cart/AddToCartButton'
-import { useCartStore } from '@/commerce/store/cart.store'
 import { Product } from '@/types'
 
-// Jest automáticamente usa los mocks de __mocks__/
+// Mock de useCartStore
+const mockAddItem = jest.fn()
+const mockUseCartStore = jest.fn()
+jest.mock('@/commerce/store/cart.store', () => ({
+  useCartStore: (selector?: (state: any) => any) => {
+    const state = mockUseCartStore()
+    return selector ? selector(state) : state
+  },
+}))
 
 // Mock product for testing
 const mockProduct: Product = {
@@ -34,15 +41,15 @@ const inactiveProduct: Product = {
 describe('AddToCartButton', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAddItem.mockClear()
+    mockUseCartStore.mockReturnValue({
+      items: [],
+      addItem: mockAddItem,
+      getItem: jest.fn().mockReturnValue(null),
+    })
   })
 
   it('should render add to cart button', () => {
-    const mockAddItem = jest.fn();
-    (useCartStore as jest.Mock).mockReturnValueOnce({
-      items: [],
-      addItem: mockAddItem,
-    })
-
     render(<AddToCartButton product={mockProduct} />)
 
     expect(screen.getByText('Añadir al Carrito')).toBeInTheDocument()
@@ -60,12 +67,6 @@ describe('AddToCartButton', () => {
   })
 
   it('should show quantity selector when enabled', () => {
-    const mockAddItem = jest.fn();
-    (useCartStore as jest.Mock).mockReturnValueOnce({
-      items: [],
-      addItem: mockAddItem,
-    })
-
     render(<AddToCartButton product={mockProduct} showQuantitySelector={true} />)
 
     expect(screen.getByText('1')).toBeInTheDocument() // Default quantity
@@ -74,12 +75,6 @@ describe('AddToCartButton', () => {
   })
 
   it('should be disabled for inactive products', () => {
-    const mockAddItem = jest.fn();
-    (useCartStore as jest.Mock).mockReturnValueOnce({
-      items: [],
-      addItem: mockAddItem,
-    })
-
     render(<AddToCartButton product={inactiveProduct} />)
 
     expect(screen.getByText('No Disponible')).toBeInTheDocument()
@@ -87,12 +82,6 @@ describe('AddToCartButton', () => {
   })
 
   it('should update quantity with selector', () => {
-    const mockAddItem = jest.fn();
-    (useCartStore as jest.Mock).mockReturnValueOnce({
-      items: [],
-      addItem: mockAddItem,
-    })
-
     render(<AddToCartButton product={mockProduct} showQuantitySelector={true} />)
 
     const plusButton = screen.getByText('+')

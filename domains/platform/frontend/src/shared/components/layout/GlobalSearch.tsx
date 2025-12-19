@@ -21,11 +21,14 @@ import type { SearchResult } from '@/types';
 interface GlobalSearchProps {
   placeholder?: string;
   className?: string;
+  /** ID único para el input (evita duplicados cuando hay múltiples instancias) */
+  id?: string;
 }
 
 export function GlobalSearch({ 
   placeholder = 'Buscar productos, categorías, marcas...', 
-  className = '' 
+  className = '',
+  id = 'global-search'
 }: GlobalSearchProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -171,7 +174,7 @@ export function GlobalSearch({
       <>
         {parts.map((part, i) => 
           part.toLowerCase() === query.toLowerCase() ? (
-            <mark key={i} className="bg-primary-100 text-primary-700 font-medium">
+            <mark key={i} className="bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 font-medium">
               {part}
             </mark>
           ) : (
@@ -204,7 +207,7 @@ export function GlobalSearch({
 
     return (
       <div className="py-2">
-        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {title}
         </div>
         {items.map((item, index) => {
@@ -220,12 +223,12 @@ export function GlobalSearch({
               aria-selected={isSelected}
               className={`
                 w-full px-4 py-3 flex items-center gap-3 text-left transition-colors
-                ${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50'}
+                ${isSelected ? 'bg-primary-50 dark:bg-primary-900/30' : 'hover:bg-gray-50 dark:hover:bg-slate-700'}
               `}
             >
               <div className={`
                 flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center
-                ${isSelected ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'}
+                ${isSelected ? 'bg-primary-100 dark:bg-primary-800 text-primary-600 dark:text-primary-300' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300'}
               `}>
                 {item.image ? (
                   <img 
@@ -239,23 +242,23 @@ export function GlobalSearch({
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {highlightMatch(item.name, inputValue)}
                 </div>
                 {item.category && (
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {item.category}
                   </div>
                 )}
                 {item.productCount !== undefined && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {item.productCount} productos
                   </div>
                 )}
               </div>
 
               {item.price !== undefined && (
-                <div className="flex-shrink-0 text-sm font-semibold text-primary-600">
+                <div className="flex-shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-400">
                   ${item.price.toFixed(2)}
                 </div>
               )}
@@ -267,7 +270,7 @@ export function GlobalSearch({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div id="search" className={`relative ${className}`} role="search">
       {/* Input de búsqueda */}
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -276,9 +279,10 @@ export function GlobalSearch({
         
         <input
           ref={inputRef}
-          id="global-search"
+          id={id}
           name="search"
-          type="text"
+          type="search"
+          role="combobox"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -287,13 +291,15 @@ export function GlobalSearch({
           autoComplete="off"
           aria-label="Búsqueda global"
           aria-autocomplete="list"
-          aria-controls={isOpen ? 'search-results' : undefined}
+          aria-owns={isOpen ? `${id}-results` : undefined}
           aria-expanded={isOpen}
+          aria-haspopup="listbox"
           className="
             block w-full pl-10 pr-10 py-2 
-            border border-gray-300 rounded-lg
+            border border-gray-300 dark:border-slate-600 rounded-lg
+            bg-white dark:bg-slate-800
             focus:ring-2 focus:ring-primary-500 focus:border-transparent
-            text-sm placeholder-gray-400
+            text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500
             transition-all
           "
         />
@@ -301,7 +307,7 @@ export function GlobalSearch({
         {inputValue && (
           <button
             onClick={handleClear}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <X className="h-5 w-5" />
           </button>
@@ -310,7 +316,7 @@ export function GlobalSearch({
         {/* Hint del shortcut */}
         {!inputValue && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded">
+            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded">
               <span className="text-xs">⌘</span>K
             </kbd>
           </div>
@@ -321,25 +327,25 @@ export function GlobalSearch({
       {isOpen && (
         <div
           ref={dropdownRef}
-          id="search-results"
+          id={`${id}-results`}
           role="listbox"
           aria-label="Resultados de búsqueda"
           className="
             absolute top-full left-0 right-0 mt-2
-            bg-white rounded-lg shadow-lg border border-gray-200
+            bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700
             max-h-[500px] overflow-y-auto
             z-50
           "
         >
           {isLoading && (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+            <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400" role="status" aria-live="polite">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" aria-hidden="true"></div>
               <div className="mt-2">Buscando...</div>
             </div>
           )}
 
           {!isLoading && results && allResults.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
+            <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400" role="status" aria-live="polite">
               No se encontraron resultados para &quot;{inputValue}&quot;
             </div>
           )}
@@ -352,13 +358,13 @@ export function GlobalSearch({
               
               {/* Footer con total de resultados */}
               {results.total > 10 && (
-                <div className="px-4 py-3 border-t border-gray-200 text-center">
+                <div className="px-4 py-3 border-t border-gray-200 dark:border-slate-700 text-center">
                   <button
                     onClick={() => {
                       router.push(`/productos?q=${encodeURIComponent(inputValue)}`);
                       handleClear();
                     }}
-                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
                   >
                     Ver todos los resultados ({results.total})
                   </button>

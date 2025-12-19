@@ -3,6 +3,7 @@
  * Verifica todas las variantes, tamaños, estados y funcionalidad de iconos
  */
 
+import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Button } from '@/ui/Button'
 

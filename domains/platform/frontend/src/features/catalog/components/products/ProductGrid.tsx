@@ -46,17 +46,24 @@ export function ProductGrid({
   // Mostrar skeleton loading mientras carga
   if (isLoading) {
     return (
-      <ProductCardSkeletonGrid 
-        count={skeletonCount}
-        className={className}
-      />
+      <div role="status" aria-live="polite" aria-label="Cargando productos">
+        <ProductCardSkeletonGrid 
+          count={skeletonCount}
+          className={className}
+        />
+        <span className="sr-only">Cargando productos, por favor espere...</span>
+      </div>
     )
   }
 
   // Mostrar mensaje si no hay productos
   if (products.length === 0) {
     return (
-      <div className="col-span-full text-center py-12">
+      <div 
+        className="col-span-full text-center py-12"
+        role="status"
+        aria-live="polite"
+      >
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
           <svg
             className="w-8 h-8 text-gray-400"

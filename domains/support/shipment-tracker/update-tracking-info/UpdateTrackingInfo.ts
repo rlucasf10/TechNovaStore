@@ -9,6 +9,7 @@ import { TrackingProvider, ShipmentUpdate } from '../shared/types/tracking';
 import { NotificationService } from '../shared/clients/NotificationService';
 import { StatusMapper } from '../shared/utils/StatusMapper';
 import { DelayChecker } from '../shared/utils/DelayChecker';
+import { logger } from '../shared/utils/logger';
 
 export class UpdateTrackingInfo {
   constructor(
@@ -24,7 +25,7 @@ export class UpdateTrackingInfo {
       }
 
       if (!order.trackingNumber) {
-        console.log(`No tracking number found for order ${orderNumber}`);
+        logger.debug('No tracking number found for order', { orderNumber });
         return null;
       }
 
@@ -33,7 +34,7 @@ export class UpdateTrackingInfo {
       const provider = this.providers.get(providerName);
       
       if (!provider) {
-        console.log(`Provider ${providerName} not found`);
+        logger.warn('Provider not found', { providerName, orderNumber });
         return null;
       }
 
@@ -79,15 +80,22 @@ export class UpdateTrackingInfo {
 
           return latestUpdate;
         } else if (result.rateLimited) {
-          console.warn(`Rate limited for provider ${providerName}, skipping update`);
+          logger.warn('Rate limited for provider, skipping update', { providerName, orderNumber });
         }
       } catch (error) {
-        console.error(`Error updating tracking for ${providerName}:`, error);
+        logger.error('Error updating tracking for provider', { 
+          providerName, 
+          orderNumber,
+          error: error instanceof Error ? error.message : String(error)
+        });
       }
 
       return null;
     } catch (error) {
-      console.error(`Error updating tracking info for order ${orderNumber}:`, error);
+      logger.error('Error updating tracking info for order', { 
+        orderNumber,
+        error: error instanceof Error ? error.message : String(error)
+      });
       throw error;
     }
   }

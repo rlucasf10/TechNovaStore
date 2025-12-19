@@ -1,58 +1,53 @@
 /**
- * Configuraciones de animaciones con Framer Motion
+ * Utilidades de animación con Framer Motion
  * 
- * Variantes y configuraciones reutilizables para animaciones
+ * Este archivo contiene variantes de animación reutilizables y configuraciones
+ * optimizadas para performance (usando transform y opacity).
+ * 
+ * Requisitos: 4.1
  */
 
-import { Variants, Transition } from 'framer-motion';
+import { Variants, Transition } from 'framer-motion'
 
 /**
- * Transiciones por defecto
+ * Transición suave por defecto
+ * Optimizada para performance usando spring physics
  */
-export const transitions = {
-  // Transición suave estándar
-  smooth: {
-    type: 'spring',
-    stiffness: 300,
-    damping: 30,
-  } as Transition,
-  
-  // Transición rápida
-  fast: {
-    type: 'spring',
-    stiffness: 400,
-    damping: 40,
-  } as Transition,
-  
-  // Transición lenta
-  slow: {
-    type: 'spring',
-    stiffness: 200,
-    damping: 25,
-  } as Transition,
-  
-  // Transición con bounce
-  bounce: {
-    type: 'spring',
-    stiffness: 500,
-    damping: 15,
-  } as Transition,
-  
-  // Transición lineal
-  linear: {
-    duration: 0.3,
-    ease: 'linear',
-  } as Transition,
-  
-  // Transición ease-in-out
-  easeInOut: {
-    duration: 0.3,
-    ease: 'easeInOut',
-  } as Transition,
-};
+export const defaultTransition: Transition = {
+  type: 'spring',
+  stiffness: 300,
+  damping: 30,
+}
 
 /**
- * Variantes de Fade In/Out
+ * Transición rápida para micro-interacciones
+ */
+export const quickTransition: Transition = {
+  type: 'spring',
+  stiffness: 400,
+  damping: 40,
+}
+
+/**
+ * Transición suave para elementos grandes
+ */
+export const smoothTransition: Transition = {
+  type: 'spring',
+  stiffness: 200,
+  damping: 25,
+}
+
+/**
+ * Transición con easing para animaciones lineales
+ */
+export const easingTransition: Transition = {
+  duration: 0.3,
+  ease: [0.4, 0.0, 0.2, 1], // Material Design easing
+}
+
+/**
+ * Variantes de fade in/out
+ * Optimizado con opacity (no causa reflow)
  */
 export const fadeVariants: Variants = {
   hidden: {
@@ -60,16 +55,17 @@ export const fadeVariants: Variants = {
   },
   visible: {
     opacity: 1,
-    transition: transitions.smooth,
+    transition: easingTransition,
   },
   exit: {
     opacity: 0,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Slide In/Out (desde abajo)
+ * Variantes de slide desde abajo
+ * Optimizado con transform (no causa reflow)
  */
 export const slideUpVariants: Variants = {
   hidden: {
@@ -79,17 +75,17 @@ export const slideUpVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: transitions.smooth,
+    transition: defaultTransition,
   },
   exit: {
     opacity: 0,
     y: 20,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Slide In/Out (desde arriba)
+ * Variantes de slide desde arriba
  */
 export const slideDownVariants: Variants = {
   hidden: {
@@ -99,17 +95,17 @@ export const slideDownVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: transitions.smooth,
+    transition: defaultTransition,
   },
   exit: {
     opacity: 0,
     y: -20,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Slide In/Out (desde la izquierda)
+ * Variantes de slide desde la izquierda
  */
 export const slideLeftVariants: Variants = {
   hidden: {
@@ -119,17 +115,17 @@ export const slideLeftVariants: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: transitions.smooth,
+    transition: defaultTransition,
   },
   exit: {
     opacity: 0,
     x: -20,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Slide In/Out (desde la derecha)
+ * Variantes de slide desde la derecha
  */
 export const slideRightVariants: Variants = {
   hidden: {
@@ -139,17 +135,18 @@ export const slideRightVariants: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: transitions.smooth,
+    transition: defaultTransition,
   },
   exit: {
     opacity: 0,
     x: 20,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Scale In/Out
+ * Variantes de scale (zoom)
+ * Optimizado con transform scale
  */
 export const scaleVariants: Variants = {
   hidden: {
@@ -159,17 +156,18 @@ export const scaleVariants: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: transitions.smooth,
+    transition: defaultTransition,
   },
   exit: {
     opacity: 0,
     scale: 0.95,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes de Scale con Bounce
+ * Variantes de scale con bounce
+ * Para elementos que necesitan más énfasis
  */
 export const scaleBounceVariants: Variants = {
   hidden: {
@@ -179,21 +177,46 @@ export const scaleBounceVariants: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: transitions.bounce,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 15,
+    },
   },
   exit: {
     opacity: 0,
     scale: 0.8,
-    transition: transitions.fast,
+    transition: easingTransition,
   },
-};
+}
 
 /**
- * Variantes para Modal/Overlay
+ * Variantes para modales y overlays
+ * Combina fade del backdrop con scale del contenido
  */
 export const modalVariants: Variants = {
   hidden: {
     opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.2,
+      ease: 'easeOut',
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      duration: 0.15,
+      ease: 'easeIn',
+    },
+  },
+}
+
+export const modalContentVariants: Variants = {
+  hidden: {
+    opacity: 0,
     scale: 0.95,
     y: 20,
   },
@@ -201,97 +224,55 @@ export const modalVariants: Variants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: transitions.smooth,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 25,
+    },
   },
   exit: {
     opacity: 0,
     scale: 0.95,
     y: 20,
-    transition: transitions.fast,
+    transition: {
+      duration: 0.15,
+      ease: 'easeIn',
+    },
   },
-};
+}
 
 /**
- * Variantes para Backdrop/Overlay
- */
-export const backdropVariants: Variants = {
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-    transition: transitions.easeInOut,
-  },
-  exit: {
-    opacity: 0,
-    transition: transitions.easeInOut,
-  },
-};
-
-/**
- * Variantes para Sidebar (desde la izquierda)
- */
-export const sidebarVariants: Variants = {
-  hidden: {
-    x: '-100%',
-  },
-  visible: {
-    x: 0,
-    transition: transitions.smooth,
-  },
-  exit: {
-    x: '-100%',
-    transition: transitions.smooth,
-  },
-};
-
-/**
- * Variantes para Dropdown
+ * Variantes para dropdowns y menús
  */
 export const dropdownVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: -10,
     scale: 0.95,
+    y: -10,
   },
   visible: {
     opacity: 1,
-    y: 0,
     scale: 1,
-    transition: transitions.fast,
+    y: 0,
+    transition: {
+      duration: 0.15,
+      ease: 'easeOut',
+    },
   },
   exit: {
     opacity: 0,
-    y: -10,
     scale: 0.95,
-    transition: transitions.fast,
+    y: -10,
+    transition: {
+      duration: 0.1,
+      ease: 'easeIn',
+    },
   },
-};
+}
 
 /**
- * Variantes para Toast/Notification
- */
-export const toastVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: -50,
-    scale: 0.9,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: transitions.bounce,
-  },
-  exit: {
-    opacity: 0,
-    x: 100,
-    transition: transitions.fast,
-  },
-};
-
-/**
- * Variantes para lista con stagger (animación escalonada)
+ * Variantes para listas con stagger
+ * Los items aparecen uno tras otro
  */
 export const listContainerVariants: Variants = {
   hidden: {
@@ -300,25 +281,222 @@ export const listContainerVariants: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
     },
   },
-};
+  exit: {
+    opacity: 0,
+    transition: {
+      staggerChildren: 0.03,
+      staggerDirection: -1,
+    },
+  },
+}
 
 export const listItemVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 20,
+    y: 10,
   },
   visible: {
     opacity: 1,
     y: 0,
-    transition: transitions.smooth,
+    transition: quickTransition,
   },
-};
+  exit: {
+    opacity: 0,
+    y: 10,
+    transition: {
+      duration: 0.1,
+    },
+  },
+}
 
 /**
- * Variantes para Skeleton Loader (shimmer effect)
+ * Variantes para cards en grid
+ * Similar a lista pero con menos delay
+ */
+export const gridContainerVariants: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.05,
+    },
+  },
+}
+
+export const gridItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: quickTransition,
+  },
+}
+
+/**
+ * Variantes para notificaciones/toasts
+ * Entran desde la derecha
+ */
+export const toastVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    x: 100,
+    scale: 0.8,
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 30,
+    },
+  },
+  exit: {
+    opacity: 0,
+    x: 100,
+    scale: 0.8,
+    transition: {
+      duration: 0.2,
+      ease: 'easeIn',
+    },
+  },
+}
+
+/**
+ * Variantes para transiciones de página
+ * Fade suave entre páginas
+ */
+export const pageVariants: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.3,
+      ease: 'easeInOut',
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      duration: 0.2,
+      ease: 'easeInOut',
+    },
+  },
+}
+
+/**
+ * Variantes para transiciones de página con slide
+ * Más dinámico que el fade simple
+ */
+export const pageSlideVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    x: -20,
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut',
+    },
+  },
+  exit: {
+    opacity: 0,
+    x: 20,
+    transition: {
+      duration: 0.2,
+      ease: 'easeIn',
+    },
+  },
+}
+
+/**
+ * Micro-interacciones: Hover scale
+ * Para botones y elementos interactivos
+ */
+export const hoverScaleVariants: Variants = {
+  rest: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.05,
+    transition: quickTransition,
+  },
+  tap: {
+    scale: 0.95,
+    transition: {
+      duration: 0.1,
+    },
+  },
+}
+
+/**
+ * Micro-interacciones: Hover lift
+ * Para cards y elementos que se "levantan"
+ */
+export const hoverLiftVariants: Variants = {
+  rest: {
+    y: 0,
+    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  },
+  hover: {
+    y: -4,
+    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    transition: quickTransition,
+  },
+}
+
+/**
+ * Micro-interacciones: Pulse
+ * Para elementos que necesitan llamar la atención
+ */
+export const pulseVariants: Variants = {
+  rest: {
+    scale: 1,
+  },
+  pulse: {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 0.6,
+      repeat: Infinity,
+      repeatDelay: 2,
+    },
+  },
+}
+
+/**
+ * Micro-interacciones: Shake
+ * Para errores o validaciones
+ */
+export const shakeVariants: Variants = {
+  rest: {
+    x: 0,
+  },
+  shake: {
+    x: [-10, 10, -10, 10, 0],
+    transition: {
+      duration: 0.4,
+    },
+  },
+}
+
+/**
+ * Animación de skeleton loading
+ * Shimmer effect
  */
 export const shimmerVariants: Variants = {
   initial: {
@@ -328,147 +506,45 @@ export const shimmerVariants: Variants = {
     backgroundPosition: '200% 0',
     transition: {
       duration: 1.5,
+      repeat: Infinity,
       ease: 'linear',
-      repeat: Infinity,
     },
   },
-};
+}
 
 /**
- * Variantes para Pulse (latido)
+ * Configuración de reducción de movimiento
+ * Respeta la preferencia del usuario (prefers-reduced-motion)
  */
-export const pulseVariants: Variants = {
-  initial: {
-    scale: 1,
-  },
-  animate: {
-    scale: [1, 1.05, 1],
-    transition: {
-      duration: 2,
-      ease: 'easeInOut',
-      repeat: Infinity,
-    },
-  },
-};
-
-/**
- * Variantes para Spin (rotación)
- */
-export const spinVariants: Variants = {
-  initial: {
-    rotate: 0,
-  },
-  animate: {
-    rotate: 360,
-    transition: {
-      duration: 1,
-      ease: 'linear',
-      repeat: Infinity,
-    },
-  },
-};
-
-/**
- * Variantes para Bounce (rebote)
- */
-export const bounceVariants: Variants = {
-  initial: {
-    y: 0,
-  },
-  animate: {
-    y: [-10, 0, -10],
-    transition: {
-      duration: 1,
-      ease: 'easeInOut',
-      repeat: Infinity,
-    },
-  },
-};
-
-/**
- * Variantes para Shake (sacudida)
- */
-export const shakeVariants: Variants = {
-  initial: {
-    x: 0,
-  },
-  animate: {
-    x: [-10, 10, -10, 10, 0],
-    transition: {
-      duration: 0.5,
-    },
-  },
-};
-
-/**
- * Variantes para Page Transition
- */
-export const pageVariants: Variants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: transitions.smooth,
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: transitions.fast,
-  },
-};
-
-/**
- * Helper para crear variantes personalizadas de slide
- */
-export const createSlideVariants = (
-  direction: 'up' | 'down' | 'left' | 'right',
-  distance: number = 20
-): Variants => {
-  const axis = direction === 'left' || direction === 'right' ? 'x' : 'y';
-  const value = direction === 'down' || direction === 'right' ? distance : -distance;
+export const getReducedMotionConfig = () => {
+  if (typeof window === 'undefined') return false
   
-  return {
-    hidden: {
-      opacity: 0,
-      ...(axis === 'x' ? { x: value } : { y: value }),
-    },
-    visible: {
-      opacity: 1,
-      ...(axis === 'x' ? { x: 0 } : { y: 0 }),
-      transition: transitions.smooth,
-    },
-    exit: {
-      opacity: 0,
-      ...(axis === 'x' ? { x: value } : { y: value }),
-      transition: transitions.fast,
-    },
-  };
-};
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
 
 /**
- * Helper para crear variantes personalizadas de scale
+ * Wrapper para aplicar reducción de movimiento
+ * Si el usuario prefiere menos movimiento, simplifica las animaciones
  */
-export const createScaleVariants = (
-  initialScale: number = 0.95,
-  withBounce: boolean = false
-): Variants => {
-  return {
-    hidden: {
-      opacity: 0,
-      scale: initialScale,
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: withBounce ? transitions.bounce : transitions.smooth,
-    },
-    exit: {
-      opacity: 0,
-      scale: initialScale,
-      transition: transitions.fast,
-    },
-  };
-};
+export const withReducedMotion = (variants: Variants): Variants => {
+  if (getReducedMotionConfig()) {
+    // Simplificar animaciones a solo fade
+    return {
+      hidden: { opacity: 0 },
+      visible: { opacity: 1, transition: { duration: 0.15 } },
+      exit: { opacity: 0, transition: { duration: 0.1 } },
+    }
+  }
+  
+  return variants
+}
+
+/**
+ * Hook para detectar cambios en prefers-reduced-motion
+ */
+export const useReducedMotion = () => {
+  if (typeof window === 'undefined') return false
+  
+  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  return mediaQuery.matches
+}

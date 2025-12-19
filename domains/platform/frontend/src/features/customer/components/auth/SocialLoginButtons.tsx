@@ -61,6 +61,33 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
 }) => {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
 
+  // Escuchar mensajes del popup OAuth
+  React.useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verificar origen del mensaje
+      if (event.origin !== window.location.origin) return;
+      
+      const { type, provider, redirectUrl } = event.data;
+      
+      if (type === 'oauth-success') {
+        console.log('✅ OAuth exitoso desde popup:', provider);
+        setLoadingProvider(null);
+        
+        // Redirigir a la URL correspondiente
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        }
+      } else if (type === 'oauth-error') {
+        console.error('❌ Error OAuth desde popup:', event.data.error);
+        setLoadingProvider(null);
+        onError?.(new Error(event.data.error || 'Error de autenticación'));
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [onError]);
+
   /**
    * Manejar clic en botón de OAuth
    */
@@ -71,11 +98,23 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
       // Notificar que se inició el proceso
       onOAuthStart?.(provider);
       
-      // Iniciar flujo OAuth (redirige al proveedor)
+      // Iniciar flujo OAuth (abre popup del proveedor)
       await authService.oauthLogin(provider, redirectTo);
       
-      // NOTA: El código después de esta línea no se ejecutará
-      // porque oauthLogin redirige a la página del proveedor
+      // Cuando la ventana principal recupera el foco (usuario cerró popup o volvió),
+      // resetear el estado casi inmediatamente
+      const handleFocus = () => {
+        // Pequeño delay para dar tiempo al postMessage de llegar primero
+        setTimeout(() => {
+          setLoadingProvider((current) => (current === provider ? null : current));
+        }, 100);
+        window.removeEventListener('focus', handleFocus);
+      };
+      
+      // Esperar un poco antes de añadir el listener (para que el popup se abra)
+      setTimeout(() => {
+        window.addEventListener('focus', handleFocus);
+      }, 500);
     } catch (error) {
       console.error(`Error initiating ${provider} OAuth:`, error);
       setLoadingProvider(null);

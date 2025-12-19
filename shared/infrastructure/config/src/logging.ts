@@ -1,6 +1,35 @@
 import winston from 'winston';
 import { ElasticsearchTransport } from 'winston-elasticsearch';
 
+/**
+ * Función auxiliar para serializar objetos de forma segura,
+ * manejando referencias circulares
+ */
+function safeStringify(obj: any, indent: number = 2): string {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (key, value) => {
+    // Ignorar propiedades que típicamente causan problemas circulares
+    if (key === 'req' || key === 'res' || key === 'socket' || key === 'client') {
+      return '[Circular Reference]';
+    }
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular Reference]';
+      }
+      seen.add(value);
+    }
+    // Manejar errores de forma especial
+    if (value instanceof Error) {
+      return {
+        name: value.name,
+        message: value.message,
+        stack: value.stack,
+      };
+    }
+    return value;
+  }, indent);
+}
+
 export interface LoggingConfig {
   level: string;
   elasticsearch: {
@@ -78,7 +107,8 @@ export const createLoggerTransports = (serviceName: string): winston.transport[]
           winston.format.colorize(),
           winston.format.timestamp(),
           winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-            const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+            // Usar safeStringify para evitar errores con referencias circulares
+            const metaStr = Object.keys(meta).length ? safeStringify(meta, 2) : '';
             return `${timestamp} [${service}] ${level}: ${message} ${metaStr}`;
           })
         ),

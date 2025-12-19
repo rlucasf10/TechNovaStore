@@ -7,6 +7,7 @@
  */
 
 import { HybridRecommender, RecommendationResult } from '../shared/algorithms/HybridRecommender';
+import { logger } from '../shared/utils/logger';
 
 export interface GetUserRecommendationsRequest {
   userId: string;
@@ -82,7 +83,10 @@ export class GetUserRecommendations {
         }
       };
     } catch (error) {
-      console.error('Error getting user recommendations:', error);
+      logger.error('Error getting user recommendations', { 
+        error: error instanceof Error ? error.message : error,
+        userId
+      });
       
       // Fallback to trending products
       recommendations = await this.hybridRecommender.getTrendingProducts(limit);

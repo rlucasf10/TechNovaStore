@@ -237,3 +237,101 @@ export const addressSchema = z.object({
 });
 
 export type AddressFormData = z.infer<typeof addressSchema>;
+
+
+/**
+ * Validación del algoritmo de Luhn para números de tarjeta
+ */
+function isValidLuhn(cardNumber: string): boolean {
+  const cleanNumber = cardNumber.replace(/\s/g, '');
+  if (!/^\d+$/.test(cleanNumber)) return false;
+
+  let sum = 0;
+  let isEven = false;
+
+  for (let i = cleanNumber.length - 1; i >= 0; i--) {
+    let digit = parseInt(cleanNumber[i], 10);
+
+    if (isEven) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+
+    sum += digit;
+    isEven = !isEven;
+  }
+
+  return sum % 10 === 0;
+}
+
+/**
+ * Esquema de validación para método de pago
+ */
+export const paymentMethodSchema = z.object({
+  type: z.enum(['credit_card', 'debit_card'], {
+    required_error: 'Selecciona el tipo de tarjeta',
+  }),
+  label: z
+    .string()
+    .min(1, 'La etiqueta es requerida')
+    .max(50, 'La etiqueta no puede exceder 50 caracteres'),
+  cardNumber: z
+    .string()
+    .min(1, 'El número de tarjeta es requerido')
+    .refine(
+      (val) => {
+        const cleanNumber = val.replace(/\s/g, '');
+        return cleanNumber.length >= 13 && cleanNumber.length <= 19;
+      },
+      { message: 'El número de tarjeta debe tener entre 13 y 19 dígitos' }
+    )
+    .refine(
+      (val) => isValidLuhn(val),
+      { message: 'El número de tarjeta no es válido' }
+    ),
+  cardholderName: z
+    .string()
+    .min(1, 'El nombre del titular es requerido')
+    .min(3, 'El nombre debe tener al menos 3 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres')
+    .regex(
+      /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+      'El nombre solo puede contener letras'
+    ),
+  expiryMonth: z
+    .string()
+    .min(1, 'El mes es requerido')
+    .regex(/^(0[1-9]|1[0-2])$/, 'Mes inválido (01-12)'),
+  expiryYear: z
+    .string()
+    .min(1, 'El año es requerido')
+    .regex(/^\d{2}$/, 'Año inválido (2 dígitos)')
+    .refine(
+      (val) => {
+        const currentYear = new Date().getFullYear() % 100;
+        const year = parseInt(val, 10);
+        return year >= currentYear && year <= currentYear + 20;
+      },
+      { message: 'La tarjeta está expirada o el año es inválido' }
+    ),
+  cvv: z
+    .string()
+    .min(1, 'El CVV es requerido')
+    .regex(/^\d{3,4}$/, 'CVV inválido (3-4 dígitos)'),
+  billingStreet: z.string().optional(),
+  billingCity: z.string().optional(),
+  billingState: z.string().optional(),
+  billingPostalCode: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^\d{5}$/.test(val),
+      { message: 'Código postal inválido (5 dígitos)' }
+    ),
+  billingCountry: z.string().optional(),
+  isDefault: z.boolean().default(false),
+});
+
+export type PaymentMethodFormData = z.infer<typeof paymentMethodSchema>;

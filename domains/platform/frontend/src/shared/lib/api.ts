@@ -15,7 +15,8 @@ const API_BASE_URL = getApiBaseUrl()
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // Increased to 30 seconds for chatbot responses
+  // ✅ PERFORMANCE: Timeout más largo en desarrollo para compilaciones lentas de Next.js
+  timeout: process.env.NODE_ENV === 'development' ? 60000 : 30000, // 60s dev, 30s prod
   headers: {
     'Content-Type': 'application/json',
   },
@@ -58,15 +59,12 @@ const getCSRFToken = async (): Promise<{ token: string; sessionId: string }> => 
   }
 }
 
-// Request interceptor for auth token and CSRF
+// Request interceptor for CSRF
+// ✅ SEGURIDAD: NO agregamos Authorization header con tokens de localStorage
+// La autenticación se maneja automáticamente mediante httpOnly cookies
+// que el navegador envía con withCredentials: true
 api.interceptors.request.use(
   async (config) => {
-    // Add auth token if available
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-
     // Add CSRF token for non-GET requests
     if (config.method && !['get', 'head', 'options'].includes(config.method.toLowerCase())) {
       try {
@@ -91,8 +89,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
+      // ✅ SEGURIDAD: NO eliminamos tokens de localStorage porque no los usamos
+      // La cookie httpOnly se invalida automáticamente en el backend
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token')
         window.location.href = '/login'
       }
     }

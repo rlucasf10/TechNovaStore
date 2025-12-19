@@ -1,5 +1,5 @@
 # Build base image first: docker build -f docker/base/Dockerfile.service-base -t service-base .
-FROM service-base:latest
+FROM technovastore-base:latest
 
 # Remove workspace package.json to prevent npm from using workspace mode
 RUN rm -f /workspace/package.json /workspace/package-lock.json

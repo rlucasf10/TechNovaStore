@@ -1,5 +1,6 @@
 import { BaseTrackingProvider } from './BaseTrackingProvider';
 import { ProviderTrackingResponse, DeliveryEstimate, TrackingInfo, TrackingEvent } from '../types/tracking';
+import { logger } from '../utils/logger';
 
 export class eBayTrackingProvider extends BaseTrackingProvider {
   constructor(apiKey?: string) {
@@ -47,7 +48,11 @@ export class eBayTrackingProvider extends BaseTrackingProvider {
         trackingInfo
       };
     } catch (error: any) {
-      console.error(`eBay tracking error for ${trackingNumber}:`, error.message);
+      logger.error('eBay tracking error', { 
+        trackingNumber, 
+        error: error.message,
+        provider: 'eBay'
+      });
       
       if (error.message.includes('Rate limit')) {
         return {

@@ -4,6 +4,9 @@ import { AdapterFactory } from '../adapters/AdapterFactory';
 import { JobQueue } from '../queue/JobQueue';
 import { DataNormalizer } from '../normalizer/DataNormalizer';
 import { ConflictResolver } from '../resolver/ConflictResolver';
+import { createLogger } from '@technovastore/shared-config';
+
+const logger = createLogger('sync-engine-worker');
 
 export class SyncWorker {
   private id: string;
@@ -27,11 +30,11 @@ export class SyncWorker {
 
   async start(): Promise<void> {
     if (this.isRunning) {
-      console.log(`Worker ${this.id} is already running`);
+      logger.info('Worker is already running', { workerId: this.id });
       return;
     }
 
-    console.log(`Starting worker ${this.id}...`);
+    logger.info('Starting worker', { workerId: this.id });
     this.isRunning = true;
 
     while (this.isRunning) {
@@ -45,15 +48,15 @@ export class SyncWorker {
         }
 
         this.currentJob = job;
-        console.log(`Worker ${this.id} processing job ${job.id} (${job.type})`);
+        logger.info('Worker processing job', { workerId: this.id, jobId: job.id, jobType: job.type });
 
         await this.processJob(job);
         
         this.jobQueue.completeJob(job.id);
-        console.log(`Worker ${this.id} completed job ${job.id}`);
+        logger.info('Worker completed job', { workerId: this.id, jobId: job.id });
         
       } catch (error) {
-        console.error(`Worker ${this.id} error:`, error);
+        logger.error('Worker error', { workerId: this.id, error: error instanceof Error ? error.message : error });
         
         if (this.currentJob) {
           this.jobQueue.completeJob(this.currentJob.id, error instanceof Error ? error.message : 'Unknown error');
@@ -63,11 +66,11 @@ export class SyncWorker {
       }
     }
 
-    console.log(`Worker ${this.id} stopped`);
+    logger.info('Worker stopped', { workerId: this.id });
   }
 
   stop(): void {
-    console.log(`Stopping worker ${this.id}...`);
+    logger.info('Stopping worker', { workerId: this.id });
     this.isRunning = false;
   }
 
@@ -106,7 +109,7 @@ export class SyncWorker {
     let totalProcessed = 0;
 
     for (const category of categories) {
-      console.log(`Syncing category ${category} from ${adapter.name}...`);
+      logger.info('Syncing category', { category, provider: adapter.name });
       
       try {
         // Search for products in this category
@@ -115,7 +118,7 @@ export class SyncWorker {
           limit: 100 // Process in batches
         });
 
-        console.log(`Found ${products.length} products in category ${category}`);
+        logger.info('Found products in category', { category, count: products.length });
 
         for (const product of products) {
           try {
@@ -130,15 +133,15 @@ export class SyncWorker {
             
             totalProcessed++;
           } catch (error) {
-            console.error(`Error processing product ${product.id}:`, error);
+            logger.error('Error processing product', { productId: product.id, error: error instanceof Error ? error.message : error });
           }
         }
       } catch (error) {
-        console.error(`Error syncing category ${category}:`, error);
+        logger.error('Error syncing category', { category, error: error instanceof Error ? error.message : error });
       }
     }
 
-    console.log(`Full sync completed for ${adapter.name}: ${totalProcessed} products processed`);
+    logger.info('Full sync completed', { provider: adapter.name, productsProcessed: totalProcessed });
   }
 
   private async processPriceUpdate(adapter: ProviderAdapter, job: SyncJob): Promise<void> {
@@ -147,7 +150,7 @@ export class SyncWorker {
     // Get products that need price updates (this would come from database)
     const productsToUpdate = await this.getProductsForPriceUpdate(adapter.name, batchSize);
     
-    console.log(`Updating prices for ${productsToUpdate.length} products from ${adapter.name}`);
+    logger.info('Updating prices for products', { count: productsToUpdate.length, provider: adapter.name });
     
     let updatedCount = 0;
     
@@ -159,14 +162,14 @@ export class SyncWorker {
           // Price has changed, update it
           await this.updateProductPrice(productInfo.sku, adapter.name, currentPrice);
           updatedCount++;
-          console.log(`Updated price for ${productInfo.sku}: ${productInfo.current_price} -> ${currentPrice}`);
+          logger.info('Updated price for product', { sku: productInfo.sku, oldPrice: productInfo.current_price, newPrice: currentPrice });
         }
       } catch (error) {
-        console.error(`Error updating price for product ${productInfo.sku}:`, error);
+        logger.error('Error updating price for product', { sku: productInfo.sku, error: error instanceof Error ? error.message : error });
       }
     }
 
-    console.log(`Price update completed for ${adapter.name}: ${updatedCount} prices updated`);
+    logger.info('Price update completed', { provider: adapter.name, pricesUpdated: updatedCount });
   }
 
   private async processAvailabilityCheck(adapter: ProviderAdapter, job: SyncJob): Promise<void> {
@@ -175,7 +178,7 @@ export class SyncWorker {
     // Get products that need availability checks
     const productsToCheck = await this.getProductsForAvailabilityCheck(adapter.name, batchSize);
     
-    console.log(`Checking availability for ${productsToCheck.length} products from ${adapter.name}`);
+    logger.info('Checking availability for products', { count: productsToCheck.length, provider: adapter.name });
     
     let updatedCount = 0;
     
@@ -187,14 +190,14 @@ export class SyncWorker {
           // Availability has changed, update it
           await this.updateProductAvailability(productInfo.sku, adapter.name, isAvailable);
           updatedCount++;
-          console.log(`Updated availability for ${productInfo.sku}: ${productInfo.current_availability} -> ${isAvailable}`);
+          logger.info('Updated availability for product', { sku: productInfo.sku, oldAvailability: productInfo.current_availability, newAvailability: isAvailable });
         }
       } catch (error) {
-        console.error(`Error checking availability for product ${productInfo.sku}:`, error);
+        logger.error('Error checking availability for product', { sku: productInfo.sku, error: error instanceof Error ? error.message : error });
       }
     }
 
-    console.log(`Availability check completed for ${adapter.name}: ${updatedCount} availabilities updated`);
+    logger.info('Availability check completed', { provider: adapter.name, availabilitiesUpdated: updatedCount });
   }
 
   private async processProductDetails(adapter: ProviderAdapter, job: SyncJob): Promise<void> {
@@ -204,7 +207,7 @@ export class SyncWorker {
       throw new Error('Product ID is required for product details job');
     }
 
-    console.log(`Fetching product details for ${productId} from ${adapter.name}`);
+    logger.info('Fetching product details', { productId, provider: adapter.name });
     
     const product = await adapter.getProduct(productId);
     
@@ -217,7 +220,7 @@ export class SyncWorker {
     const resolvedProduct = await this.conflictResolver.resolveProduct(normalizedProduct);
     await this.saveProduct(resolvedProduct);
 
-    console.log(`Product details updated for ${productId}`);
+    logger.info('Product details updated', { productId });
   }
 
   private getAdapter(providerType: ProviderType): ProviderAdapter | undefined {
@@ -231,29 +234,29 @@ export class SyncWorker {
   // These methods would be implemented to interact with the database
   private async saveProduct(product: any): Promise<void> {
     // TODO: Implement database save logic
-    console.log(`Saving product: ${product.sku}`);
+    logger.debug('Saving product', { sku: product.sku });
   }
 
   private async getProductsForPriceUpdate(provider: string, limit: number): Promise<any[]> {
     // TODO: Implement database query to get products needing price updates
-    console.log(`Getting ${limit} products for price update from ${provider}`);
+    logger.debug('Getting products for price update', { limit, provider });
     return [];
   }
 
   private async getProductsForAvailabilityCheck(provider: string, limit: number): Promise<any[]> {
     // TODO: Implement database query to get products needing availability checks
-    console.log(`Getting ${limit} products for availability check from ${provider}`);
+    logger.debug('Getting products for availability check', { limit, provider });
     return [];
   }
 
   private async updateProductPrice(sku: string, provider: string, newPrice: number): Promise<void> {
     // TODO: Implement database update for product price
-    console.log(`Updating price for ${sku} from ${provider}: ${newPrice}`);
+    logger.debug('Updating price for product', { sku, provider, newPrice });
   }
 
   private async updateProductAvailability(sku: string, provider: string, availability: boolean): Promise<void> {
     // TODO: Implement database update for product availability
-    console.log(`Updating availability for ${sku} from ${provider}: ${availability}`);
+    logger.debug('Updating availability for product', { sku, provider, availability });
   }
 
   getStatus(): {
