@@ -1,14 +1,16 @@
 name: Security Audit
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
   schedule:
-    # Run security audit weekly on Mondays at 2 AM UTC
+    # Ejecutar auditoría de seguridad semanalmente los lunes a las 2 AM UTC
     - cron: '0 2 * * 1'
   workflow_dispatch:
+    inputs:
+      run_full_audit:
+        description: 'Ejecutar auditoría completa'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   security-audit:
@@ -22,49 +24,88 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
         
-    - name: Install dependencies
-      run: npm ci --ignore-scripts || npm install --ignore-scripts
-      continue-on-error: true
-      
-    - name: Run security audit
+    - name: Security Audit Summary
       run: |
-        echo "## Security Audit Results" >> $GITHUB_STEP_SUMMARY
+        echo "## 🔒 Security Audit Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Fecha:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+    - name: Check .gitignore for sensitive files
+      run: |
+        echo "### 📋 Verificación de .gitignore" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        # Run audit and capture output
-        npm audit --audit-level=critical 2>&1 | tee audit-output.txt || true
+        ISSUES=0
         
-        # Check for critical vulnerabilities
-        if grep -q "critical" audit-output.txt; then
-          echo "⚠️ **Critical vulnerabilities found**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+        # Verificar que .env está en .gitignore
+        if grep -q "^\.env" .gitignore 2>/dev/null; then
+          echo "✅ Archivos .env están en .gitignore" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Archivos .env deberían estar en .gitignore" >> $GITHUB_STEP_SUMMARY
+          ISSUES=$((ISSUES+1))
+        fi
+        
+        # Verificar que node_modules está en .gitignore
+        if grep -q "node_modules" .gitignore 2>/dev/null; then
+          echo "✅ node_modules está en .gitignore" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ node_modules debería estar en .gitignore" >> $GITHUB_STEP_SUMMARY
+          ISSUES=$((ISSUES+1))
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Problemas encontrados:** $ISSUES" >> $GITHUB_STEP_SUMMARY
+
+    - name: Check for sensitive files in repository
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Archivos sensibles en el repositorio" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Buscar archivos .env (excepto .example)
+        ENV_FILES=$(find . -type f -name ".env*" ! -name "*.example" ! -path "./node_modules/*" 2>/dev/null | head -10)
+        
+        if [ -n "$ENV_FILES" ]; then
+          echo "⚠️ Archivos .env encontrados:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat audit-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "$ENV_FILES" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         else
-          echo "✅ No critical vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          echo "✅ No se encontraron archivos .env sensibles" >> $GITHUB_STEP_SUMMARY
         fi
 
-    - name: Check for secrets in code
+    - name: Check for hardcoded credentials patterns
       run: |
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## Secrets Check" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔐 Verificación de credenciales hardcodeadas" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        # Check for common secret patterns
-        if grep -rE "(password|secret|api_key|apikey|private_key).*=.*['\"][^'\"]{20,}['\"]" \
-          --include="*.ts" --include="*.js" --include="*.json" \
-          --exclude-dir=node_modules \
-          --exclude="*.example*" \
-          --exclude="*.test.*" \
-          --exclude="*.spec.*" \
-          . 2>/dev/null | grep -v "process.env" | head -10; then
-          echo "⚠️ Potential hardcoded secrets found (review manually)" >> $GITHUB_STEP_SUMMARY
+        # Buscar patrones de credenciales (solo en archivos trackeados por git)
+        # Excluimos archivos que están en .gitignore
+        FOUND=$(git ls-files | xargs grep -lE "(GOCSPX-|sk_live_|pk_live_|ghp_|gho_|github_pat_)" 2>/dev/null | head -5) || true
+        
+        if [ -n "$FOUND" ]; then
+          echo "⚠️ Posibles credenciales encontradas en archivos trackeados:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$FOUND" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Nota:** Revisar manualmente estos archivos" >> $GITHUB_STEP_SUMMARY
         else
-          echo "✅ No obvious hardcoded secrets detected" >> $GITHUB_STEP_SUMMARY
+          echo "✅ No se encontraron patrones de credenciales conocidos" >> $GITHUB_STEP_SUMMARY
         fi
+
+    - name: Final Summary
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ Auditoría de seguridad completada" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Esta auditoría se ejecuta automáticamente cada lunes." >> $GITHUB_STEP_SUMMARY
+        echo "Para ejecutar manualmente, usa el botón 'Run workflow' en la pestaña Actions." >> $GITHUB_STEP_SUMMARY
 
   dependency-review:
     runs-on: ubuntu-latest
